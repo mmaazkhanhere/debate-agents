@@ -1,55 +1,90 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
+from .models import StanceStrategy, DebateTurn, JudgeVerdict
 
 
 @CrewBase
 class Debate():
     """Debate crew"""
 
-
     agents_config = 'config/agents.yaml'
     tasks_config = 'config/tasks.yaml'
 
     @agent
-    def debater(self) -> Agent:
+    def debater_1(self) -> Agent:
         return Agent(
-            config=self.agents_config['debater'],
+            config=self.agents_config['debater_1'],
             verbose=True
         )
 
     @agent
-    def judge(self) -> Agent:
+    def debater_2(self) -> Agent:
         return Agent(
-            config=self.agents_config['judge'],
+            config=self.agents_config['debater_2'],
+            verbose=True
+        )
+
+    @agent
+    def logical_analyst_judge(self) -> Agent:
+        return Agent(
+            config=self.agents_config['logical_analyst_judge'],
+            verbose=True
+        )
+
+    @agent
+    def debate_strategist_judge(self) -> Agent:
+        return Agent(
+            config=self.agents_config['debate_strategist_judge'],
+            verbose=True
+        )
+
+    @agent
+    def persuasion_judge(self) -> Agent:
+        return Agent(
+            config=self.agents_config['persuasion_judge'],
             verbose=True
         )
 
     @task
-    def propose(self) -> Task:
+    def debater_1_prepare_stance(self) -> Task:
         return Task(
-            config=self.tasks_config['propose'],
+            config=self.tasks_config['debater_1_prepare_stance'],
+            output_pydantic=StanceStrategy
         )
 
     @task
-    def oppose(self) -> Task:
+    def debater_2_prepare_stance(self) -> Task:
         return Task(
-            config=self.tasks_config['oppose'],
+            config=self.tasks_config['debater_2_prepare_stance'],
+            output_pydantic=StanceStrategy
         )
 
     @task
-    def decide(self) -> Task:
+    def generate_debate_turn(self) -> Task:
         return Task(
-            config=self.tasks_config['decide'],
+            config=self.tasks_config['generate_debate_turn'],
+            output_pydantic=DebateTurn
+        )
+
+    @task
+    def logical_analyst_verdict(self) -> Task:
+        return Task(
+            config=self.tasks_config['logical_analyst_verdict'],
+            output_pydantic=JudgeVerdict
+        )
+
+    @task
+    def debate_strategist_verdict(self) -> Task:
+        return Task(
+            config=self.tasks_config['debate_strategist_verdict'],
+            output_pydantic=JudgeVerdict
+        )
+
+    @task
+    def persuasion_verdict(self) -> Task:
+        return Task(
+            config=self.tasks_config['persuasion_verdict'],
+            output_pydantic=JudgeVerdict
         )
 
 
-    @crew
-    def crew(self) -> Crew:
-        """Creates the Debate crew"""
-
-        return Crew(
-            agents=self.agents, # Automatically created by the @agent decorator
-            tasks=self.tasks, # Automatically created by the @task decorator
-            process=Process.sequential,
-            verbose=True,
-        )

@@ -1,0 +1,24 @@
+{
+    "turn_id": "T2",
+    "debater": "Proponent",
+    "arguments": [
+        {
+            "type": "Policy",
+            "text": "Strict laws force developers to audit models before release, stopping dangerous outputs before they reach the public.",
+            "confidence": 96,
+            "strength": 94
+        },
+        {
+            "type": "Economic",
+            "text": "Regulation levels the playing field, preventing monopolies that hoard AI power and profit.",
+            "confidence": 91,
+            "strength": 89
+        },
+        {
+            "type": "Safety",
+            "text": "Legal liability compels companies to build robust guardrails, reducing accidental harm from AI chatbots.",
+            "confidence": 94,
+            "strength": 92
+        }
+    ]
+}

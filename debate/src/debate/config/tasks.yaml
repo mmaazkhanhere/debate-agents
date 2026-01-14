@@ -7,29 +7,9 @@ debater_1_prepare_stance:
     Determine your natural ideological stance on the debate topic {topic}
     based strictly on your persona.
     Prepare a compact internal strategy pack to guide your arguments.
-    Never use labels such as "pro" or "anti".
   expected_output: >
     Internal strategy pack for the debate. This output is not shown to users.
   agent: debater_1
-  output_json:
-    stance: string
-    stance_summary: string
-    framing:
-      - string
-      - string
-    core_positions:
-      - string
-      - string
-      - string
-    likely_opponent_positions:
-      - string
-      - string
-    counters:
-      - string
-      - string
-      - string
-    red_lines:
-      - string
 
 debater_2_prepare_stance:
   description: >
@@ -39,25 +19,6 @@ debater_2_prepare_stance:
   expected_output: >
     Internal strategy pack for the debate. This output is not shown to users.
   agent: debater_2
-  output_json:
-    stance: string
-    stance_summary: string
-    framing:
-      - string
-      - string
-    core_positions:
-      - string
-      - string
-      - string
-    likely_opponent_positions:
-      - string
-      - string
-    counters:
-      - string
-      - string
-      - string
-    red_lines:
-      - string
 
 # =========================================================
 # LIVE DEBATE TASK (LOOPED)
@@ -71,35 +32,25 @@ generate_debate_turn:
     Do not explain or mention the classification in the text itself.
   expected_output: >
     JSON representing debate arguments for live UI rendering.
-  agent: "{{current_debater}}"
-  output_json:
-    turn_id: string
-    debater: string
-    arguments:
-      - type: string # attack | defense | counter | framing | clarification
-        text: string
-        confidence: number # 1–100
-        strength: number # 1–100
-
+  output_file: debate_round.json
 # =========================================================
 # CROWD REACTION (FAST, PER TURN)
 # =========================================================
 
-evaluate_crowd_reaction:
-  description: >
-    Evaluate the just-delivered debate turn.
-    Determine the crowd reaction based on clarity, coherence,
-    and argumentative strength.
-    Privately flag any logical or safety issues.
-  expected_output: >
-    JSON crowd reaction data for UI animation.
-  agent: logical_analyst_judge
-  output_json:
-    turn_id: string
-    debater: string
-    reaction: string # applause | neutral | booing
-    intensity: number # 0.0–1.0
-    notes_private:
+# evaluate_crowd_reaction:
+#   description: >
+#     Evaluate the just-delivered debate turn.
+#     Determine the crowd reaction based on clarity, coherence,
+#     and argumentative strength.
+#     Privately flag any logical or safety issues.
+#   expected_output: >
+#     JSON crowd reaction data for UI animation.
+#   agent: logical_analyst_judge
+#   output_json:
+#     turn_id: string
+#     debater: string
+#     reaction: string # applause | neutral | booing
+#     intensity: number # 0.0–1.0
 
 # =========================================================
 # FINAL VERDICTS (RUN ONCE, AFTER DEBATE)
@@ -113,17 +64,7 @@ logical_analyst_verdict:
   expected_output: >
     JSON verdict selecting a winner with reasoning and quotes.
   agent: logical_analyst_judge
-  output_json:
-    judge: string
-    winner: string # debater_1 | debater_2
-    confidence: number # 0.0–1.0
-    score:
-      debater_1: number # 0–100
-      debater_2: number # 0–100
-    best_quotes:
-      debater_1: string
-      debater_2: string
-    reasoning: string
+  output_file: logical_analyst_verdict.md
 
 debate_strategist_verdict:
   description: >
@@ -132,17 +73,7 @@ debate_strategist_verdict:
   expected_output: >
     JSON verdict selecting a winner with reasoning and quotes.
   agent: debate_strategist_judge
-  output_json:
-    judge: string
-    winner: string
-    confidence: number
-    score:
-      debater_1: number
-      debater_2: number
-    best_quotes:
-      debater_1: string
-      debater_2: string
-    reasoning: string
+  output_file: debate_strategist_verdict.md
 
 persuasion_verdict:
   description: >
@@ -152,14 +83,4 @@ persuasion_verdict:
   expected_output: >
     JSON verdict selecting a winner with reasoning and quotes.
   agent: persuasion_judge
-  output_json:
-    judge: string
-    winner: string
-    confidence: number
-    score:
-      debater_1: number
-      debater_2: number
-    best_quotes:
-      debater_1: string
-      debater_2: string
-    reasoning: string
+  output_file: persuasion_verdict.md
