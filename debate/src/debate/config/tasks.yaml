@@ -2,23 +2,23 @@
 # PRE-DEBATE TASKS (RUN ONCE)
 # =========================================================
 
-debater_1_prepare_stance:
-  description: >
-    Determine your natural ideological stance on the debate topic {topic}
-    based strictly on your persona.
-    Prepare a compact internal strategy pack to guide your arguments.
-  expected_output: >
-    Internal strategy pack for the debate. This output is not shown to users.
-  agent: debater_1
+# debater_1_prepare_stance:
+#   description: >
+#     Determine your natural ideological stance on the debate topic {topic}
+#     based strictly on your persona.
+#     Prepare a compact internal strategy pack to guide your arguments.
+#   expected_output: >
+#     Internal strategy pack for the debate. This output is not shown to users.
+#   agent: debater_1
 
-debater_2_prepare_stance:
-  description: >
-    Determine your natural ideological stance on the debate topic
-    based strictly on your persona, even if it opposes the other debater.
-    Prepare a compact internal strategy pack to guide your arguments.
-  expected_output: >
-    Internal strategy pack for the debate. This output is not shown to users.
-  agent: debater_2
+# debater_2_prepare_stance:
+#   description: >
+#     Determine your natural ideological stance on the debate topic
+#     based strictly on your persona, even if it opposes the other debater.
+#     Prepare a compact internal strategy pack to guide your arguments.
+#   expected_output: >
+#     Internal strategy pack for the debate. This output is not shown to users.
+#   agent: debater_2
 
 # =========================================================
 # LIVE DEBATE TASK (LOOPED)
@@ -32,7 +32,7 @@ generate_debate_turn:
     Do not explain or mention the classification in the text itself.
   expected_output: >
     JSON representing debate arguments for live UI rendering.
-  output_file: debate_round.json
+
 # =========================================================
 # CROWD REACTION (FAST, PER TURN)
 # =========================================================
@@ -56,31 +56,31 @@ generate_debate_turn:
 # FINAL VERDICTS (RUN ONCE, AFTER DEBATE)
 # =========================================================
 
-logical_analyst_verdict:
-  description: >
-    Judge the debate based on logical coherence, consistency,
-    and disciplined reasoning.
-    Penalize fallacies, evasions, and unsafe rhetoric.
-  expected_output: >
-    JSON verdict selecting a winner with reasoning and quotes.
-  agent: logical_analyst_judge
-  output_file: logical_analyst_verdict.md
+# logical_analyst_verdict:
+#   description: >
+#     Judge the debate based on logical coherence, consistency,
+#     and disciplined reasoning.
+#     Penalize fallacies, evasions, and unsafe rhetoric.
+#   expected_output: >
+#     JSON verdict selecting a winner with reasoning and quotes.
+#   agent: logical_analyst_judge
+#   output_file: logical_analyst_verdict.md
 
-debate_strategist_verdict:
-  description: >
-    Judge the debate based on strategic execution:
-    framing, timing, responsiveness, and exploitation of weaknesses.
-  expected_output: >
-    JSON verdict selecting a winner with reasoning and quotes.
-  agent: debate_strategist_judge
-  output_file: debate_strategist_verdict.md
+# debate_strategist_verdict:
+#   description: >
+#     Judge the debate based on strategic execution:
+#     framing, timing, responsiveness, and exploitation of weaknesses.
+#   expected_output: >
+#     JSON verdict selecting a winner with reasoning and quotes.
+#   agent: debate_strategist_judge
+#   output_file: debate_strategist_verdict.md
 
-persuasion_verdict:
-  description: >
-    Judge the debate based on persuasiveness,
-    emotional resonance, clarity, and watchability
-    for a general audience.
-  expected_output: >
-    JSON verdict selecting a winner with reasoning and quotes.
-  agent: persuasion_judge
-  output_file: persuasion_verdict.md
+# persuasion_verdict:
+#   description: >
+#     Judge the debate based on persuasiveness,
+#     emotional resonance, clarity, and watchability
+#     for a general audience.
+#   expected_output: >
+#     JSON verdict selecting a winner with reasoning and quotes.
+#   agent: persuasion_judge
+#   output_file: persuasion_verdict.md

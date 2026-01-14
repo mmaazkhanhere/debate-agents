@@ -24,40 +24,40 @@ class Debate():
             verbose=True
         )
 
-    @agent
-    def logical_analyst_judge(self) -> Agent:
-        return Agent(
-            config=self.agents_config['logical_analyst_judge'],
-            verbose=True
-        )
+    # @agent
+    # def logical_analyst_judge(self) -> Agent:
+    #     return Agent(
+    #         config=self.agents_config['logical_analyst_judge'],
+    #         verbose=True
+    #     )
 
-    @agent
-    def debate_strategist_judge(self) -> Agent:
-        return Agent(
-            config=self.agents_config['debate_strategist_judge'],
-            verbose=True
-        )
+    # @agent
+    # def debate_strategist_judge(self) -> Agent:
+    #     return Agent(
+    #         config=self.agents_config['debate_strategist_judge'],
+    #         verbose=True
+    #     )
 
-    @agent
-    def persuasion_judge(self) -> Agent:
-        return Agent(
-            config=self.agents_config['persuasion_judge'],
-            verbose=True
-        )
+    # @agent
+    # def persuasion_judge(self) -> Agent:
+    #     return Agent(
+    #         config=self.agents_config['persuasion_judge'],
+    #         verbose=True
+        # )
 
-    @task
-    def debater_1_prepare_stance(self) -> Task:
-        return Task(
-            config=self.tasks_config['debater_1_prepare_stance'],
-            output_pydantic=StanceStrategy
-        )
+    # @task
+    # def debater_1_prepare_stance(self) -> Task:
+    #     return Task(
+    #         config=self.tasks_config['debater_1_prepare_stance'],
+    #         output_pydantic=StanceStrategy
+    #     )
 
-    @task
-    def debater_2_prepare_stance(self) -> Task:
-        return Task(
-            config=self.tasks_config['debater_2_prepare_stance'],
-            output_pydantic=StanceStrategy
-        )
+    # @task
+    # def debater_2_prepare_stance(self) -> Task:
+    #     return Task(
+    #         config=self.tasks_config['debater_2_prepare_stance'],
+    #         output_pydantic=StanceStrategy
+    #     )
 
     @task
     def generate_debate_turn(self) -> Task:
@@ -66,25 +66,25 @@ class Debate():
             output_pydantic=DebateTurn
         )
 
-    @task
-    def logical_analyst_verdict(self) -> Task:
-        return Task(
-            config=self.tasks_config['logical_analyst_verdict'],
-            output_pydantic=JudgeVerdict
-        )
+    # @task
+    # def logical_analyst_verdict(self) -> Task:
+    #     return Task(
+    #         config=self.tasks_config['logical_analyst_verdict'],
+    #         output_pydantic=JudgeVerdict
+    #     )
 
-    @task
-    def debate_strategist_verdict(self) -> Task:
-        return Task(
-            config=self.tasks_config['debate_strategist_verdict'],
-            output_pydantic=JudgeVerdict
-        )
+    # @task
+    # def debate_strategist_verdict(self) -> Task:
+    #     return Task(
+    #         config=self.tasks_config['debate_strategist_verdict'],
+    #         output_pydantic=JudgeVerdict
+    #     )
 
-    @task
-    def persuasion_verdict(self) -> Task:
-        return Task(
-            config=self.tasks_config['persuasion_verdict'],
-            output_pydantic=JudgeVerdict
-        )
+    # @task
+    # def persuasion_verdict(self) -> Task:
+    #     return Task(
+    #         config=self.tasks_config['persuasion_verdict'],
+    #         output_pydantic=JudgeVerdict
+    #     )
 
 

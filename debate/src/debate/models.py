@@ -18,11 +18,10 @@ class StanceStrategy(BaseModel):
     stance_summary: str = Field(description="A concise summary of your ideological stance", max_length=100)
     core_positions: List[str] = Field(description="Core positions of your ideological stance", max_items=3)
 
-
 class DebateState(BaseModel):
-    topic: str = ""
-    rounds: int = 3
-    history: List[str] = Field(default_factory=list)
+    topic: str
+    rounds: int = 1
+    turns: List[DebateTurn] = Field(default_factory=list)
     @property
     def transcript_text(self) -> str:
         """Human-readable transcript for judge input or logs."""

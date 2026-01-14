@@ -1,24 +1,20 @@
-{
-    "turn_id": "T2",
+[
+  {
+    "turn_id": "turn_001",
     "debater": "Proponent",
-    "arguments": [
-        {
-            "type": "Policy",
-            "text": "Strict laws force developers to audit models before release, stopping dangerous outputs before they reach the public.",
-            "confidence": 96,
-            "strength": 94
-        },
-        {
-            "type": "Economic",
-            "text": "Regulation levels the playing field, preventing monopolies that hoard AI power and profit.",
-            "confidence": 91,
-            "strength": 89
-        },
-        {
-            "type": "Safety",
-            "text": "Legal liability compels companies to build robust guardrails, reducing accidental harm from AI chatbots.",
-            "confidence": 94,
-            "strength": 92
-        }
-    ]
-}
+    "argument": {
+      "type": "Claim",
+      "text": "Unfettered AI threatens public safety, economic stability, and democratic values; government oversight is essential to set boundaries, enforce accountability, and protect citizens.",
+      "confidence": 96
+    }
+  },
+  {
+    "turn_id": "turn-001",
+    "debater": "ProRegulator",
+    "argument": {
+      "type": "Rebuttal",
+      "text": "Unchecked AI is a ticking time bomb\u2014biases, job displacement, and autonomous weapons threaten democracy; only clear government standards can lock the door on disaster.",
+      "confidence": 95
+    }
+  }
+]
