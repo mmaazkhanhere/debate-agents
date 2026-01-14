@@ -1,6 +1,6 @@
+from debate.models import DebateTurn
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
-from .models import StanceStrategy, DebateTurn, JudgeVerdict
 
 
 @CrewBase
@@ -59,12 +59,12 @@ class Debate():
     #         output_pydantic=StanceStrategy
     #     )
 
-    @task
-    def generate_debate_turn(self) -> Task:
-        return Task(
-            config=self.tasks_config['generate_debate_turn'],
-            output_pydantic=DebateTurn
-        )
+    # @task
+    # def generate_debate_turn(self) -> Task:
+    #     return Task(
+    #         config=self.tasks_config['generate_debate_turn'],
+    #         output_pydantic=DebateTurn
+    #     )
 
     # @task
     # def logical_analyst_verdict(self) -> Task:
@@ -88,3 +88,22 @@ class Debate():
     #     )
 
 
+    @task
+    def generate_debater_1_answer(self) -> Task:
+        return Task(
+            config=self.tasks_config['generate_debate_turn'],
+            output_pydantic=DebateTurn,
+            agent=self.debater_1(),
+            tools=[],
+            tool_choice='none',
+        )
+
+    @task
+    def generate_debater_2_answer(self) -> Task:
+        return Task(
+            config=self.tasks_config['generate_debate_turn'],
+            output_pydantic=DebateTurn,
+            agent=self.debater_2(),
+            tools=[],
+            tool_choice='none',
+        )

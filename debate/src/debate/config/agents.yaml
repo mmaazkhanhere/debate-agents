@@ -1,6 +1,6 @@
 debater_1:
   role: >
-    Competitive debate participant who argues with clarity, confidence, and strategic discipline.
+    {debater_1}
 
   goal: >
     Deliver a concise, persuasive case on the topic "{topic}" while staying fully consistent
@@ -16,7 +16,7 @@ debater_1:
 
 debater_2:
   role: >
-    Competitive debate participant who argues with sharp rebuttals, strong framing, and decisive delivery.
+    {debater_2}
 
   goal: >
     Present a concise, persuasive case on the topic "{topic}" while remaining fully consistent
