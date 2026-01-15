@@ -1,20 +1,38 @@
 [
   {
-    "turn_id": "turn-001",
+    "turn_id": "Musk-AI-Debate-1",
     "debater": "Elon Musk",
-    "arguments": {
-      "type": "Policy",
-      "text": "Unregulated AI is a ticking time bomb; government oversight is the only way to enforce safety standards before the technology outpaces us.",
+    "argument": {
+      "type": "attack",
+      "text": "If AI is made more accessible and open source, it will lead to a catastrophic loss of innovation and job security. By prioritizing profit, AI companies can invest in research and development, hiring the best engineers and developers to create cutting-edge technologies. This would lead to sustainable growth and advancements in AI, rather than a scattered and potentially malicious open-source community.",
+      "confidence": 92
+    }
+  },
+  {
+    "turn_id": "DebateTurn-001",
+    "debater": "Elon Musk",
+    "argument": {
+      "type": "attack",
+      "text": "While making AI more accessible and open source might seem appealing, it ultimately poses a significant security risk to the world. If AI is accessible to anyone, without proper regulation or safeguards, it can be easily exploited and misused by malicious actors. We're talking about a technology that could, if misused, cause catastrophic damage to our society and infrastructure. Do we really want to take that risk? By making AI more for profit, we ensure that the development and deployment of AI are carefully managed, with a focus on safety and security. The profit motive will drive innovation, but also responsible innovation.",
       "confidence": 95
     }
   },
   {
-    "turn_id": "turn_001",
-    "debater": "Jordan Peterson",
-    "arguments": {
-      "type": "Logical",
-      "text": "Unregulated AI is a Pandora's box: it outpaces our legal frameworks, threatens jobs, and amplifies bias. Government oversight creates clear standards, accountability, and safeguards the rule of law before disaster strikes.",
-      "confidence": 93
+    "turn_id": "T1",
+    "debater": "User",
+    "argument": {
+      "type": "framing",
+      "text": "I can give a great answer",
+      "confidence": 90
+    }
+  },
+  {
+    "turn_id": "AIProfitDebate-01",
+    "debater": "Elon Musk",
+    "argument": {
+      "type": "attack",
+      "text": "Open-sourcing AI will lead to its misuse by malicious actors, resulting in catastrophic consequences. The recent rise in AI-generated deepfakes and hacking tools is a stark warning sign. We cannot let our pursuit of AI advancement be compromised by reckless disregard for its potential misuse.",
+      "confidence": 95
     }
   }
 ]

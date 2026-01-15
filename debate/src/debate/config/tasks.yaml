@@ -24,14 +24,19 @@
 # LIVE DEBATE TASK (LOOPED)
 # =========================================================
 
-generate_debate_turn:
+generate_answer_debater_1:
   description: >
-    Deliver one televised debate turn.
-    Speak in short, punchy arguments suitable for a live stage show.
-    Each argument must be clearly classified by type.
-    Do not explain or mention the classification in the text itself.
+    You are debating on {topic} against {debater_2}. Come up with clear argument
+    against the topic. Be very convincing and logical.
   expected_output: >
-    JSON representing debate arguments for live UI rendering.
+    JSON object representing a single argument reply.
+
+generate_answer_debater_2:
+  description: >
+    You are debating on {topic} against {debater_1}. Come up with clear argument
+    against the topic. Be very convincing and logical.
+  expected_output: >
+    JSON object representing a single argument reply.
 
 # =========================================================
 # CROWD REACTION (FAST, PER TURN)

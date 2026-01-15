@@ -91,19 +91,17 @@ class Debate():
     @task
     def generate_debater_1_answer(self) -> Task:
         return Task(
-            config=self.tasks_config['generate_debate_turn'],
+            config=self.tasks_config['generate_answer_debater_1'],
             output_pydantic=DebateTurn,
             agent=self.debater_1(),
             tools=[],
-            tool_choice='none',
         )
 
     @task
     def generate_debater_2_answer(self) -> Task:
         return Task(
-            config=self.tasks_config['generate_debate_turn'],
+            config=self.tasks_config['generate_answer_debater_2'],
             output_pydantic=DebateTurn,
             agent=self.debater_2(),
             tools=[],
-            tool_choice='none',
         )

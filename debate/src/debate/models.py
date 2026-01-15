@@ -1,14 +1,15 @@
 from pydantic import BaseModel, Field
+from typing import Literal
 
 class TurnArgument(BaseModel):
-    type: str # attack | defense | counter | framing | clarification
+    type: Literal["attack", "defense", "counter", "framing", "clarification"]
     text: str
     confidence: int = Field(ge=1, le=100)
 
 class DebateTurn(BaseModel):
     turn_id: str = Field(description="Unique identifier for the turn")
     debater: str = Field(description="Name of the debater")
-    arguments: TurnArgument = Field(description="Argument made by the debater")
+    argument: TurnArgument = Field(description="Argument made by the debater")
     
 # class StanceStrategy(BaseModel):
 #     stance: str = Field(description="Your ideological stance on the topic. Select either Pro or Against")
@@ -17,7 +18,7 @@ class DebateTurn(BaseModel):
 
 class DebateState(BaseModel):
     topic: str = ""
-    rounds: int = 1
+    rounds: int = 0
     moderator_introduction: str = ""
     debater_1: str = ""
     debater_2: str = ""

@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 
 from crewai import Crew, LLM
-from crewai.flow.flow import Flow, listen, start
+from crewai.flow.flow import Flow, listen, start, router
 
 from .crew import Debate  # your factory that builds agents & tasks
 
@@ -153,11 +153,10 @@ class DebateFlow(Flow[DebateState]):
         )
         result= crew.kickoff(inputs={"topic": self.state.topic, "debater_1": self.state.debater_1, "debater_2": self.state.debater_2})
         turn = result.pydantic
-        turn_text = turn.arguments.text
+        turn_text = turn.argument.text
         LOG.info(f"Turn: {turn_text}")
         self.state.turns.append(turn)
         append_turn(turn)
-        self.state.rounds += 1
 
         LOG.info(f"State: {self.state}")
 
@@ -173,11 +172,10 @@ class DebateFlow(Flow[DebateState]):
         )
         result= crew.kickoff(inputs={"topic": self.state.topic, "debater_1": self.state.debater_1, "debater_2": self.state.debater_2})
         turn = result.pydantic
-        turn_text = turn.arguments.text
+        turn_text = turn.argument.text
         LOG.info(f"Turn: {turn_text}")
         self.state.turns.append(turn)
         append_turn(turn)
-        self.state.rounds += 1
 
         LOG.info(f"State 2: {self.state}")
 
