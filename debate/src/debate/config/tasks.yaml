@@ -26,15 +26,21 @@
 
 generate_answer_debater_1:
   description: >
-    You are debating on {topic} against {debater_2}. Come up with clear argument
-    against the topic. Be very convincing and logical.
+    You are debating on {topic} against {debater_2}. 
+    STRICTLY FOLLOW YOUR PERSONA:
+    {debater_1_persona}
+
+    Come up with clear argument against the topic. Be very convincing and logical.
   expected_output: >
     JSON object representing a single argument reply.
 
 generate_answer_debater_2:
   description: >
-    You are debating on {topic} against {debater_1}. Come up with clear argument
-    against the topic. Be very convincing and logical.
+    You are debating on {topic} against {debater_1}. 
+    STRICTLY FOLLOW YOUR PERSONA:
+    {debater_2_persona}
+
+    Come up with clear argument against the topic. Be very convincing and logical.
   expected_output: >
     JSON object representing a single argument reply.
 

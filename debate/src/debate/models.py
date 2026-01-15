@@ -22,6 +22,8 @@ class DebateState(BaseModel):
     moderator_introduction: str = ""
     debater_1: str = ""
     debater_2: str = ""
+    debater_1_persona: str = ""
+    debater_2_persona: str = ""
     turns: list[DebateTurn] = Field(default_factory=list)
     # @property
     # def transcript_text(self) -> str:

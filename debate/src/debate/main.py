@@ -1,4 +1,4 @@
-from debate.utils import append_turn
+from debate.utils import append_turn, load_persona
 from debate.models import DebateState
 import logging
 import warnings
@@ -141,6 +141,11 @@ class DebateFlow(Flow[DebateState]):
         LOG.info(f"Topic Introduction: {topic_introduction}")
         self.state.moderator_introduction = topic_introduction
 
+        # Load personas at the start of the debate
+        LOG.info(f"Loading personas for {self.state.debater_1} and {self.state.debater_2}")
+        self.state.debater_1_persona = load_persona(self.state.debater_1)
+        self.state.debater_2_persona = load_persona(self.state.debater_2)
+
     @listen(moderator_topic_introduce)
     def debater_1_answer(self):
         LOG.info("Debater_1 Answering")
@@ -151,7 +156,13 @@ class DebateFlow(Flow[DebateState]):
             tasks=[task],
             verbose=True,
         )
-        result= crew.kickoff(inputs={"topic": self.state.topic, "debater_1": self.state.debater_1, "debater_2": self.state.debater_2})
+        result = crew.kickoff(inputs={
+            "topic": self.state.topic, 
+            "debater_1": self.state.debater_1, 
+            "debater_2": self.state.debater_2,
+            "debater_1_persona": self.state.debater_1_persona,
+            "debater_2_persona": self.state.debater_2_persona
+        })
         turn = result.pydantic
         turn_text = turn.argument.text
         LOG.info(f"Turn: {turn_text}")
@@ -170,7 +181,13 @@ class DebateFlow(Flow[DebateState]):
             tasks=[task],
             verbose=True,
         )
-        result= crew.kickoff(inputs={"topic": self.state.topic, "debater_1": self.state.debater_1, "debater_2": self.state.debater_2})
+        result = crew.kickoff(inputs={
+            "topic": self.state.topic, 
+            "debater_1": self.state.debater_1, 
+            "debater_2": self.state.debater_2,
+            "debater_1_persona": self.state.debater_1_persona,
+            "debater_2_persona": self.state.debater_2_persona
+        })
         turn = result.pydantic
         turn_text = turn.argument.text
         LOG.info(f"Turn: {turn_text}")
