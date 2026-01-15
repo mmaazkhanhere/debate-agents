@@ -4,7 +4,9 @@ type Props = {}
 
 const Home = (props: Props) => {
   return (
-    <div>Home</div>
+    <div>
+      <p className='text-2xl font-bold border p-4 m-4 border-primary rounded-lg'>Hello</p>
+    </div>
   )
 }
 
