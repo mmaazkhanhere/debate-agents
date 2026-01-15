@@ -27,22 +27,26 @@
 generate_answer_debater_1:
   description: >
     You are debating on {topic} against {debater_2}. 
-    STRICTLY FOLLOW YOUR PERSONA:
-    {debater_1_persona}
+
+    Debate History:
+    {history}
 
     Come up with clear argument against the topic. Be very convincing and logical.
   expected_output: >
-    JSON object representing a single argument reply.
+    A JSON object containing 'turn_id' (string), 'debater' (string), and 'argument' 
+    (object with 'type', 'text', and 'confidence').
 
 generate_answer_debater_2:
   description: >
     You are debating on {topic} against {debater_1}. 
-    STRICTLY FOLLOW YOUR PERSONA:
-    {debater_2_persona}
+
+    Debate History:
+    {history}
 
     Come up with clear argument against the topic. Be very convincing and logical.
   expected_output: >
-    JSON object representing a single argument reply.
+    A JSON object containing 'turn_id' (string), 'debater' (string), and 'argument' 
+    (object with 'type', 'text', and 'confidence').
 
 # =========================================================
 # CROWD REACTION (FAST, PER TURN)

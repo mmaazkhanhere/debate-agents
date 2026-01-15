@@ -19,6 +19,7 @@ class DebateTurn(BaseModel):
 class DebateState(BaseModel):
     topic: str = ""
     rounds: int = 0
+    current_round: int = 1
     moderator_introduction: str = ""
     debater_1: str = ""
     debater_2: str = ""

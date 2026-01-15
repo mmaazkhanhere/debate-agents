@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 
 from crewai import Crew, LLM
-from crewai.flow.flow import Flow, listen, start, router
+from crewai.flow.flow import Flow, listen, start, router, or_
 
 from .crew import Debate  # your factory that builds agents & tasks
 
@@ -145,10 +145,11 @@ class DebateFlow(Flow[DebateState]):
         LOG.info(f"Loading personas for {self.state.debater_1} and {self.state.debater_2}")
         self.state.debater_1_persona = load_persona(self.state.debater_1)
         self.state.debater_2_persona = load_persona(self.state.debater_2)
+        self.state.current_round = 1
 
-    @listen(moderator_topic_introduce)
+    @listen(or_(moderator_topic_introduce, "next_round"))
     def debater_1_answer(self):
-        LOG.info("Debater_1 Answering")
+        LOG.info(f"Debater_1 Answering - Round {self.state.current_round}")
         task = self.debate.generate_debater_1_answer()
         agent = self.debate.debater_1()
         crew = Crew(
@@ -156,12 +157,24 @@ class DebateFlow(Flow[DebateState]):
             tasks=[task],
             verbose=True,
         )
+        
+        # Inject persona only in the first round
+        p1 = self.state.debater_1_persona if self.state.current_round == 1 else ""
+        p2 = self.state.debater_2_persona if self.state.current_round == 1 else ""
+        
+        # Build history
+        history_lines = []
+        for t in self.state.turns:
+            history_lines.append(f"{t.debater}: {t.argument.text}")
+        history = "\n".join(history_lines)
+
         result = crew.kickoff(inputs={
             "topic": self.state.topic, 
             "debater_1": self.state.debater_1, 
             "debater_2": self.state.debater_2,
-            "debater_1_persona": self.state.debater_1_persona,
-            "debater_2_persona": self.state.debater_2_persona
+            "debater_1_persona": p1,
+            "debater_2_persona": p2,
+            "history": history
         })
         turn = result.pydantic
         turn_text = turn.argument.text
@@ -169,11 +182,9 @@ class DebateFlow(Flow[DebateState]):
         self.state.turns.append(turn)
         append_turn(turn)
 
-        LOG.info(f"State: {self.state}")
-
     @listen(debater_1_answer)
     def debater_2_answer(self):
-        LOG.info("Debater_2 Answering")
+        LOG.info(f"Debater_2 Answering - Round {self.state.current_round}")
         task = self.debate.generate_debater_2_answer()
         agent = self.debate.debater_2()
         crew = Crew(
@@ -181,12 +192,24 @@ class DebateFlow(Flow[DebateState]):
             tasks=[task],
             verbose=True,
         )
+
+        # Inject persona only in the first round
+        p1 = self.state.debater_1_persona if self.state.current_round == 1 else ""
+        p2 = self.state.debater_2_persona if self.state.current_round == 1 else ""
+
+        # Build history
+        history_lines = []
+        for t in self.state.turns:
+            history_lines.append(f"{t.debater}: {t.argument.text}")
+        history = "\n".join(history_lines)
+
         result = crew.kickoff(inputs={
             "topic": self.state.topic, 
             "debater_1": self.state.debater_1, 
             "debater_2": self.state.debater_2,
-            "debater_1_persona": self.state.debater_1_persona,
-            "debater_2_persona": self.state.debater_2_persona
+            "debater_1_persona": p1,
+            "debater_2_persona": p2,
+            "history": history
         })
         turn = result.pydantic
         turn_text = turn.argument.text
@@ -194,7 +217,22 @@ class DebateFlow(Flow[DebateState]):
         self.state.turns.append(turn)
         append_turn(turn)
 
-        LOG.info(f"State 2: {self.state}")
+    @router(debater_2_answer)
+    def round_router(self):
+        if self.state.current_round < 2:
+            self.state.current_round += 1
+            LOG.info(f"Moving to round {self.state.current_round}")
+            return "next_round"
+        else:
+            LOG.info("Debate rounds completed")
+            return "finish"
+
+    @listen("finish")
+    def conclude_debate(self):
+        print("\n" + "="*50)
+        print("DEBATE HAS ENDED")
+        print("="*50 + "\n")
+        LOG.info("Debate has ended")
 
 
 def run_debate_flow(topic: str, debater_1: str, debater_2: str):

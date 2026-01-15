@@ -1,5 +1,5 @@
 from debate.models import DebateTurn
-from crewai import Agent, Crew, Process, Task
+from crewai import Agent, Crew, Process, Task, LLM
 from crewai.project import CrewBase, agent, crew, task
 
 
@@ -14,14 +14,16 @@ class Debate():
     def debater_1(self) -> Agent:
         return Agent(
             config=self.agents_config['debater_1'],
-            verbose=True
+            verbose=True,
+            llm=LLM(model="groq/llama-3.1-8b-instant")
         )
 
     @agent
     def debater_2(self) -> Agent:
         return Agent(
             config=self.agents_config['debater_2'],
-            verbose=True
+            verbose=True,
+            llm=LLM(model="groq/openai/gpt-oss-20b")
         )
 
     # @agent
