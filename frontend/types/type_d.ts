@@ -176,3 +176,15 @@ export const topicOptions: TopicOption[] = [
         difficulty: 'Hard',
     },
 ];
+
+
+export type Reaction = "positive" | "negative" | "neutral" | null;
+
+export type CardType =
+    | "attack"
+    | "defense"
+    | "counter"
+    | "evidence"
+    | "rhetoric";
+
+export type Side = "left" | "right";
