@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
 import { z } from 'zod';
 
 interface User {
@@ -29,22 +29,25 @@ const usernameSchema = z.string().trim().min(2, { message: "Username must be at 
 const SESSION_KEY = 'arena_session';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const [user, setUser] = useState<User | null>(() => {
-        const stored = localStorage.getItem(SESSION_KEY);
-        if (!stored) return null;
-        try {
-            const parsed = JSON.parse(stored);
-            // Validate stored session structure
-            if (parsed.id && parsed.email && parsed.username) {
-                return parsed;
+    const [user, setUser] = useState<User | null>(null);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const stored = localStorage.getItem(SESSION_KEY);
+            if (stored) {
+                try {
+                    const parsed = JSON.parse(stored);
+                    if (parsed.id && parsed.email && parsed.username) {
+                        setUser(parsed);
+                    } else {
+                        localStorage.removeItem(SESSION_KEY);
+                    }
+                } catch {
+                    localStorage.removeItem(SESSION_KEY);
+                }
             }
-            localStorage.removeItem(SESSION_KEY);
-            return null;
-        } catch {
-            localStorage.removeItem(SESSION_KEY);
-            return null;
         }
-    });
+    }, []);
 
     const signIn = useCallback(async (email: string, password: string) => {
         // Simulate network delay
@@ -53,19 +56,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Validate inputs
         const emailResult = emailSchema.safeParse(email);
         if (!emailResult.success) {
-            return { success: false, error: emailResult.error.errors[0].message };
+            return { success: false, error: emailResult.error.issues[0].message };
         }
 
         const passwordResult = passwordSchema.safeParse(password);
         if (!passwordResult.success) {
-            return { success: false, error: passwordResult.error.errors[0].message };
+            return { success: false, error: passwordResult.error.issues[0].message };
         }
 
         // Demo mode: Accept any valid email/password combination
         // NOTE: This is demo-only functionality without real authentication
         // In production, this would validate against a secure backend
         const userData: User = {
-            id: crypto.randomUUID(),
+            id: typeof crypto !== "undefined"
+                ? crypto.randomUUID()
+                : Math.random().toString(36).slice(2),
             email: emailResult.data,
             username: emailResult.data.split('@')[0],
             avatar: '🎭',
@@ -83,17 +88,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Validate inputs
         const emailResult = emailSchema.safeParse(email);
         if (!emailResult.success) {
-            return { success: false, error: emailResult.error.errors[0].message };
+            return { success: false, error: emailResult.error.issues[0].message };
         }
 
         const passwordResult = passwordSchema.safeParse(password);
         if (!passwordResult.success) {
-            return { success: false, error: passwordResult.error.errors[0].message };
+            return { success: false, error: passwordResult.error.issues[0].message };
         }
 
         const usernameResult = usernameSchema.safeParse(username);
         if (!usernameResult.success) {
-            return { success: false, error: usernameResult.error.errors[0].message };
+            return { success: false, error: usernameResult.error.issues[0].message };
         }
 
         // Demo mode: Accept any valid signup
