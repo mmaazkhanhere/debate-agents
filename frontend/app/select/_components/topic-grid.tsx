@@ -1,4 +1,3 @@
-// app/debate/select/components/TopicGrid.tsx
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
@@ -10,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { getDifficultyColor } from '@/lib/utils';
 import { Trophy } from 'lucide-react';
+import Image from 'next/image';
 
 type Props = {
     debater1: DebaterOption;
@@ -18,11 +18,10 @@ type Props = {
     onSelect: (t: SelectedTopic) => void;
 };
 
-
-
 const TopicGrid = ({ debater1, debater2, selected, onSelect }: Props) => {
     const [customTitle, setCustomTitle] = useState('');
-    const [customDifficulty, setCustomDifficulty] = useState<'Easy' | 'Medium' | 'Hard'>('Medium');
+    const [customDifficulty, setCustomDifficulty] =
+        useState<'Easy' | 'Medium' | 'Hard'>('Medium');
 
     const customTopic: SelectedTopic = useMemo(
         () => ({
@@ -30,148 +29,235 @@ const TopicGrid = ({ debater1, debater2, selected, onSelect }: Props) => {
             id: 'custom',
             title: customTitle,
             category: 'Custom',
-            difficulty: customDifficulty,
             icon: '✍️',
         }),
-        [customTitle, customDifficulty]
+        [customTitle]
     );
 
+
     const selectCustom = useCallback(() => {
-        // allow selecting even if short; Start button will enforce min length
         onSelect(customTopic);
     }, [customTopic, onSelect]);
 
     const isSelected = (id: string) => selected?.id === id;
 
+    const handleKeySelect =
+        (action: () => void) =>
+            (e: React.KeyboardEvent) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    action();
+                }
+            };
+
+    const isStartEnabled = useMemo(() => {
+        if (!selected) return false;
+
+        if (selected.kind === 'custom') {
+            return selected.title.trim().length >= 8;
+        }
+
+        return true; // preset topics
+    }, [selected]);
+
+
     return (
         <motion.section
+            aria-labelledby="topic-grid-heading"
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -50 }}
         >
-            <div className="text-center mb-8">
-                <h2 className="text-3xl md:text-4xl font-bold text-foreground display-text">
-                    Choose The Battlefield
-                </h2>
-                <p className="text-muted-foreground mt-2">Select a topic for the debate</p>
+            {/* Header */}
+            <header className="text-center mb-10">
+                <h1
+                    id="topic-grid-heading"
+                    className="text-3xl md:text-4xl font-bold text-foreground"
+                >
+                    Choose the Debate Topic
+                </h1>
 
-                <div className="flex items-center justify-center gap-4 mt-6">
-                    <div className="flex items-center gap-2 bg-debater-left/10 border border-debater-left/30 rounded-lg px-4 py-2">
-                        <span className="text-2xl">{debater1.avatar}</span>
-                        <span className="text-sm font-medium text-debater-left-glow">{debater1.name}</span>
+                <p className="text-muted-foreground mt-2">
+                    Select a battlefield for this debate
+                </p>
+
+                {/* Debaters */}
+                <div className="flex items-center justify-center gap-6 mt-8">
+                    <div className="flex items-center gap-3 bg-debater-left/10 border border-debater-left/30 rounded-xl px-5 py-3">
+                        <Image
+                            src={debater1.avatar}
+                            alt={`Avatar of debater ${debater1.name}`}
+                            width={64}
+                            height={64}
+                            sizes="64px"
+                            className="rounded-full object-cover"
+                        />
+                        <span className="text-sm font-semibold text-debater-left-glow">
+                            {debater1.name}
+                        </span>
                     </div>
-                    <div className="text-2xl">⚔️</div>
-                    <div className="flex items-center gap-2 bg-debater-right/10 border border-debater-right/30 rounded-lg px-4 py-2">
-                        <span className="text-2xl">{debater2.avatar}</span>
-                        <span className="text-sm font-medium text-debater-right-glow">{debater2.name}</span>
+
+                    <span aria-hidden className="text-3xl">
+                        ⚔️
+                    </span>
+
+                    <div className="flex items-center gap-3 bg-debater-right/10 border border-debater-right/30 rounded-xl px-5 py-3">
+                        <Image
+                            src={debater2.avatar}
+                            alt={`Avatar of debater ${debater2.name}`}
+                            width={64}
+                            height={64}
+                            sizes="64px"
+                            className="rounded-full object-cover"
+                        />
+                        <span className="text-sm font-semibold text-debater-right-glow">
+                            {debater2.name}
+                        </span>
                     </div>
                 </div>
-            </div>
+            </header>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
-                {/* Custom Topic Card */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0 }}
-                    onClick={selectCustom}
-                    className={`bg-card border rounded-xl p-5 cursor-pointer transition-all hover:scale-[1.02] ${isSelected('custom')
-                        ? 'border-primary shadow-[0_0_20px_hsl(43,96%,56%,0.3)]'
-                        : 'border-border/50 hover:border-primary/50'
-                        }`}
-                >
-                    <div className="flex items-start gap-4">
-                        <div className="text-4xl">✍️</div>
-                        <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                                <Badge variant="outline" className="text-xs">
-                                    Custom
-                                </Badge>
-                                <Badge className={`text-xs ${getDifficultyColor(customDifficulty)}`}>
-                                    {customDifficulty}
-                                </Badge>
-                            </div>
+            {/* Custom Topic (Separate, Primary) */}
+            <motion.article
+                role="button"
+                tabIndex={0}
+                aria-pressed={isSelected('custom')}
+                aria-label="Create a custom debate topic"
+                onKeyDown={handleKeySelect(selectCustom)}
+                onClick={selectCustom}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`max-w-4xl mx-auto mb-10 bg-card border rounded-2xl p-6 cursor-pointer transition-all hover:scale-[1.02] ${isSelected('custom')
+                    ? 'border-primary shadow-[0_0_24px_hsl(43,96%,56%,0.35)]'
+                    : 'border-border/50 hover:border-primary/50'
+                    }`}
+            >
+                <div className="flex items-start gap-5">
+                    <span aria-hidden className="text-4xl">
+                        ✍️
+                    </span>
 
-                            <h3 className="text-lg font-bold text-foreground">Write your own topic</h3>
-
-                            <div className="mt-3 space-y-3">
-                                <Input
-                                    value={customTitle}
-                                    onChange={e => setCustomTitle(e.target.value)}
-                                    placeholder="e.g., Should AI tutors replace traditional homework?"
-                                    className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/50"
-                                    onClick={e => e.stopPropagation()}
-                                />
-
-                                <div className="flex gap-2" onClick={e => e.stopPropagation()}>
-                                    {(['Easy', 'Medium', 'Hard'] as const).map(d => (
-                                        <Button
-                                            key={d}
-                                            type="button"
-                                            size="sm"
-                                            variant={customDifficulty === d ? 'default' : 'secondary'}
-                                            onClick={() => setCustomDifficulty(d)}
-                                        >
-                                            {d}
-                                        </Button>
-                                    ))}
-                                </div>
-
-                                <p className="text-xs text-muted-foreground">
-                                    Tip: Use at least <span className="font-medium">8 characters</span> for the Start button to enable.
-                                </p>
-                            </div>
+                    <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                            <Badge variant="outline" className="text-xs">
+                                Custom Topic
+                            </Badge>
+                            <Badge
+                                className={`text-xs ${getDifficultyColor(
+                                    customDifficulty
+                                )}`}
+                            >
+                                {customDifficulty}
+                            </Badge>
                         </div>
 
-                        {isSelected('custom') && (
-                            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                                <Trophy className="w-3 h-3 text-primary-foreground" />
-                            </motion.div>
-                        )}
-                    </div>
-                </motion.div>
+                        <h2 className="text-xl font-bold text-foreground">
+                            Write your own debate topic
+                        </h2>
 
-                {/* Preset Topics */}
+                        <div className="mt-4 space-y-3">
+                            <label htmlFor="custom-topic" className="sr-only">
+                                Custom debate topic
+                            </label>
+
+                            <Input
+                                id="custom-topic"
+                                value={customTitle}
+                                onChange={e =>
+                                    setCustomTitle(e.target.value)
+                                }
+                                placeholder="e.g., Should AI tutors replace traditional homework?"
+                                onClick={e => e.stopPropagation()}
+                                aria-describedby="custom-topic-help"
+                            />
+
+
+
+                            <p
+                                id="custom-topic-help"
+                                className="text-xs text-muted-foreground"
+                            >
+                                Use at least <strong>8 characters</strong> to
+                                enable the Start button.
+                            </p>
+                        </div>
+                    </div>
+
+                    {isSelected('custom') && (
+                        <div
+                            aria-hidden
+                            className="w-7 h-7 rounded-full bg-primary flex items-center justify-center"
+                        >
+                            <Trophy className="w-4 h-4 text-primary-foreground" />
+                        </div>
+                    )}
+                </div>
+            </motion.article>
+
+            {/* Preset Topics Grid */}
+            <div
+                className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto"
+                role="list"
+            >
                 {topicOptions.map((t, i) => {
                     const selectedThis = isSelected(t.id);
+
                     return (
-                        <motion.div
+                        <motion.article
                             key={t.id}
+                            role="button"
+                            tabIndex={0}
+                            aria-pressed={selectedThis}
+                            aria-label={`Select topic: ${t.title}`}
+                            onKeyDown={handleKeySelect(() =>
+                                onSelect({ ...t, kind: 'preset' })
+                            )}
+                            onClick={() =>
+                                onSelect({ ...t, kind: 'preset' })
+                            }
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: (i + 1) * 0.06 }}
-                            onClick={() => onSelect({ ...t, kind: 'preset' })}
+                            transition={{ delay: (i + 1) * 0.05 }}
                             className={`bg-card border rounded-xl p-5 cursor-pointer transition-all hover:scale-[1.02] ${selectedThis
                                 ? 'border-primary shadow-[0_0_20px_hsl(43,96%,56%,0.3)]'
                                 : 'border-border/50 hover:border-primary/50'
                                 }`}
                         >
                             <div className="flex items-start gap-4">
-                                <div className="text-4xl">{t.icon}</div>
+                                <span aria-hidden className="text-4xl">
+                                    {t.icon}
+                                </span>
+
                                 <div className="flex-1">
                                     <div className="flex items-center gap-2 mb-2">
-                                        <Badge variant="outline" className="text-xs">
+                                        <Badge
+                                            variant="outline"
+                                            className="text-xs"
+                                        >
                                             {t.category}
                                         </Badge>
-                                        <Badge className={`text-xs ${getDifficultyColor(t.difficulty)}`}>
-                                            {t.difficulty}
-                                        </Badge>
                                     </div>
-                                    <h3 className="text-lg font-bold text-foreground">{t.title}</h3>
+
+                                    <h3 className="text-lg font-bold text-foreground">
+                                        {t.title}
+                                    </h3>
                                 </div>
 
                                 {selectedThis && (
-                                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                                    <div
+                                        aria-hidden
+                                        className="w-6 h-6 rounded-full bg-primary flex items-center justify-center"
+                                    >
                                         <Trophy className="w-3 h-3 text-primary-foreground" />
-                                    </motion.div>
+                                    </div>
                                 )}
                             </div>
-                        </motion.div>
+                        </motion.article>
                     );
                 })}
             </div>
         </motion.section>
     );
-}
+};
 
 export default TopicGrid;

@@ -13,6 +13,7 @@ import StartDebateButton from './start-debate-button';
 export default function SelectDebateClient() {
     const {
         step,
+        setStep,
         debater1,
         debater2,
         topic,
@@ -27,7 +28,7 @@ export default function SelectDebateClient() {
             <Header />
 
             <main className="max-w-6xl mx-auto px-4 py-6">
-                <StepIndicator step={step} debater1={debater1} debater2={debater2} topic={topic} />
+                <StepIndicator step={step} onStepChange={setStep} debater1={debater1} debater2={debater2} topic={topic} />
 
                 <AnimatePresence mode="wait">
                     {(step === 'debater1' || step === 'debater2') && (

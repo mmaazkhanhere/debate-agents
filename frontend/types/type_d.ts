@@ -40,7 +40,7 @@ export type SelectedTopic =
         id: 'custom';
         title: string;
         category: 'Custom';
-        difficulty: 'Easy' | 'Medium' | 'Hard';
+        difficulty?: 'Easy' | 'Medium' | 'Hard';
         icon: string;
     };
 

@@ -52,6 +52,7 @@ export function useDebateSelection() {
 
     return {
         step,
+        setStep,
         debater1,
         debater2,
         topic,
