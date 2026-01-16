@@ -20,8 +20,8 @@ type Props = {
 
 const TopicGrid = ({ debater1, debater2, selected, onSelect }: Props) => {
     const [customTitle, setCustomTitle] = useState('');
-    const [customDifficulty, setCustomDifficulty] =
-        useState<'Easy' | 'Medium' | 'Hard'>('Medium');
+    // const [customDifficulty, setCustomDifficulty] =
+    //     useState<'Easy' | 'Medium' | 'Hard'>('Medium');
 
     const customTopic: SelectedTopic = useMemo(
         () => ({
@@ -83,7 +83,10 @@ const TopicGrid = ({ debater1, debater2, selected, onSelect }: Props) => {
 
                 {/* Debaters */}
                 <div className="flex items-center justify-center gap-6 mt-8">
-                    <div className="flex items-center gap-3 bg-debater-left/10 border border-debater-left/30 rounded-xl px-5 py-3">
+                    <div
+                        className="flex items-center gap-3 bg-debater-left/10 border border-debater-left/30 rounded-xl px-5 py-3 
+                    bg-secondary/50 hover:scale-105 cursor-pointer transition-all duration-300"
+                    >
                         <Image
                             src={debater1.avatar}
                             alt={`Avatar of debater ${debater1.name}`}
@@ -101,7 +104,7 @@ const TopicGrid = ({ debater1, debater2, selected, onSelect }: Props) => {
                         ⚔️
                     </span>
 
-                    <div className="flex items-center gap-3 bg-debater-right/10 border border-debater-right/30 rounded-xl px-5 py-3">
+                    <div className="flex items-center gap-3 bg-debater-right/10 border border-debater-right/30 rounded-xl px-5 py-3 bg-secondary/50 hover:scale-105 cursor-pointer transition-all duration-300">
                         <Image
                             src={debater2.avatar}
                             alt={`Avatar of debater ${debater2.name}`}
@@ -127,9 +130,10 @@ const TopicGrid = ({ debater1, debater2, selected, onSelect }: Props) => {
                 onClick={selectCustom}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`max-w-4xl mx-auto mb-10 bg-card border rounded-2xl p-6 cursor-pointer transition-all hover:scale-[1.02] ${isSelected('custom')
-                    ? 'border-primary shadow-[0_0_24px_hsl(43,96%,56%,0.35)]'
-                    : 'border-border/50 hover:border-primary/50'
+                className={`max-w-4xl mx-auto mb-10 bg-secondary/50 border rounded-2xl p-6 cursor-pointer transition-all hover:scale-[1.02] 
+                    ${isSelected('custom')
+                        ? 'border-primary shadow-[0_0_24px_hsl(43,96%,56%,0.35)]'
+                        : 'border-border/50 hover:border-primary/50'
                     }`}
             >
                 <div className="flex items-start gap-5">
@@ -142,13 +146,13 @@ const TopicGrid = ({ debater1, debater2, selected, onSelect }: Props) => {
                             <Badge variant="outline" className="text-xs">
                                 Custom Topic
                             </Badge>
-                            <Badge
+                            {/* <Badge
                                 className={`text-xs ${getDifficultyColor(
                                     customDifficulty
                                 )}`}
                             >
                                 {customDifficulty}
-                            </Badge>
+                            </Badge> */}
                         </div>
 
                         <h2 className="text-xl font-bold text-foreground">
@@ -162,10 +166,17 @@ const TopicGrid = ({ debater1, debater2, selected, onSelect }: Props) => {
 
                             <Input
                                 id="custom-topic"
-                                value={customTitle}
-                                onChange={e =>
-                                    setCustomTitle(e.target.value)
+                                type="text"
+                                value={selected?.title ?? ''}
+                                onChange={(e) =>
+                                    onSelect({
+                                        ...(selected ?? { type: 'custom' }),
+                                        title: e.target.value,
+                                        id: 'custom'
+                                    })
                                 }
+
+
                                 placeholder="e.g., Should AI tutors replace traditional homework?"
                                 onClick={e => e.stopPropagation()}
                                 aria-describedby="custom-topic-help"
@@ -218,7 +229,7 @@ const TopicGrid = ({ debater1, debater2, selected, onSelect }: Props) => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: (i + 1) * 0.05 }}
-                            className={`bg-card border rounded-xl p-5 cursor-pointer transition-all hover:scale-[1.02] ${selectedThis
+                            className={`bg-secondary/50 hover:bg-secondary/70 border rounded-xl p-5 cursor-pointer transition-all hover:scale-[1.02] ${selectedThis
                                 ? 'border-primary shadow-[0_0_20px_hsl(43,96%,56%,0.3)]'
                                 : 'border-border/50 hover:border-primary/50'
                                 }`}

@@ -23,13 +23,12 @@ const StartDebateButton = ({ enabled, onStart, topic }: Props) => {
             animate={{ opacity: enabled ? 1 : 0.6 }}
         >
             <Button
-                size="lg"
                 onClick={onStart}
                 disabled={!enabled}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg px-8 py-6"
+                className="flex items-center gap-2 bg-primary hover:bg-primary/80 text-primary-foreground font-bold cursor-pointer py-6"
             >
                 Start The Debate
-                <ChevronRight className="ml-2 w-5 h-5" />
+                <ChevronRight className="w-5 h-5" />
             </Button>
 
             {tooShort && (

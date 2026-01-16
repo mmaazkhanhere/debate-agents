@@ -36,12 +36,12 @@ export type DebateConfig = {
 export type SelectedTopic =
     | (TopicOption & { kind?: 'preset' })
     | {
-        kind: 'custom';
+        kind?: 'custom';
         id: 'custom';
         title: string;
-        category: 'Custom';
+        category?: 'Custom';
         difficulty?: 'Easy' | 'Medium' | 'Hard';
-        icon: string;
+        icon?: string;
     };
 
 export const debaterOptions: DebaterOption[] = [
