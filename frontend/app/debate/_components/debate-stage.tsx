@@ -1,8 +1,16 @@
+"use client"
+
+import { mockDebate } from "@/data/mockDebate";
 import DebateLayout from "./debate-layout";
+
+import ModeratorZone from "./moderator";
+import { useDebateEngine } from "@/hooks/useDebateEngine";
+import { useDebateAudio } from "@/hooks/useDebateAudio";
+import { useRouter } from "next/navigation";
 
 const DebateStage = () => {
     const debate = mockDebate;
-    const navigate = useNavigate();
+    const router = useRouter();
 
     const engine = useDebateEngine(debate);
     useDebateAudio(engine.phase, true);
@@ -14,6 +22,8 @@ const DebateStage = () => {
                 presenterName={debate.presenter.name}
                 announcement={debate.presenter.introText}
                 onAnnouncementComplete={engine.nextRound}
+                round={engine.roundIndex + 1}
+                totalRounds={debate.arguments.length}
             />
         );
     }
@@ -22,7 +32,7 @@ const DebateStage = () => {
         <DebateLayout
             debate={debate}
             engine={engine}
-            onExit={() => navigate("/select")}
+            onExit={() => router.push("/select")}
         />
     );
 }

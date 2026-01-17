@@ -10,13 +10,13 @@ interface CardSpeechOverlayProps {
     onComplete?: () => void;
 }
 
-export function CardSpeechOverlay({
+const CardSpeechOverlay = ({
     text,
     speaker,
     side,
     isVisible,
     onComplete,
-}: CardSpeechOverlayProps) {
+}: CardSpeechOverlayProps) => {
     const { displayedText, isTyping } = useTypewriter({
         text,
         enabled: isVisible,
@@ -33,7 +33,7 @@ export function CardSpeechOverlay({
                     exit={{ y: 50, opacity: 0 }}
                     transition={{ type: "spring", stiffness: 200, damping: 25 }}
                 >
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/95 to-transparent" />
+                    <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-slate-950/95 to-transparent" />
 
                     <div className="relative mx-auto max-w-4xl px-8 pb-8 pt-12">
                         {/* Speaker */}
@@ -50,8 +50,8 @@ export function CardSpeechOverlay({
                                 className={cn(
                                     "h-0.5 w-12 rounded-full",
                                     side === "left"
-                                        ? "bg-gradient-to-r from-blue-500 to-transparent"
-                                        : "bg-gradient-to-l from-red-500 to-transparent"
+                                        ? "bg-linear-to-r from-blue-500 to-transparent"
+                                        : "bg-linear-to-l from-red-500 to-transparent"
                                 )}
                                 initial={{ scaleX: 0 }}
                                 animate={{ scaleX: 1 }}
@@ -103,6 +103,7 @@ export function CardSpeechOverlay({
     );
 }
 
+export default CardSpeechOverlay;
 
 /*-----------------------------------
 HELPER COMPONENTS
@@ -134,8 +135,8 @@ function AccentLine({ side }: { side: "left" | "right" }) {
             className={cn(
                 "absolute left-1/2 top-0 h-1 w-24 -translate-x-1/2 -translate-y-0.5 rounded-full",
                 side === "left"
-                    ? "bg-gradient-to-r from-transparent via-blue-500 to-transparent"
-                    : "bg-gradient-to-r from-transparent via-red-500 to-transparent"
+                    ? "bg-linear-to-r from-transparent via-blue-500 to-transparent"
+                    : "bg-linear-to-r from-transparent via-red-500 to-transparent"
             )}
         />
     );

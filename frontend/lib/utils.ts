@@ -1,3 +1,4 @@
+import { Judge } from "@/data/mockDebate";
 import { Reaction } from "@/types/type_d";
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
@@ -62,4 +63,17 @@ export const getSideClasses = (isLeft: boolean) => {
       ? "0 0 40px hsl(220 85% 55% / 0.6)"
       : "0 0 40px hsl(0 75% 50% / 0.6)",
   };
+}
+
+
+export const countVotes = (judges: Judge[]) => {
+  let left = 0;
+  let right = 0;
+
+  for (const j of judges) {
+    if (j.vote === "left") left++;
+    else right++;
+  }
+
+  return { left, right };
 }

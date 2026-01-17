@@ -1,5 +1,7 @@
 import { cn } from "@/lib/utils";
+import { CardType } from "@/types/type_d";
 import { AnimatePresence, motion } from "framer-motion";
+import DebateCard from "../debater_card/debater-card";
 
 interface PlayedCard {
     id: string;

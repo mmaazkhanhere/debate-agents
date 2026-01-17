@@ -68,7 +68,7 @@ export function Crowd({ reaction, favoringSide }: CrowdProps) {
     return (
         <div className="relative h-16 w-full overflow-hidden">
             {/* Depth gradient */}
-            <div className="absolute inset-0 z-10 bg-gradient-to-t from-background via-transparent to-transparent" />
+            <div className="absolute inset-0 z-10 bg-linear-to-t from-background via-transparent to-transparent" />
 
             {/* Crowd */}
             <div className="relative flex h-full items-end justify-center px-4">
