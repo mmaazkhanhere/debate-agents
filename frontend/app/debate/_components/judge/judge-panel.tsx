@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { countVotes } from "@/lib/utils";
 import { Judge } from "@/data/mockDebate";
 import JudgeCard from "./judge-card";
-import Score from "./judge-debate-score.tsx";
+import Score from "./judge-debate-score";
 import Winner from "./judge-debate-winner";
 
 interface JudgePanelProps {

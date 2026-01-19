@@ -15,19 +15,6 @@ const DebateStage = () => {
     const engine = useDebateEngine(debate);
     useDebateAudio(engine.phase, true);
 
-    if (engine.phase === "intro") {
-        return (
-            <ModeratorZone
-                topic={debate.topic}
-                presenterName={debate.presenter.name}
-                announcement={debate.presenter.introText}
-                onAnnouncementComplete={engine.nextRound}
-                round={engine.roundIndex + 1}
-                totalRounds={debate.arguments.length}
-            />
-        );
-    }
-
     return (
         <DebateLayout
             debate={debate}
