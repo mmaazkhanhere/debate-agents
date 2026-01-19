@@ -16,6 +16,7 @@ type Props = {
     leftCards: PlayedCard[];
     rightCards: PlayedCard[];
     activeCardId: string | null;
+    onCardClick?: (card: PlayedCard) => void;
     onBoardShake?: boolean;
 }
 
@@ -23,6 +24,7 @@ const ArenaBoard = ({
     leftCards,
     rightCards,
     activeCardId,
+    onCardClick,
     onBoardShake = false
 }: Props) => {
     return (
@@ -96,6 +98,7 @@ const ArenaBoard = ({
                                         side={card.side}
                                         confidence={card.confidence}
                                         isActive={card.id === activeCardId}
+                                        onClick={() => onCardClick?.(card)}
                                     />
                                 </motion.div>
                             ))}
@@ -166,6 +169,7 @@ const ArenaBoard = ({
                                         side={card.side}
                                         confidence={card.confidence}
                                         isActive={card.id === activeCardId}
+                                        onClick={() => onCardClick?.(card)}
                                     />
                                 </motion.div>
                             ))}

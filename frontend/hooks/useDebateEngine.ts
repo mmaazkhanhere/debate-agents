@@ -32,6 +32,7 @@ export function useDebateEngine(debate: DebateData) {
     const [scores, setScores] = useState({ left: 0, right: 0 });
     const [confidence, setConfidence] = useState({ left: 75, right: 75 });
     const [revealedJudges, setRevealedJudges] = useState(0);
+    const [selectedCard, setSelectedCard] = useState<PlayedCard | null>(null);
 
     const currentArgument: DebateArgument | undefined = debate.arguments[roundIndex];
 
@@ -152,11 +153,13 @@ export function useDebateEngine(debate: DebateData) {
         scores,
         confidence,
         revealedJudges,
+        selectedCard,
         setPhase,
         setActiveSide,
         setActiveCardId,
         setLeftCards,
         setRightCards,
+        setSelectedCard,
         nextRound,
         applyReaction,
         reset

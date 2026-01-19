@@ -15,6 +15,7 @@ type Props = {
     isActive?: boolean;
     isFlipped?: boolean;
     delay?: number;
+    onClick?: () => void;
     onAnimationComplete?: () => void;
 }
 
@@ -91,15 +92,17 @@ const DebateCard = ({
     isActive = false,
     isFlipped = false,
     delay = 0,
+    onClick,
     onAnimationComplete,
 }: Props) => {
     const config = CARD_TYPE_CONFIG[type];
 
     return (
         <motion.div
-            className="relative perspective-1000"
+            className="relative perspective-1000 cursor-pointer"
             initial={getInitialAnimation(side)}
             animate={getAnimateState(isActive, isFlipped)}
+            whileHover={{ scale: 1.05, y: -5 }}
             transition={{
                 type: "spring",
                 stiffness: 100,
@@ -107,6 +110,7 @@ const DebateCard = ({
                 delay,
                 duration: 0.8,
             }}
+            onClick={onClick}
             onAnimationComplete={onAnimationComplete}
         >
             <div

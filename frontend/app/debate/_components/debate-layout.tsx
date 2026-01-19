@@ -3,6 +3,7 @@ import ArenaBoard from "./arena_board/arena-board";
 import ModeratorZone from "./moderator";
 import CardSpeechOverlay from "./card-speech-overlay";
 import JudgePanel from "./judge/judge-panel";
+import CardDetailModal from "./card-detail-modal";
 
 const DebateLayout = ({ debate, engine, onExit }: any) => {
     const isJudging = engine.phase === "judging" || engine.phase === "verdict";
@@ -44,6 +45,7 @@ const DebateLayout = ({ debate, engine, onExit }: any) => {
                             leftCards={engine.leftCards}
                             rightCards={engine.rightCards}
                             activeCardId={engine.activeCardId}
+                            onCardClick={engine.setSelectedCard}
                         />
                     </div>
                 </div>
@@ -84,6 +86,12 @@ const DebateLayout = ({ debate, engine, onExit }: any) => {
                     }}
                 />
             )}
+
+            <CardDetailModal
+                isOpen={!!engine.selectedCard}
+                onClose={() => engine.setSelectedCard(null)}
+                card={engine.selectedCard}
+            />
         </div>
     );
 }
