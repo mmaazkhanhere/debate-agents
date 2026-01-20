@@ -1,22 +1,71 @@
-import requests
-import json
+import asyncio
+from fastapi import FastAPI, WebSocket
+from crewai import Agent, Task, Crew, Process
 
-def test_debate():
-    url = "http://127.0.0.1:8000/debate"
-    params = {
-        "topic": "Is AI a threat to humanity?",
-        "debater_1": "Elon Musk",
-        "debater_2": "Trump"
-    }
-    
-    print(f"Sending request to {url} with params: {params}")
-    try:
-        response = requests.post(url, params=params)
-        response.raise_for_status()
-        print("Response received successfully!")
-        print(json.dumps(response.json(), indent=2))
-    except Exception as e:
-        print(f"Error: {e}")
+app: FastAPI = FastAPI()
+agent_output_queue = asyncio.Queue()
 
-if __name__ == "__main__":
-    test_debate()
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+
+    question = await websocket.receive_text()
+    await websocket.send_text(f"🧠 Crew solving the question: {question}\n")
+
+    asyncio.create_task(run_crews(question))
+
+    while True:
+        message = await agent_output_queue.get()
+        await websocket.send_text(message)
+        if message == "[DONE]":
+            break
+
+
+async def run_crews(question: str):
+    #Agents
+    solver_agent = Agent(
+        role="Solution Provider",
+        goal="Solve the question and return answer only",
+        backstory="You are a smart assistant that can solve any question",
+    )
+
+    explainer_agent = Agent(
+        role="Explanation Provider",
+        goal="Explain the solution in simple terms",
+        backstory="You are a smart assistant that can explain any solution",
+    )
+
+    solving_task = Task(
+        description=f"Solve the question: {question}",
+        expected_output="The answer to the question.",
+        agent=solver_agent
+    )
+
+
+    explaining_task = Task(
+        description=f"Explain the solution: {question}",
+        expected_output="The explanation of the solution.",
+        agent=explainer_agent
+    )
+
+
+    solution_crew = Crew(
+        agents=[solver_agent],
+        tasks=[solving_task],
+        process=Process.sequential
+    )
+
+    solution_answer = await asyncio.to_thread(solution_crew.kickoff)
+    await agent_output_queue.put(f"✅ Solution generated:\n{solution_answer}\n")
+
+    explanation_crew = Crew(
+        agents=[explainer_agent],
+        tasks=[explaining_task],
+        process=Process.sequential
+    )
+
+    explanation_answer = await asyncio.to_thread(explanation_crew.kickoff)
+    await agent_output_queue.put(f"✅ Explanation generated:\n{explanation_answer}\n")
+
+    await agent_output_queue.put("[DONE]")
+
