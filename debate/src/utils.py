@@ -1,7 +1,13 @@
-from debate.models import DebateTurn
 import json
+import redis
+import os
+
+from .models import DebateTurn
 
 from pathlib import Path
+
+REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
+REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
 
 OUTPUT_FILE = Path("debate_round.json")
 
@@ -37,3 +43,9 @@ def load_persona(debater_name: str) -> str:
     
     # Fallback if not found
     return f"Persona profile for {debater_name}"
+
+redis_client = redis.Redis(
+    host=REDIS_HOST,
+    port=REDIS_PORT,
+    decode_responses=True,
+)

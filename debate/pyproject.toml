@@ -1,8 +1,8 @@
 [project]
 name = "debate"
 version = "0.1.0"
-description = "debate using crewAI"
-authors = [{ name = "Your Name", email = "you@example.com" }]
+description = "Debate Agents using CrewAI"
+authors = [{ name = "Mian Maaz Ullah Khan", email = "mmaazkhan@outlook.com" }]
 requires-python = ">=3.10,<3.14"
 dependencies = [
     "apscheduler>=3.11.2",
@@ -14,6 +14,7 @@ dependencies = [
     "passlib>=1.7.4",
     "psycopg>=3.3.2",
     "pydantic[email]>=2.11.10",
+    "redis>=5.0.1",
     "tenacity>=9.1.2",
     "websockets>=16.0",
 ]
@@ -32,3 +33,14 @@ build-backend = "hatchling.build"
 
 [tool.crewai]
 type = "crew"
+
+[tool.hatch.build.targets.wheel]
+packages = ["debate"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "debate/**",
+  "api.py",
+  "pyproject.toml",
+  "README.md"
+]
