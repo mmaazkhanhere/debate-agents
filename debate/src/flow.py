@@ -75,20 +75,13 @@ class DebateFlow(Flow[DebateState]):
     @listen(or_(moderator_topic_introduce, "next_round"))
     async def debater_1_answer(self):
         LOG.info(f"Debater_1 Answering - Round {self.state.current_round}")
-        task = self.debate.generate_debater_1_answer()
-        agent = self.debate.debater_1()
         
         # Inject persona only in the first round
         p1 = self.state.debater_1_persona if self.state.current_round == 1 else ""
         p2 = self.state.debater_2_persona if self.state.current_round == 1 else ""
 
-        debate_1_crew = Crew(
-            agents=[agent],
-            tasks=[task],
-            verbose=True,
-        )
 
-        debater_1_response = debate_1_crew.kickoff(inputs={
+        debater_1_response = self.debate.debater_1_crew().kickoff(inputs={
             "topic": self.state.topic, 
             "debater_1": self.state.debater_1, 
             "debater_2": self.state.debater_2,
@@ -111,19 +104,11 @@ class DebateFlow(Flow[DebateState]):
     @listen(debater_1_answer)
     async def debater_2_answer(self):
         LOG.info(f"Debater_2 Answering - Round {self.state.current_round}")
-        task = self.debate.generate_debater_2_answer()
-        agent = self.debate.debater_2()
-
-        debate_2_crew = Crew(
-            agents=[agent],
-            tasks=[task],
-            verbose=True,
-        )
 
         p1 = self.state.debater_1_persona if self.state.current_round == 1 else ""
         p2 = self.state.debater_2_persona if self.state.current_round == 1 else ""
 
-        debate_2_response = debate_2_crew.kickoff(inputs={
+        debate_2_response = self.debate.debater_2_crew().kickoff(inputs={
             "topic": self.state.topic, 
             "debater_1": self.state.debater_1, 
             "debater_2": self.state.debater_2,

@@ -1,6 +1,7 @@
 import time
 import uuid
 import asyncio
+import json
 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Request, BackgroundTasks
@@ -71,6 +72,7 @@ async def debate_events(debate_id: str):
 
     async def generator():
         nonlocal last_id
+
         while True:
             events = redis_client.xread(
                 {stream: last_id},
@@ -83,14 +85,28 @@ async def debate_events(debate_id: str):
                     "event": "ping",
                     "data": "{}",
                 }
-                continue
 
             for _, messages in events:
                 for msg_id, fields in messages:
                     last_id = msg_id
+
+                    raw_data = json.loads(fields["data"])   # 1️⃣ parse Redis data
+                    agent = raw_data["agent"].strip()
+
+                    output = raw_data["output"]
+
+                    # 2️⃣ parse output IF it is JSON
+                    try:
+                        output_json = json.loads(output)
+                    except json.JSONDecodeError:
+                        output_json = {"text": output}
+
                     yield {
                         "event": fields["event"],
-                        "data": fields["data"],
+                        "data": json.dumps({
+                            "agent": agent,
+                            **output_json
+                        })
                     }
 
             await asyncio.sleep(0)

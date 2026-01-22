@@ -105,3 +105,20 @@ class Debate():
             agent=self.debater_2(),
             tools=[],
         )
+
+
+    @crew
+    def debater_1_crew(self) -> Crew:
+        return Crew(
+            agents=[self.debater_1()],
+            tasks=[self.generate_debater_1_answer()],
+            verbose=True,
+        )
+
+    @crew
+    def debater_2_crew(self) -> Crew:
+        return Crew(
+            agents=[self.debater_2()],
+            tasks=[self.generate_debater_2_answer()],
+            verbose=True,
+        )
