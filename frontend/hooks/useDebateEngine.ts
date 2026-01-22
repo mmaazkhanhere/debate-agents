@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { DebateData, DebateArgument } from "@/data/mockDebate";
 import { CardType } from "@/types/type_d";
+import { DebateEvent } from "../services/debate-api";
 
 type Phase =
     | "intro"
@@ -9,7 +10,8 @@ type Phase =
     | "speaking"
     | "reaction"
     | "judging"
-    | "verdict";
+    | "verdict"
+    | "waiting"; // New state for waiting for data
 
 interface PlayedCard {
     id: string;
@@ -20,7 +22,11 @@ interface PlayedCard {
     confidence: number;
 }
 
-export function useDebateEngine(debate: DebateData) {
+export function useDebateEngine(
+    debate: DebateData,
+    streamedArguments?: DebateEvent[],
+    isDebateFinished: boolean = false
+) {
     const [phase, setPhase] = useState<Phase>("intro");
     const [roundIndex, setRoundIndex] = useState(-1);
     const [activeSide, setActiveSide] = useState<"left" | "right" | null>(null);
@@ -34,7 +40,41 @@ export function useDebateEngine(debate: DebateData) {
     const [revealedJudges, setRevealedJudges] = useState(0);
     const [selectedCard, setSelectedCard] = useState<PlayedCard | null>(null);
 
-    const currentArgument: DebateArgument | undefined = debate.arguments[roundIndex];
+    // Merge mock arguments with streamed ones if provided
+    const effectiveArguments = useMemo(() => {
+        if (!streamedArguments) return debate.arguments;
+
+        return streamedArguments.map(event => {
+            const isLeft = event.agent === debate.debaters.left.name;
+            const debaterId = isLeft ? 'left' : 'right';
+
+            // Confidence mapping: "confidence" is the power. 
+            // We use it to determine reaction AND passing it to the card stats.
+            const confValue = event.argument?.confidence ?? event.confidence ?? 75;
+
+            // Simple logic to derive reaction from confidence
+            let reaction: 'positive' | 'negative' | 'neutral' = 'neutral';
+            if (confValue > 80) reaction = 'positive';
+            else if (confValue < 40) reaction = 'negative';
+
+            return {
+                debaterId,
+                text: event.argument?.text || event.text || "...",
+                crowdReaction: reaction,
+                // Pass confidence through so we can use it in the UI if needed, 
+                // though DebateArgument interface might need update if we want to store it explicitly.
+                // For now, we use it for reaction. The Confidence Bar in UI uses 'confidence' state which we update in applyReaction.
+                // Wait, useDebateEngine updates 'confidence' state based on 'reaction'.
+                // If we want to Set the confidence directly from the card, we might need a different approach.
+                // But user said: "The confidence of persona is calculated using these confidence".
+                // I will add a 'rawConfidence' property to DebateArgument if I can, OR just use it for reaction effectively.
+                // Actually, let's stick to the current reaction logic which influences the persona confidence score.
+                cardType: (event.argument?.type as CardType) || 'attack'
+            } as DebateArgument;
+        });
+    }, [streamedArguments, debate.arguments, debate.debaters]);
+
+    const currentArgument: DebateArgument | undefined = effectiveArguments[roundIndex];
 
     const nextRound = useCallback(() => {
         setRoundIndex(i => i + 1);
@@ -63,13 +103,22 @@ export function useDebateEngine(debate: DebateData) {
 
         setPhase("reaction");
 
-        // After reaction, either go to next round or judging
-        if (roundIndex < debate.arguments.length - 1) {
+        // Logic for proceeding
+        // If we have more arguments ready, go to next round
+        if (roundIndex < effectiveArguments.length - 1) {
             setTimeout(nextRound, 2000);
-        } else {
+        }
+        // If we are at the end, checks strictly against isDebateFinished
+        else if (isDebateFinished) {
             setTimeout(() => setPhase("judging"), 2000);
         }
-    }, [currentArgument, roundIndex, debate.arguments.length, nextRound]);
+        // Else, we wait for more data. We can stay in 'reaction' or go to 'waiting'
+        else {
+            // We'll advance index to "ready" for next one, but phase will be 'drawing' 
+            // and since currentArgument will be undefined, it will wait there.
+            setTimeout(nextRound, 2000);
+        }
+    }, [currentArgument, roundIndex, effectiveArguments.length, nextRound, isDebateFinished]);
 
     const reset = useCallback(() => {
         setPhase("intro");

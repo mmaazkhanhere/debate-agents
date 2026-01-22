@@ -97,9 +97,19 @@ async def debate_events(debate_id: str):
 
                     # 2️⃣ parse output IF it is JSON
                     try:
+                        # Try direct parse first
                         output_json = json.loads(output)
                     except json.JSONDecodeError:
-                        output_json = {"text": output}
+                        # If direct parse fails, try to find JSON block
+                        import re
+                        json_match = re.search(r"(\{.*\})", output, re.DOTALL)
+                        if json_match:
+                            try:
+                                output_json = json.loads(json_match.group(1))
+                            except json.JSONDecodeError:
+                                output_json = {"text": output}
+                        else:
+                            output_json = {"text": output}
 
                     yield {
                         "event": fields["event"],

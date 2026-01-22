@@ -6,11 +6,10 @@ type Props = {}
 const Home = (props: Props) => {
   return (
     <div>
-
       <DebateStage />
-
     </div>
   )
 }
 
 export default Home
+
