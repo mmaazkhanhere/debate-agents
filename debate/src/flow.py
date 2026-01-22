@@ -69,7 +69,7 @@ class DebateFlow(Flow[DebateState]):
         self.state.debater_1_persona = load_persona(self.state.debater_1)
         self.state.debater_2_persona = load_persona(self.state.debater_2)
 
-        await asyncio.sleep(5)
+        # time.sleep(8)
 
 
     @listen(or_(moderator_topic_introduce, "next_round"))
@@ -98,7 +98,7 @@ class DebateFlow(Flow[DebateState]):
         self.state.turns.append(turn)
         append_turn(turn)
 
-        await asyncio.sleep(5)
+        time.sleep(5)
 
 
     @listen(debater_1_answer)
@@ -125,7 +125,7 @@ class DebateFlow(Flow[DebateState]):
         self.state.turns.append(turn)
         append_turn(turn)
 
-        await asyncio.sleep(5)
+        time.sleep(5)
 
 
     @router(debater_2_answer)
