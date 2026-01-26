@@ -89,6 +89,19 @@ const DebateStage = () => {
         close();
     };
 
+    // Auto-end debate after Round 1 (total 2 rounds: index 0 and 1)
+    // We check if we have 2 arguments and the phase is 'reaction' of the second one
+    useEffect(() => {
+        // Round index 1 is the second round
+        // We wait until we are in the 'reaction' phase of the second argument
+        if (engine.roundIndex === 1 && engine.phase === 'reaction') {
+            const timer = setTimeout(() => {
+                handleEndDebate();
+            }, 3000); // Give it some time to show the last reaction
+            return () => clearTimeout(timer);
+        }
+    }, [engine.roundIndex, engine.phase]);
+
     if (!config) {
         return (
             <div className="flex h-screen items-center justify-center bg-slate-950 text-slate-50">

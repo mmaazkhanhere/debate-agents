@@ -13,6 +13,7 @@ export interface DebateArgument {
     text: string;
     crowdReaction: 'positive' | 'negative' | 'neutral';
     cardType?: CardType;
+    confidence?: number;
 }
 
 export interface Judge {

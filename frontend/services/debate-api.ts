@@ -1,8 +1,24 @@
 
 export interface DebateEvent {
-    agent: string;
-    turn_id?: string;
+    agent?: string;
+    event?: string;
     debater?: string;
+    round?: number;
+    timestamp?: string;
+    data?: {
+        debater: string;
+        argument?: {
+            type: string;
+            text: string;
+            confidence: number;
+        };
+        turn_id?: string;
+        agent?: string;
+        topic?: string;
+        output?: string;
+    };
+    // Legacy/Fallback fields
+    turn_id?: string;
     index?: number;
     argument?: {
         type: string;
@@ -12,7 +28,7 @@ export interface DebateEvent {
     speaker?: string;
     text?: string;
     confidence?: number;
-    step?: string; // For intermediate steps if any
+    step?: string;
 }
 
 // Ensure the response type matches what we expect from the backend start endpoint

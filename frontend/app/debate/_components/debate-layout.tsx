@@ -19,7 +19,7 @@ const DebateLayout = ({ debate, engine, onExit }: any) => {
                 round={engine.roundIndex + 1}
                 totalRounds={debate.arguments.length}
                 presenterName={debate.presenter.name}
-                announcement={engine.phase === "intro" ? debate.presenter.introText : undefined}
+                announcement={(engine.phase === "intro") ? (engine.streamedModeratorIntro || debate.presenter.introText) : undefined}
                 onAnnouncementComplete={engine.phase === "intro" ? engine.nextRound : undefined}
             />
 

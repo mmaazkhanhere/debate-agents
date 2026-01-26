@@ -52,6 +52,16 @@ const CARD_TYPE_CONFIG: Record<
         label: "RHETORIC",
         gradient: "from-amber-500 to-yellow-600",
     },
+    framing: {
+        icon: Brain,
+        label: "FRAMING",
+        gradient: "from-indigo-500 to-blue-600",
+    },
+    clarification: {
+        icon: MessageSquare,
+        label: "CLARIFY",
+        gradient: "from-slate-500 to-slate-600",
+    },
 };
 
 /* ---------------------------------- */

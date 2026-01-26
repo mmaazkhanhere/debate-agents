@@ -52,6 +52,18 @@ const CARD_TYPE_CONFIG: Record<
         gradient: "from-amber-500 to-yellow-600",
         color: "text-amber-400",
     },
+    framing: {
+        icon: Brain,
+        label: "FRAMING",
+        gradient: "from-indigo-500 to-blue-600",
+        color: "text-indigo-400",
+    },
+    clarification: {
+        icon: MessageSquare,
+        label: "CLARIFY",
+        gradient: "from-slate-500 to-slate-600",
+        color: "text-slate-400",
+    },
 };
 
 const CardDetailModal = ({ isOpen, onClose, card }: CardDetailModalProps) => {

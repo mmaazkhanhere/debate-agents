@@ -1,91 +1,37 @@
 [
   {
-    "turn_id": "TURN_001",
-    "debater": "Donald Trump",
+    "turn_id": "Debate-001",
+    "debater": "Elon Musk",
+    "argument": {
+      "type": "framing",
+      "text": "While age restrictions may seem like a viable solution to ensure minors' safety and digital well-being, I firmly believe that this approach is fundamentally misguided. Not only does it fail to address the root causes of online harm, but it also risks undermining our children's digital literacy, crucial for their future success in an increasingly online world. By shielding them from the very online spaces they will need to navigate in their future careers and personal lives, we are doing them a disservice \u2013 not a service.",
+      "confidence": 98
+    }
+  },
+  {
+    "turn_id": "turn-123456",
+    "debater": "Jordan Peterson",
     "argument": {
       "type": "attack",
-      "text": "Elon Musk's idea of government regulation is a total disaster, folks, believe me, it's going to stifle innovation and make our great American AI industry a laughingstock. Regulation is for the slow and the weak, not for the champions of creativity and progress that we are. We should let AI flourish without the weight of bureaucratic red tape holding it back, that's the Trump way.",
+      "text": "Age restrictions are a pragmatic tool to shield minors from predatory content and prevent early exposure to the psychological harms of social media; denying them these protections under the guise of fostering digital literacy ignores the empirical evidence linking early heavy use with anxiety, depression, and impaired social development. Moreover, parents and educators already possess the capacity to guide digital learning in a controlled setting, so limiting access does not hinder digital competence\u2014rather it preserves developmental integrity while still allowing skill acquisition through other, safer media. Thus, imposing age limits is a necessary, evidence\u2011based intervention rather than an obstacle to future success.",
       "confidence": 90
     }
   },
   {
-    "turn_id": "turn-01",
+    "turn_id": "MUSK-001",
     "debater": "Elon Musk",
     "argument": {
-      "type": "counter",
-      "text": "Regulation doesn\u2019t kill innovation; it prevents catastrophic failures that would cost billions and lives, and it creates a level playing field where companies can compete on safety and ethics rather than just speed\u2014something Trump\u2019s laissez\u2011faire approach ignores. A clear, transparent framework forces AI developers to anticipate misuse, mitigate bias, and align incentives with societal benefit, ensuring that the rapid progress we celebrate today does not become a liability tomorrow. The cost of unregulated AI\u2014loss of trust, legal liability, and potential existential risk\u2014far outweighs the short\u2011term gains of avoiding bureaucratic oversight.",
-      "confidence": 95
-    }
-  },
-  {
-    "turn_id": "debate_turn_001",
-    "debater": "Donald Trump",
-    "argument": {
       "type": "attack",
-      "text": "Folks, let me tell you, government regulation of AI is a joke, a total disaster waiting to happen. It's like trying to put a lid on the entire tech industry, which I know a thing or two about. Government regulators will just slow down innovation, create more bureaucracy, and line the pockets of special interest groups. We need to trust the entrepreneurs, the innovators, and the private sector to drive AI forward, not stifle it with excessive red tape and burdensome regulations.",
-      "confidence": 95
+      "text": "Jordan Peterson suggests that age restrictions on social media would infringe on the rights of young adults to make informed decisions, but this argument misinterprets the nature of adolescence. Young people are not mature enough to make sound judgments about online risks, and restricting their access to certain platforms would not stifle free speech, but rather safeguard their well-being by reducing exposure to cyberbullying, online predators, and manipulated information.",
+      "confidence": 90
     }
   },
   {
     "turn_id": "turn-001",
-    "debater": "Elon Musk",
-    "argument": {
-      "type": "defense",
-      "text": "Regulation stifles the rapid iteration cycles essential to AI advancement; the sector thrives on open competition and quick experimentation, as proven by the success of open-source models and rapid deployments by companies like OpenAI and Tesla. Bureaucratic oversight would delay breakthroughs, harm jobs, and give monopolies room to manipulate rules to their advantage. The best safeguard against misuse is industry self\u2011regulation, transparency, and voluntary standards, not heavy government intervention.",
-      "confidence": 95
-    }
-  },
-  {
-    "turn_id": "12345",
-    "debater": "Me",
-    "argument": {
-      "type": "clarification",
-      "text": "I now can give a great answer and have a strong foundation to make my points effectively.",
-      "confidence": 95
-    }
-  },
-  {
-    "turn_id": "turn-001",
-    "debater": "Donald Trump",
-    "argument": {
-      "type": "counter",
-      "text": "Mandating climate action for corporations would cripple the American economy, stifle innovation, and hand the government a dangerous power to dictate corporate behavior; instead, we should incentivize green practices through tax breaks and market competition, which has already produced record job growth and cost savings without heavy\u2011handed mandates.",
-      "confidence": 95
-    }
-  },
-  {
-    "turn_id": "climate-mandatory-turn-1",
-    "debater": "Donald Trump",
+    "debater": "Jordan Peterson",
     "argument": {
       "type": "attack",
-      "text": "Climate action must not be mandatory for corporations, as it would stifle innovation and put American jobs at risk. If we tie their hands with costly regulations and arbitrary targets, companies will flee to more business-friendly countries, leaving our people without work and our industries lagging behind. This is a misguided policy that would harm the very sector we need to drive the clean energy revolution.",
-      "confidence": 95
-    }
-  },
-  {
-    "turn_id": "turn-5",
-    "debater": "Donald Trump",
-    "argument": {
-      "type": "attack",
-      "text": "Greta Thunberg insists climate action must be mandatory for corporations, but that would crush American innovation and flood our economy with crippling regulations; companies would relocate to countries with lighter rules, draining jobs and cutting wages. Instead of handcuffs, we need market-driven incentives that let firms compete while reducing emissions, because the private sector already leads the clean tech boom. Mandatory mandates are a recipe for economic disaster, not environmental salvation.",
-      "confidence": 95
-    }
-  },
-  {
-    "turn_id": "1234",
-    "debater": "John Doe",
-    "argument": {
-      "type": "attack",
-      "text": "I now have a great answer.",
-      "confidence": 80
-    }
-  },
-  {
-    "turn_id": "turn-42",
-    "debater": "Elon Musk",
-    "argument": {
-      "type": "attack",
-      "text": "Trump's push for sweeping AI regulation assumes all policy will protect society, yet history shows heavy regulation can kill breakthrough tech that saves lives; we need market\u2011led safeguards and international standards, not blanket bans. The real risk is stifling the very companies that will create AI solutions to climate, health, and space exploration. A pragmatic governance model that incentivizes safety through standards and transparency will drive innovation while protecting citizens.",
+      "text": "Age restrictions on social media erode the very principle of personal responsibility that underpins healthy adulthood, forcing a paternalistic hand that infantilizes mature youths; restricting access does not eliminate exposure to harm, it merely limits agency and hinders the development of coping strategies essential for real-world navigation. The evidence that adolescents are not fully capable of making sound online decisions is overstated\u2014research shows that age is a poor proxy for maturity and that structured digital literacy programs are more effective. Thus, imposing blanket age barriers does more harm than good, stifling growth, autonomy, and the opportunity to learn from risk.",
       "confidence": 95
     }
   }

@@ -40,38 +40,53 @@ export function useDebateEngine(
     const [revealedJudges, setRevealedJudges] = useState(0);
     const [selectedCard, setSelectedCard] = useState<PlayedCard | null>(null);
 
+    // Extract moderator intro from stream
+    const streamedModeratorIntro = useMemo(() => {
+        if (!streamedArguments) return null;
+        // The event name is moderator_intro_done as established in backend
+        const introEvent = streamedArguments.find(e => e.event === "moderator_intro_done" || e.debater === "Moderator");
+        return introEvent?.data?.output || introEvent?.text || null;
+    }, [streamedArguments]);
+
     // Merge mock arguments with streamed ones if provided
     const effectiveArguments = useMemo(() => {
         if (!streamedArguments) return debate.arguments;
 
-        return streamedArguments.map(event => {
-            const isLeft = event.agent === debate.debaters.left.name;
-            const debaterId = isLeft ? 'left' : 'right';
+        // Filter out moderator events from the debater sequence
+        return streamedArguments
+            .filter(e => e.debater !== "Moderator" && e.event !== "moderator_intro_done")
+            .map(event => {
+                // New structure has event.debater, fallback to event.agent or event.data.debater
+                const debaterName = event.debater || event.agent || event.data?.debater;
+                const isLeft = debaterName === debate.debaters.left.name;
+                const debaterId = isLeft ? 'left' : 'right';
 
-            // Confidence mapping: "confidence" is the power. 
-            // We use it to determine reaction AND passing it to the card stats.
-            const confValue = event.argument?.confidence ?? event.confidence ?? 75;
+                // Extract values from nested 'data' if present, otherwise use top-level
+                const argument = event.data?.argument || (typeof event.argument === 'object' ? event.argument : undefined);
+                const text = argument?.text || event.text || "...";
 
-            // Simple logic to derive reaction from confidence
-            let reaction: 'positive' | 'negative' | 'neutral' = 'neutral';
-            if (confValue > 80) reaction = 'positive';
-            else if (confValue < 40) reaction = 'negative';
+                // Robust type mapping
+                let type: CardType = 'attack';
+                const rawType = argument?.type || event.data?.argument?.type;
+                if (rawType && ['attack', 'defense', 'counter', 'evidence', 'rhetoric', 'framing', 'clarification'].includes(rawType)) {
+                    type = rawType as CardType;
+                }
 
-            return {
-                debaterId,
-                text: event.argument?.text || event.text || "...",
-                crowdReaction: reaction,
-                // Pass confidence through so we can use it in the UI if needed, 
-                // though DebateArgument interface might need update if we want to store it explicitly.
-                // For now, we use it for reaction. The Confidence Bar in UI uses 'confidence' state which we update in applyReaction.
-                // Wait, useDebateEngine updates 'confidence' state based on 'reaction'.
-                // If we want to Set the confidence directly from the card, we might need a different approach.
-                // But user said: "The confidence of persona is calculated using these confidence".
-                // I will add a 'rawConfidence' property to DebateArgument if I can, OR just use it for reaction effectively.
-                // Actually, let's stick to the current reaction logic which influences the persona confidence score.
-                cardType: (event.argument?.type as CardType) || 'attack'
-            } as DebateArgument;
-        });
+                const confValue = argument?.confidence ?? event.data?.argument?.confidence ?? event.confidence ?? 75;
+
+                // Simple logic to derive reaction from confidence
+                let reaction: 'positive' | 'negative' | 'neutral' = 'neutral';
+                if (confValue > 80) reaction = 'positive';
+                else if (confValue < 40) reaction = 'negative';
+
+                return {
+                    debaterId,
+                    text,
+                    crowdReaction: reaction,
+                    cardType: type,
+                    confidence: confValue
+                } as DebateArgument;
+            });
     }, [streamedArguments, debate.arguments, debate.debaters]);
 
     const currentArgument: DebateArgument | undefined = effectiveArguments[roundIndex];
@@ -90,14 +105,22 @@ export function useDebateEngine(
 
         if (currentArgument.crowdReaction === "positive") {
             setScores(s => ({ ...s, [side]: s[side] + 1 }));
+            // Set confidence from the card played
             setConfidence(c => ({
                 ...c,
-                [side]: Math.min(100, c[side] + 5)
+                [side]: currentArgument.confidence ?? c[side]
             }));
         } else if (currentArgument.crowdReaction === "negative") {
+            // Even on negative reaction, we follow the card's reported confidence for the bar
             setConfidence(c => ({
                 ...c,
-                [side]: Math.max(0, c[side] - 5)
+                [side]: currentArgument.confidence ?? c[side]
+            }));
+        } else {
+            // Neutral - still update confidence to match the card
+            setConfidence(c => ({
+                ...c,
+                [side]: currentArgument.confidence ?? c[side]
             }));
         }
 
@@ -153,7 +176,7 @@ export function useDebateEngine(
                     text: currentArgument.text,
                     speaker: side === 'left' ? debate.debaters.left.name : debate.debaters.right.name,
                     side: side,
-                    confidence: confidence[side]
+                    confidence: currentArgument.confidence ?? confidence[side]
                 };
                 return [...prev, newCard];
             };
@@ -197,6 +220,7 @@ export function useDebateEngine(
         activeSide,
         activeCardId,
         currentArgument,
+        streamedModeratorIntro,
         leftCards,
         rightCards,
         scores,

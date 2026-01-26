@@ -43,7 +43,7 @@ export function useDebateStream(debateId: string | null): UseDebateStreamReturn 
             try {
                 const parsedData: DebateEvent = JSON.parse(event.data);
                 // Filter out heartbeats or empty
-                if (parsedData.agent || parsedData.argument || parsedData.text) {
+                if (parsedData.debater || parsedData.data || parsedData.agent || parsedData.argument || parsedData.text) {
                     setMessages((prev) => [...prev, parsedData]);
                 }
             } catch (e) {
@@ -61,6 +61,7 @@ export function useDebateStream(debateId: string | null): UseDebateStreamReturn 
         eventSource.addEventListener("agent_response", handleMessage);
         eventSource.addEventListener("data", handleMessage);
         eventSource.addEventListener("agent_done", handleMessage);
+        eventSource.addEventListener("moderator_intro_done", handleMessage);
 
         eventSource.onerror = (e) => {
             console.error('Debate stream error', e);

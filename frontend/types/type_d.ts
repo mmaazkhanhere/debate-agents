@@ -185,6 +185,8 @@ export type CardType =
     | "defense"
     | "counter"
     | "evidence"
-    | "rhetoric";
+    | "rhetoric"
+    | "framing"
+    | "clarification";
 
 export type Side = "left" | "right";

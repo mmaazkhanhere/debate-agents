@@ -2,6 +2,7 @@ import logging
 import warnings
 import asyncio
 import time
+from datetime import datetime
 
 from .utils import append_turn, load_persona
 from .models import DebateState
@@ -69,9 +70,14 @@ class DebateFlow(Flow[DebateState]):
             self.state.debate_id,
             "moderator_intro_done",
             {
-                "agent": "moderator_agent",
-                "topic": topic,
-                "output": topic_introduction,
+                "debater": "Moderator",
+                "round": 0,
+                "data": {
+                    "agent": "moderator_agent",
+                    "topic": topic,
+                    "output": topic_introduction,
+                },
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             },
         )
 
@@ -109,7 +115,16 @@ class DebateFlow(Flow[DebateState]):
         self.state.turns.append(turn)
         append_turn(turn)
 
-        time.sleep(5)
+        publish(
+            self.state.debate_id,
+            "agent_done",
+            {
+                "debater": self.state.debater_1,
+                "round": self.state.current_round,
+                "data": turn.model_dump(),
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
+        )
 
 
     @listen(debater_1_answer)
@@ -136,7 +151,16 @@ class DebateFlow(Flow[DebateState]):
         self.state.turns.append(turn)
         append_turn(turn)
 
-        time.sleep(5)
+        publish(
+            self.state.debate_id,
+            "agent_done",
+            {
+                "debater": self.state.debater_2,
+                "round": self.state.current_round,
+                "data": turn.model_dump(),
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
+        )
 
 
     @router(debater_2_answer)
