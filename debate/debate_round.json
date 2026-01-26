@@ -70,5 +70,23 @@
       "text": "Greta Thunberg insists climate action must be mandatory for corporations, but that would crush American innovation and flood our economy with crippling regulations; companies would relocate to countries with lighter rules, draining jobs and cutting wages. Instead of handcuffs, we need market-driven incentives that let firms compete while reducing emissions, because the private sector already leads the clean tech boom. Mandatory mandates are a recipe for economic disaster, not environmental salvation.",
       "confidence": 95
     }
+  },
+  {
+    "turn_id": "1234",
+    "debater": "John Doe",
+    "argument": {
+      "type": "attack",
+      "text": "I now have a great answer.",
+      "confidence": 80
+    }
+  },
+  {
+    "turn_id": "turn-42",
+    "debater": "Elon Musk",
+    "argument": {
+      "type": "attack",
+      "text": "Trump's push for sweeping AI regulation assumes all policy will protect society, yet history shows heavy regulation can kill breakthrough tech that saves lives; we need market\u2011led safeguards and international standards, not blanket bans. The real risk is stifling the very companies that will create AI solutions to climate, health, and space exploration. A pragmatic governance model that incentivizes safety through standards and transparency will drive innovation while protecting citizens.",
+      "confidence": 95
+    }
   }
 ]

@@ -19,6 +19,7 @@ class DebateTurn(BaseModel):
     argument: TurnArgument = Field(description="The debater’s response for this turn: a focused, persuasive argument that directly engages with the opponent’s previous points and advances the debate.")
 
 class DebateState(BaseModel):
+    debate_id: str = Field(default="", description="Unique identifier for this debate session.")
     topic: str = Field(
         default="",
         description="The central motion or topic being debated"

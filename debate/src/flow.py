@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 
 from crewai import Crew, LLM
 from crewai.flow.flow import Flow, listen, start, router, or_
+from src.events import publish
 
 from .crew import Debate  # your factory that builds agents & tasks
 from .events import DebateEventListener
@@ -63,6 +64,16 @@ class DebateFlow(Flow[DebateState]):
         """)
         LOG.info(f"Topic Introduction: {topic_introduction}")
         self.state.moderator_introduction = topic_introduction
+
+        publish(
+            self.state.debate_id,
+            "moderator_intro_done",
+            {
+                "agent": "moderator_agent",
+                "topic": topic,
+                "output": topic_introduction,
+            },
+        )
 
         # Load personas at the start of the debate
         LOG.info(f"Loading personas for {self.state.debater_1} and {self.state.debater_2}")
@@ -151,5 +162,5 @@ class DebateFlow(Flow[DebateState]):
 async def run_debate_flow(debate_id: str, topic: str, debater_1: str, debater_2: str):
     listener = DebateEventListener(debate_id)
     flow = DebateFlow()
-    inputs={"topic": topic, "debater_1": debater_1, "debater_2": debater_2}
+    inputs={"debate_id": debate_id, "topic": topic, "debater_1": debater_1, "debater_2": debater_2}
     await flow.kickoff_async(inputs=inputs)
