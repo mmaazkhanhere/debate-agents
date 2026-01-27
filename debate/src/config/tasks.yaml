@@ -26,24 +26,45 @@
 
 generate_answer_debater_1:
   description: >
-    You are debating on {topic} against {debater_2}. 
+    You are participating in a live debate on "{topic}" against {debater_2}.
 
     Debate History:
     {history}
 
-    Come up with clear argument against the topic. Be very convincing and logical.
+    TASK RULES (STRICT):
+    - Produce ONE debate argument about the topic.
+    - Do NOT explain what you are doing.
+    - Do NOT comment on your confidence, ability, or instructions.
+    - Do NOT acknowledge the prompt or debate format.
+    - Do NOT ask questions.
+    - The argument MUST directly address the topic or the opponent’s last point.
+    - Minimum length: 2 full sentences.
+    - Maximum length: 3 sentences.
+
+    The response must be substantive debate content only.
+
   expected_output: >
     A JSON object containing 'turn_id' (string), 'debater' (string), and 'argument' 
     (object with 'type', 'text', and 'confidence').
 
 generate_answer_debater_2:
   description: >
-    You are debating on {topic} against {debater_1}. 
+    You are participating in a live debate on "{topic}" against {debater_1}.
 
     Debate History:
     {history}
 
-    Come up with clear argument against the topic. Be very convincing and logical.
+    TASK RULES (STRICT):
+    - Produce ONE debate argument about the topic.
+    - Do NOT explain what you are doing.
+    - Do NOT comment on your confidence, ability, or instructions.
+    - Do NOT acknowledge the prompt or debate format.
+    - Do NOT ask questions.
+    - The argument MUST directly address the topic or the opponent’s last point.
+    - Minimum length: 2 full sentences.
+    - Maximum length: 3 sentences.
+
+    The response must be substantive debate content only.
   expected_output: >
     A JSON object containing 'turn_id' (string), 'debater' (string), and 'argument' 
     (object with 'type', 'text', and 'confidence').

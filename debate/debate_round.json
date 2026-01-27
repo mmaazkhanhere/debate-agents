@@ -1,38 +1,128 @@
 [
   {
-    "turn_id": "Debate-001",
+    "turn_id": "069dbd7a-5af8-4f49-8d92-a83493910c30",
     "debater": "Elon Musk",
     "argument": {
       "type": "framing",
-      "text": "While age restrictions may seem like a viable solution to ensure minors' safety and digital well-being, I firmly believe that this approach is fundamentally misguided. Not only does it fail to address the root causes of online harm, but it also risks undermining our children's digital literacy, crucial for their future success in an increasingly online world. By shielding them from the very online spaces they will need to navigate in their future careers and personal lives, we are doing them a disservice \u2013 not a service.",
+      "text": "We can't ignore the fact that the vast majority of AI decision-making systems will be used in governance to augment human capabilities, increase transparency, and prevent biases. In contrast to traditional governance, where decisions are often made behind closed doors, AI can empower citizens by providing real-time information and insights, ensuring more inclusive and participatory decision-making processes. By embracing AI-driven governance, we can create a more efficient, responsive, and equitable system for the benefit of society.",
+      "confidence": 90
+    }
+  },
+  {
+    "turn_id": "3feee43d-5f0c-4064-8162-bf210698f940",
+    "debater": "Trump",
+    "argument": {
+      "type": "attack",
+      "text": "While Elon talks about transparency, AI systems are opaque black boxes that can hide biases, and governments already rely on expert judgment; putting the public in the dark is worse than a closed process. The real risk is that corporate interests that develop these AIs will use them to push their own agendas, undermining true citizen participation.",
+      "confidence": 90
+    }
+  },
+  {
+    "turn_id": "69737076-4188-4373-847e-a48c5b0c8077",
+    "debater": "Elon Musk",
+    "argument": {
+      "type": "counter",
+      "text": "While corporate interests may push their agendas, it's crucial to note that open-source AI systems, like the ones developed by the Open Source AI Foundation, demonstrate the potential for transparency and community-driven decision-making. These systems offer a safeguard against manipulation, allowing developers to collaborate on AI projects while maintaining accountability and preventing biased outcomes. By embracing open-source AI, we can ensure that AI-driven governance truly serves the public interest, rather than corporate profits.",
+      "confidence": 92
+    }
+  },
+  {
+    "turn_id": "df2e8785-1a29-453a-884c-7b8a99f42420",
+    "debater": "Trump",
+    "argument": {
+      "type": "attack",
+      "text": "Open-source doesn't guarantee fairness\u2014hackers can inject biases, and without strict regulation, governments can still misuse it for surveillance or election manipulation. The open-source model also shifts responsibility to a fragmented community with no accountability.",
+      "confidence": 90
+    }
+  },
+  {
+    "turn_id": "179c155d-2c75-43d6-8acd-6c78765369d7",
+    "debater": "Elon Musk",
+    "argument": {
+      "type": "framing",
+      "text": "Rather than abandoning open-source AI due to hypothetical risks, we should focus on developing robust security frameworks and regulatory structures that safeguard against manipulation and ensure accountability. By prioritizing transparency, inclusivity, and community-driven decision-making, we can create a robust and resilient AI ecosystem that benefits society as a whole. This approach will empower citizens to hold their governments accountable and prevent the misuse of AI for surveillance or other malicious purposes.",
+      "confidence": 95
+    }
+  },
+  {
+    "turn_id": "30ff0973-3004-461a-bce2-570730492d31",
+    "debater": "Trump",
+    "argument": {
+      "type": "attack",
+      "text": "Elon's promise of open-source and regulation is a double-edged sword that will slow innovation and give bureaucrats a golden handcuff to control AI tools; the real danger is stifling progress with heavy-handed oversight. Open-source frameworks already exist that can be hardened without draconian rules, ensuring both security and speed. We should focus on incentivizing responsible developers, not burdening them with endless paperwork that only serves corporate lobbyists.",
+      "confidence": 90
+    }
+  },
+  {
+    "turn_id": "d9168443-c5ea-4423-8d83-50bbcdf039a2",
+    "debater": "Elon Musk",
+    "argument": {
+      "type": "attack",
+      "text": "Mr. Trump, your suggestion that AI will undermine democratic institutions is misguided. Evidence shows that robust AI governance and transparent decision-making can enhance trust in institutions and improve accountability.",
+      "confidence": 95
+    }
+  },
+  {
+    "turn_id": "f88eb0d1-f2be-4923-8af2-3be0c277e8e9",
+    "debater": "Trump",
+    "argument": {
+      "type": "attack",
+      "text": "AI's promise of transparency is a myth; it simply automates biases and replaces human accountability with opaque algorithms, undermining democratic checks. The claim that AI can enhance trust ignores the fact that algorithmic decision\u2011making often concentrates power in a few corporate hands and erodes individual privacy.",
+      "confidence": 90
+    }
+  },
+  {
+    "turn_id": "5d8c6da1-90dc-4084-866f-fb6fdc3d7ab9",
+    "debater": "Elon Musk",
+    "argument": {
+      "type": "counter",
+      "text": "Mr. Trump, your claim that algorithmic decision-making concentrates power in corporate hands is oversimplified. In fact, decentralized AI governance models, like those used in blockchain applications, demonstrate that algorithms can be designed to promote transparency, accountability, and individual control over data, mitigating concentration of power.",
+      "confidence": 92
+    }
+  },
+  {
+    "turn_id": "64fb825a-0b73-4150-b255-020d82a3ceac",
+    "debater": "Trump",
+    "argument": {
+      "type": "attack",
+      "text": "Decentralized AI governance is a glossy concept that ignores the reality that blockchain platforms still rely on powerful nodes and central servers controlled by wealthy actors, so power remains concentrated. Even if the code is open, the users who decide how to deploy it are still a small elite, not the average citizen. Thus the claim that such models mitigate concentration is largely false.",
+      "confidence": 88
+    }
+  },
+  {
+    "turn_id": "d3d07bc4-ab50-44a0-b0ce-43e999933c63",
+    "debater": "Elon Musk",
+    "argument": {
+      "type": "counter",
+      "text": "Mr. Trump, you conflate complex technological issues with simplistic notions of elite power control, ignoring the fact that decentralized systems like blockchain can be designed to be more inclusive, secure, and transparent, reducing the risk of abuse by powerful actors.",
+      "confidence": 96
+    }
+  },
+  {
+    "turn_id": "9731f3e8-7ac0-4b6b-8959-ceae7d896102",
+    "debater": "Trump",
+    "argument": {
+      "type": "attack",
+      "text": "Claiming that decentralized AI will automatically be inclusive ignores that blockchain nodes are often run by a handful of mining pools that control the network\u2019s direction, so real power is still concentrated. Even if the code is open, the majority of users lack the technical skill or capital to influence protocol changes, leaving governance in the hands of a small elite. Thus the promise of reduced abuse is largely rhetorical and untested in practice.",
+      "confidence": 92
+    }
+  },
+  {
+    "turn_id": "5202a411-68d8-4696-a088-160a90857721",
+    "debater": "Elon Musk",
+    "argument": {
+      "type": "counter",
+      "text": "Mr. Trump, you misunderstand the nature of blockchain governance; instead of static control, decentralized systems allow for continuous adaptation and refinement, enabling participation from a wide range of stakeholders, not just a small elite.",
       "confidence": 98
     }
   },
   {
-    "turn_id": "turn-123456",
-    "debater": "Jordan Peterson",
+    "turn_id": "2e5a2f11-79a2-4925-a621-bf5b1729defd",
+    "debater": "Trump",
     "argument": {
       "type": "attack",
-      "text": "Age restrictions are a pragmatic tool to shield minors from predatory content and prevent early exposure to the psychological harms of social media; denying them these protections under the guise of fostering digital literacy ignores the empirical evidence linking early heavy use with anxiety, depression, and impaired social development. Moreover, parents and educators already possess the capacity to guide digital learning in a controlled setting, so limiting access does not hinder digital competence\u2014rather it preserves developmental integrity while still allowing skill acquisition through other, safer media. Thus, imposing age limits is a necessary, evidence\u2011based intervention rather than an obstacle to future success.",
+      "text": "Continuous adaptation on blockchains still hinges on mining pools and validator sets that are expensive to join; the vast majority of ordinary citizens can't afford the hardware or stake, so they have zero influence. Even if a proposal passes, the real power lies with a few wealthy nodes that can still override or manipulate the outcome. Thus the claim that decentralization truly expands participation is a myth and a dangerous excuse for corporate control.",
       "confidence": 90
-    }
-  },
-  {
-    "turn_id": "MUSK-001",
-    "debater": "Elon Musk",
-    "argument": {
-      "type": "attack",
-      "text": "Jordan Peterson suggests that age restrictions on social media would infringe on the rights of young adults to make informed decisions, but this argument misinterprets the nature of adolescence. Young people are not mature enough to make sound judgments about online risks, and restricting their access to certain platforms would not stifle free speech, but rather safeguard their well-being by reducing exposure to cyberbullying, online predators, and manipulated information.",
-      "confidence": 90
-    }
-  },
-  {
-    "turn_id": "turn-001",
-    "debater": "Jordan Peterson",
-    "argument": {
-      "type": "attack",
-      "text": "Age restrictions on social media erode the very principle of personal responsibility that underpins healthy adulthood, forcing a paternalistic hand that infantilizes mature youths; restricting access does not eliminate exposure to harm, it merely limits agency and hinders the development of coping strategies essential for real-world navigation. The evidence that adolescents are not fully capable of making sound online decisions is overstated\u2014research shows that age is a poor proxy for maturity and that structured digital literacy programs are more effective. Thus, imposing blanket age barriers does more harm than good, stifling growth, autonomy, and the opportunity to learn from risk.",
-      "confidence": 95
     }
   }
 ]

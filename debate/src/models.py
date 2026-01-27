@@ -1,9 +1,9 @@
 from pydantic import BaseModel, Field
 from typing import Literal
-from uuid import uuid4
+
 
 class TurnArgument(BaseModel):
-    type: Literal["attack", "defense", "counter", "framing", "clarification"] = Field(description="Strategic role of this response: attack = challenge opponent’s claim, defense = protect own claim, counter = rebut a specific point, framing = redefine the narrative, clarification = explain or refine a claim")
+    type: Literal["attack", "defense", "counter", "framing"] = Field(description="Strategic role of this response: attack = challenge opponent’s claim, defense = protect own claim, counter = rebut a specific point, framing = redefine the narrative, clarification = explain or refine a claim")
     text: str = Field(description="The debater’s argument expressed as a clear, persuasive, and logically structured paragraph.")
     confidence: int = Field(ge=1, le=100, description="Score high (80–100) when the argument is logically sound, well-evidenced, directly addresses the opponent, "
         "and clearly advances the debater’s position. "
@@ -12,10 +12,10 @@ class TurnArgument(BaseModel):
 
 class DebateTurn(BaseModel):
     turn_id: str = Field(
-        default_factory=lambda: str(uuid4()),
-        description="System-generated unique identifier for this turn; used for tracking, ordering, and referencing."
+        default="",
+        description="System-generated unique identifier for this turn; used for tracking, ordering, and referencing. Format: turn-XXX"
     )
-    debater: str = Field(description="Name of the debater who is arguing")
+    debater: str = Field(default="", description="Name of the debater who is arguing")
     argument: TurnArgument = Field(description="The debater’s response for this turn: a focused, persuasive argument that directly engages with the opponent’s previous points and advances the debate.")
 
 class DebateState(BaseModel):
@@ -24,12 +24,12 @@ class DebateState(BaseModel):
         default="",
         description="The central motion or topic being debated"
     )
-    rounds: int = Field(
-        default=1,
+    total_rounds: int = Field(
+        default=4,
         description="Total number of debate rounds to run. One round is completed when both debaters have delivered an argument."
     )
     current_round: int = Field(
-        default=1,
+        default=0,
         description="The active round number; increments after both debaters complete a turn."
     )
     moderator_introduction: str = Field(

@@ -1,8 +1,7 @@
 import logging
 import warnings
-import asyncio
+import uuid
 import time
-from datetime import datetime
 
 from .utils import append_turn, load_persona
 from .models import DebateState
@@ -70,14 +69,9 @@ class DebateFlow(Flow[DebateState]):
             self.state.debate_id,
             "moderator_intro_done",
             {
-                "debater": "Moderator",
-                "round": 0,
-                "data": {
-                    "agent": "moderator_agent",
-                    "topic": topic,
-                    "output": topic_introduction,
-                },
-                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                "agent": "moderator_agent",
+                "topic": topic,
+                "output": topic_introduction,
             },
         )
 
@@ -86,7 +80,7 @@ class DebateFlow(Flow[DebateState]):
         self.state.debater_1_persona = load_persona(self.state.debater_1)
         self.state.debater_2_persona = load_persona(self.state.debater_2)
 
-        # time.sleep(8)
+        # time.sleep(10)
 
 
     @listen(or_(moderator_topic_introduce, "next_round"))
@@ -108,23 +102,18 @@ class DebateFlow(Flow[DebateState]):
 
         })
 
-        turn = debater_1_response.pydantic        
-        turn_text = turn.argument.text
-        LOG.info(f"Turn: {turn_text}")
-
-        self.state.turns.append(turn)
+        turn = debater_1_response.pydantic 
+        turn.debater = self.state.debater_1 
+        
+        turn.turn_id = str(uuid.uuid4()) 
+        turn_text = turn.argument.text 
+        LOG.info(f"Turn: {turn_text}") 
+        
+        self.state.turns.append(turn) 
         append_turn(turn)
 
-        publish(
-            self.state.debate_id,
-            "agent_done",
-            {
-                "debater": self.state.debater_1,
-                "round": self.state.current_round,
-                "data": turn.model_dump(),
-                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            }
-        )
+        time.sleep(18)
+
 
 
     @listen(debater_1_answer)
@@ -144,33 +133,26 @@ class DebateFlow(Flow[DebateState]):
 
         })
 
-        turn = debate_2_response.pydantic
+        turn = debate_2_response.pydantic  
+        turn.debater = self.state.debater_2 
+        turn.turn_id = str(uuid.uuid4()) 
         turn_text = turn.argument.text
-        LOG.info(f"Turn: {turn_text}")
-
+        
+        LOG.info(f"Turn: {turn_text}") 
+        
         self.state.turns.append(turn)
         append_turn(turn)
 
-        publish(
-            self.state.debate_id,
-            "agent_done",
-            {
-                "debater": self.state.debater_2,
-                "round": self.state.current_round,
-                "data": turn.model_dump(),
-                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            }
-        )
+        time.sleep(18)
 
 
     @router(debater_2_answer)
     def round_router(self):
-        if self.state.current_round < 1:
-            self.state.current_round += 1
-            LOG.info(f"Moving to round {self.state.current_round}")
+        self.state.current_round += 1
+
+        if self.state.current_round < self.state.total_rounds:
             return "next_round"
         else:
-            LOG.info("Debate rounds completed")
             return "finish"
 
 

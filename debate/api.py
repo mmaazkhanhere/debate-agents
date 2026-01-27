@@ -74,9 +74,7 @@ async def debate_events(debate_id: str):
         nonlocal last_id
 
         while True:
-            # Use to_thread because redis_client.xread is blocking
-            events = await asyncio.to_thread(
-                redis_client.xread,
+            events = redis_client.xread(
                 {stream: last_id},
                 count=1,
                 block=10000,
@@ -87,15 +85,38 @@ async def debate_events(debate_id: str):
                     "event": "ping",
                     "data": "{}",
                 }
-                continue
 
             for _, messages in events:
                 for msg_id, fields in messages:
                     last_id = msg_id
-                    # Yield the structured data directly from Redis
+
+                    raw_data = json.loads(fields["data"])   # 1️⃣ parse Redis data
+                    agent = raw_data["agent"].strip()
+
+                    output = raw_data["output"]
+
+                    # 2️⃣ parse output IF it is JSON
+                    try:
+                        # Try direct parse first
+                        output_json = json.loads(output)
+                    except json.JSONDecodeError:
+                        # If direct parse fails, try to find JSON block
+                        import re
+                        json_match = re.search(r"(\{.*\})", output, re.DOTALL)
+                        if json_match:
+                            try:
+                                output_json = json.loads(json_match.group(1))
+                            except json.JSONDecodeError:
+                                output_json = {"text": output}
+                        else:
+                            output_json = {"text": output}
+
                     yield {
                         "event": fields["event"],
-                        "data": fields["data"]
+                        "data": json.dumps({
+                            "agent": agent,
+                            **output_json
+                        })
                     }
 
             await asyncio.sleep(0)

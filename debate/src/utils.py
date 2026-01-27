@@ -24,11 +24,20 @@ def append_turn(turn: DebateTurn):
         except (json.JSONDecodeError, ValueError):
             data = []
 
-    data.append(turn.model_dump())
+    # Check for duplicate turn_id to prevent same turn being added multiple times
+    turn_dict = turn.model_dump()
+    for existing_turn in data:
+        if existing_turn.get("turn_id") == turn_dict["turn_id"]:
+            print(f"Duplicate turn_id detected, skipping: {turn_dict['turn_id']}")
+            return
+
+    data.append(turn_dict)
 
     temp_file = OUTPUT_FILE.with_suffix(".tmp")
     temp_file.write_text(json.dumps(data, indent=2), encoding="utf-8")
     temp_file.replace(OUTPUT_FILE)
+
+
 
 def load_persona(debater_name: str) -> str:
     """Load persona YAML from the knowledge folder."""
