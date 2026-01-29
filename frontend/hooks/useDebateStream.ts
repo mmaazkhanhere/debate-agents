@@ -42,8 +42,11 @@ export function useDebateStream(debateId: string | null): UseDebateStreamReturn 
             console.log("Received raw event:", event.type, event.data);
             try {
                 const parsedData: DebateEvent = JSON.parse(event.data);
+                // Attach the event type from SSE
+                parsedData.event = event.type;
+
                 // Filter out heartbeats or empty
-                if (parsedData.debater || parsedData.data || parsedData.agent || parsedData.argument || parsedData.text) {
+                if (parsedData.debater || parsedData.data || parsedData.agent || parsedData.argument || parsedData.text || parsedData.event !== 'message') {
                     setMessages((prev) => [...prev, parsedData]);
                 }
             } catch (e) {

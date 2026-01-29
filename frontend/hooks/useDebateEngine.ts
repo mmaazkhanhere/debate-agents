@@ -53,8 +53,13 @@ export function useDebateEngine(
         if (!streamedArguments) return debate.arguments;
 
         // Filter out moderator events from the debater sequence
+        // agent_done is the primary event for debater turns, so we must include it
         return streamedArguments
-            .filter(e => e.debater !== "Moderator" && e.event !== "moderator_intro_done")
+            .filter(e =>
+                e.event !== "moderator_intro_done" &&
+                e.debater !== "Moderator" &&
+                e.agent !== "moderator_agent"
+            )
             .map(event => {
                 // New structure has event.debater, fallback to event.agent or event.data.debater
                 const debaterName = event.debater || event.agent || event.data?.debater;

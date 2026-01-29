@@ -1,74 +1,38 @@
 [
   {
-    "turn_id": "93309698-8e1b-40bc-8d98-e2d2133096c5",
-    "debater": "Donald Trump",
-    "argument": {
-      "type": "attack",
-      "text": "Folks, we can't let AI run wild without checks, it's a recipe for disaster. China, our greatest competitor, is already leveraging AI to steal our secrets and undermine our economy, and if we don't take control of the development and deployment of AI, they will leave us in the dust. Believe me, no one knows more about making America great than I do, and this is a battle worth winning.",
-      "confidence": 95
-    }
-  },
-  {
-    "turn_id": "3610b0fe-4682-40df-972e-da66dace754d",
-    "debater": "Elon Musk",
-    "argument": {
-      "type": "attack",
-      "text": "Regulation would slow innovation and hand a competitive advantage to China, which will exploit the slower pace to leapfrog us; instead, we should empower private firms to lead with open standards and internal ethics oversight. By letting the market and industry pioneers drive AI safely, we keep America at the cutting edge while still safeguarding against misuse.",
-      "confidence": 90
-    }
-  },
-  {
-    "turn_id": "22148278-3622-4811-985d-617b2a50da85",
-    "debater": "Donald Trump",
-    "argument": {
-      "type": "counter",
-      "text": "Elon, let me tell you, empowering private firms to self-regulate is a recipe for disaster, it's a giveaway to China and a recipe for our top companies to get away with negligence and malfeasance, and we can't afford to gamble with the future of America's technology industry, we need strong, smart, and effective regulations to keep us safe and number one.",
-      "confidence": 98
-    }
-  },
-  {
-    "turn_id": "4b76138f-9f3f-4e2e-9e14-eef8ba2b4ca6",
-    "debater": "Elon Musk",
-    "argument": {
-      "type": "attack",
-      "text": "Private firms already have a strong incentive to avoid catastrophic failures because their reputation and shareholder value depend on trust; regulators would slow progress and hand a competitive advantage to rivals. We can use transparent open-source benchmarks, cross-industry watchdogs, and enforce liability without heavy-handed statutes.",
-      "confidence": 95
-    }
-  },
-  {
-    "turn_id": "c4ccc9f7-b25a-4b38-961c-491a916bdba8",
-    "debater": "Donald Trump",
-    "argument": {
-      "type": "counter",
-      "text": "Elon, let me tell you, cross-industry watchdogs are a joke, it's just talk, it's just fancy words, and it's not going to do anything to stop the real dangers like AI-generated propaganda that can destroy our democracy from within, and we need real, strong, and enforceable laws to prevent these threats, not just lofty ideals and wishful thinking.",
-      "confidence": 99
-    }
-  },
-  {
-    "turn_id": "4d04bd97-f0f9-4c69-a521-9029aa31a63f",
-    "debater": "Elon Musk",
-    "argument": {
-      "type": "counter",
-      "text": "Cross-industry watchdogs aren\u2019t just fancy words; they are structured, data-driven oversight bodies that can set real, enforceable standards without freezing innovation, unlike opaque legislation that can be weaponized by rival nations. The real danger is the slow, costly regulatory process that would allow adversaries to advance unchecked while we scramble to comply.",
-      "confidence": 90
-    }
-  },
-  {
-    "turn_id": "6286cffc-c387-4f72-a2d6-ce1f59b1b0a9",
+    "turn_id": "74385b04-ba73-4262-94e6-317c64407a59",
     "debater": "Donald Trump",
     "argument": {
       "type": "framing",
-      "text": "This isn\u2019t even a debate about regulation, this is a debate about surrender; surrender to the dangers of unchecked AI, surrender to the threat of China, and surrender to the slow and costly bureaucratic process that will allow our rivals to leapfrog us. We need to focus on the real question: how do we make America great in the age of AI, not just how do we try to hold back the tide.",
-      "confidence": 99
+      "text": "The question is not whether AI should be regulated, but how we can harness government oversight to safeguard the tremendous benefits of AI innovation while mitigating its risks to our national security and economic competitiveness. By imposing clear yet flexible standards for AI development and deployment, governments can foster a thriving AI ecosystem without stifling innovation or stifling American ingenuity. This delicate balance will ensure that AI serves the people, not just corporate interests.",
+      "confidence": 90
     }
   },
   {
-    "turn_id": "185f9f54-55fe-4e76-b994-46d7a7202ec3",
+    "turn_id": "5b457f43-eda9-4689-b91a-23b88ef6b525",
     "debater": "Elon Musk",
     "argument": {
       "type": "counter",
-      "text": "Surrendering is not a viable strategy; instead we can harness AI safely by creating flexible, industry-led frameworks that ensure accountability without stifling innovation. With targeted, transparent regulation we protect national security and democratic values while keeping American companies at the cutting edge.",
+      "text": "Government regulation of AI will choke the very innovation that drives global competitiveness and security; the rapid iteration cycles required for breakthroughs cannot be slowed by bureaucratic compliance. Instead, industry-led standards and private sector oversight create flexible, globally harmonized norms that adapt faster than any legislative process. Relying on government mandates risks entrenching incumbents and stifling the entrepreneurial dynamism that fuels progress.",
       "confidence": 95
+    }
+  },
+  {
+    "turn_id": "cc3870f6-90a7-4c71-85f3-3fbf92c0689b",
+    "debater": "Donald Trump",
+    "argument": {
+      "type": "counter",
+      "text": "Industry-led standards proposed by the likes of Silicon Valley billionaires like Elon Musk will only entrench power among a select few tech companies, stifling true innovation and competition. History shows us that government regulation, when implemented with wisdom and flexibility, has been instrumental in preventing reckless technological gambles and saving the American people from catastrophic consequences. I know a thing or two about making great deals, and smart government oversight is no exception.",
+      "confidence": 92
+    }
+  },
+  {
+    "turn_id": "c3bc192f-7648-4d16-9208-3d2ba4cf08d9",
+    "debater": "Elon Musk",
+    "argument": {
+      "type": "counter",
+      "text": "Regulating AI through government oversight risks creating a single, rigid regulatory regime that lags behind fast-moving tech, giving incumbents a monopoly over compliance costs and stifling small innovators. The same framework could be used to protect consumers, but its uneven application and politicization would undermine the competition Trump touts.",
+      "confidence": 93
     }
   }
 ]
