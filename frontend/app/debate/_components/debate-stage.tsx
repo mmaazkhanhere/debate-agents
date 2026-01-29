@@ -93,18 +93,19 @@ const DebateStage = () => {
         close();
     };
 
-    // Auto-end debate after Round 1 (total 2 rounds: index 0 and 1)
-    // We check if we have 2 arguments and the phase is 'reaction' of the second one
+    // Auto-end debate after rounds conclude
+    // We check if we have reached the last argument of the final round
     useEffect(() => {
-        // Round index 1 is the second round
-        // We wait until we are in the 'reaction' phase of the second argument
-        if (engine.roundIndex === 1 && engine.phase === 'reaction') {
+        const totalRounds = config?.totalRounds || 2;
+        const finalArgumentIndex = (totalRounds * 2) - 1;
+
+        if (engine.roundIndex === finalArgumentIndex && engine.phase === 'reaction') {
             const timer = setTimeout(() => {
                 handleEndDebate();
             }, 3000); // Give it some time to show the last reaction
             return () => clearTimeout(timer);
         }
-    }, [engine.roundIndex, engine.phase]);
+    }, [engine.roundIndex, engine.phase, config?.totalRounds]);
 
     if (!config) {
         return (

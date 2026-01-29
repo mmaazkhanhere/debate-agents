@@ -39,6 +39,7 @@ export interface DebateData {
     arguments: DebateArgument[];
     judges: Judge[];
     timeLimit: number;
+    totalRounds?: number;
 }
 
 export const mockDebate: DebateData = {
@@ -128,5 +129,6 @@ export const mockDebate: DebateData = {
             quotedLine: "Social media algorithms that are literally melting children's brains"
         }
     ],
-    timeLimit: 180
+    timeLimit: 180,
+    totalRounds: 2
 };

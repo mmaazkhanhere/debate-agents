@@ -16,8 +16,8 @@ const DebateLayout = ({ debate, engine, onExit }: any) => {
         <div className="flex h-screen flex-col overflow-hidden bg-slate-950 text-slate-50">
             <ModeratorZone
                 topic={debate.topic}
-                round={engine.roundIndex + 1}
-                totalRounds={debate.arguments.length}
+                round={Math.floor(Math.max(0, engine.roundIndex) / 2) + 1}
+                totalRounds={debate.totalRounds || 2}
                 presenterName={debate.presenter.name}
                 announcement={(engine.phase === "intro") ? (engine.streamedModeratorIntro || debate.presenter.introText) : undefined}
                 onAnnouncementComplete={engine.phase === "intro" ? engine.nextRound : undefined}

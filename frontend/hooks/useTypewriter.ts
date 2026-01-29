@@ -22,6 +22,11 @@ export function useTypewriter({
     const timeoutRef = useRef<number | null>(null);
     const intervalRef = useRef<number | null>(null);
 
+    const onCompleteRef = useRef(onComplete);
+    useEffect(() => {
+        onCompleteRef.current = onComplete;
+    }, [onComplete]);
+
     useEffect(() => {
         if (!enabled || !text) {
             setDisplayedText("");
@@ -47,7 +52,7 @@ export function useTypewriter({
                 setIsTyping(false);
 
                 timeoutRef.current = window.setTimeout(() => {
-                    onComplete?.();
+                    onCompleteRef.current?.();
                 }, delayAfterComplete);
             }
         }, speed);
@@ -56,7 +61,7 @@ export function useTypewriter({
             if (intervalRef.current) clearInterval(intervalRef.current);
             if (timeoutRef.current) clearTimeout(timeoutRef.current);
         };
-    }, [enabled, text, speed, delayAfterComplete, onComplete]);
+    }, [enabled, text, speed, delayAfterComplete]);
 
     return { displayedText, isTyping };
 }

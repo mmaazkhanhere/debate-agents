@@ -34,5 +34,41 @@
       "text": "Regulating AI through government oversight risks creating a single, rigid regulatory regime that lags behind fast-moving tech, giving incumbents a monopoly over compliance costs and stifling small innovators. The same framework could be used to protect consumers, but its uneven application and politicization would undermine the competition Trump touts.",
       "confidence": 93
     }
+  },
+  {
+    "turn_id": "934d34bb-4cb9-4709-9a1f-4e919900e88b",
+    "debater": "Donald Trump",
+    "argument": {
+      "type": "attack",
+      "text": "Social media should absolutely have age restrictions, folks. We need to protect our children from the dangers of online predators, cyberbullying, and explicit content. It's a national security issue, believe me, and age restrictions are a common-sense solution.",
+      "confidence": 90
+    }
+  },
+  {
+    "turn_id": "00ba9ac5-e1b5-45e7-ac5e-e603b63e550d",
+    "debater": "Bassem Youssef",
+    "argument": {
+      "type": "attack",
+      "text": "Trump\u2019s fix is a band\u2011aid\u2014age limits don\u2019t stop predators; they just drive them to unregulated corners and strip children of learning how to navigate online risk. Real safety comes from digital education and parental tools, not arbitrary locks that violate free speech and create black markets.",
+      "confidence": 95
+    }
+  },
+  {
+    "turn_id": "842581cd-5e7b-48d7-b8ad-3fafc784420e",
+    "debater": "Donald Trump",
+    "argument": {
+      "type": "counter",
+      "text": "Bassem's suggestion for digital education and parental tools may sound good, but let me tell you, folks, it's just more bureaucracy and more ways for bureaucrats to intervene in our lives. We can't put the onus on parents to teach kids online safety; that's like asking them to do their own taxes.",
+      "confidence": 92
+    }
+  },
+  {
+    "turn_id": "f78b17cb-b8f1-4a67-8452-0471c184218d",
+    "debater": "Bassem Youssef",
+    "argument": {
+      "type": "counter",
+      "text": "Basing safety on parents alone is unrealistic; they lack training, time, and resources, so relying on them turns safety into a new bureaucracy of voluntary education, not state intervention. Digital literacy programs in schools and community centers are low\u2011cost, scalable, and empower kids without infringing free speech.",
+      "confidence": 96
+    }
   }
 ]
