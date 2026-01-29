@@ -25,7 +25,7 @@ class DebateState(BaseModel):
         description="The central motion or topic being debated"
     )
     total_rounds: int = Field(
-        default=4,
+        default=2,
         description="Total number of debate rounds to run. One round is completed when both debaters have delivered an argument."
     )
     current_round: int = Field(

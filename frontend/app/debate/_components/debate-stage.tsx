@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { mockDebate, DebateData } from "@/data/mockDebate";
 import DebateLayout from "./debate-layout";
 import { useDebateEngine } from "@/hooks/useDebateEngine";
@@ -15,6 +15,7 @@ const DebateStage = () => {
     const [config, setConfig] = useState<DebateData | null>(null);
     const [debateId, setDebateId] = useState<string | null>(null);
     const [isDebateFinished, setIsDebateFinished] = useState(false);
+    const hasInitiated = useRef(false);
 
     // Load config from session storage and start debate
     useEffect(() => {
@@ -54,6 +55,9 @@ const DebateStage = () => {
 
             // Initiate the backend debate logic
             const initDebate = async () => {
+                if (hasInitiated.current) return;
+                hasInitiated.current = true;
+
                 try {
                     const id = await debateApi.startDebate(
                         debateData.topic,

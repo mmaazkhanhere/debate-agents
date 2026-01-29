@@ -1,7 +1,7 @@
 import logging
 import warnings
 import uuid
-import time
+import asyncio
 
 from .utils import append_turn, load_persona
 from .models import DebateState
@@ -112,7 +112,7 @@ class DebateFlow(Flow[DebateState]):
         self.state.turns.append(turn) 
         append_turn(turn)
 
-        time.sleep(18)
+        await asyncio.sleep(18)
 
 
 
@@ -143,7 +143,7 @@ class DebateFlow(Flow[DebateState]):
         self.state.turns.append(turn)
         append_turn(turn)
 
-        time.sleep(18)
+        await asyncio.sleep(18)
 
 
     @router(debater_2_answer)
