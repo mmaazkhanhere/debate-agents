@@ -1,74 +1,20 @@
 [
   {
-    "turn_id": "74385b04-ba73-4262-94e6-317c64407a59",
+    "turn_id": "d6fdda75-a3c7-496c-9fe3-e2ce0c133d71",
     "debater": "Donald Trump",
     "argument": {
-      "type": "framing",
-      "text": "The question is not whether AI should be regulated, but how we can harness government oversight to safeguard the tremendous benefits of AI innovation while mitigating its risks to our national security and economic competitiveness. By imposing clear yet flexible standards for AI development and deployment, governments can foster a thriving AI ecosystem without stifling innovation or stifling American ingenuity. This delicate balance will ensure that AI serves the people, not just corporate interests.",
-      "confidence": 90
+      "type": "counter",
+      "text": "Elon's concerns about AI governance are valid, but we need a more balanced approach, not a blanket ban. By working with top tech companies and governments worldwide, we can establish clear regulations and ensure AI serves humanity's interests, not just a select few.",
+      "confidence": 85
     }
   },
   {
-    "turn_id": "5b457f43-eda9-4689-b91a-23b88ef6b525",
+    "turn_id": "efa8aee7-b432-4ba6-a597-1e9235a9477b",
     "debater": "Elon Musk",
     "argument": {
-      "type": "counter",
-      "text": "Government regulation of AI will choke the very innovation that drives global competitiveness and security; the rapid iteration cycles required for breakthroughs cannot be slowed by bureaucratic compliance. Instead, industry-led standards and private sector oversight create flexible, globally harmonized norms that adapt faster than any legislative process. Relying on government mandates risks entrenching incumbents and stifling the entrepreneurial dynamism that fuels progress.",
-      "confidence": 95
-    }
-  },
-  {
-    "turn_id": "cc3870f6-90a7-4c71-85f3-3fbf92c0689b",
-    "debater": "Donald Trump",
-    "argument": {
-      "type": "counter",
-      "text": "Industry-led standards proposed by the likes of Silicon Valley billionaires like Elon Musk will only entrench power among a select few tech companies, stifling true innovation and competition. History shows us that government regulation, when implemented with wisdom and flexibility, has been instrumental in preventing reckless technological gambles and saving the American people from catastrophic consequences. I know a thing or two about making great deals, and smart government oversight is no exception.",
-      "confidence": 92
-    }
-  },
-  {
-    "turn_id": "c3bc192f-7648-4d16-9208-3d2ba4cf08d9",
-    "debater": "Elon Musk",
-    "argument": {
-      "type": "counter",
-      "text": "Regulating AI through government oversight risks creating a single, rigid regulatory regime that lags behind fast-moving tech, giving incumbents a monopoly over compliance costs and stifling small innovators. The same framework could be used to protect consumers, but its uneven application and politicization would undermine the competition Trump touts.",
-      "confidence": 93
-    }
-  },
-  {
-    "turn_id": "934d34bb-4cb9-4709-9a1f-4e919900e88b",
-    "debater": "Donald Trump",
-    "argument": {
       "type": "attack",
-      "text": "Social media should absolutely have age restrictions, folks. We need to protect our children from the dangers of online predators, cyberbullying, and explicit content. It's a national security issue, believe me, and age restrictions are a common-sense solution.",
+      "text": "Trump's claim that balanced regulations with tech giants will secure AI's alignment is flawed because these companies already hold disproportionate influence and opacity; without open\u2011source governance, regulations risk reinforcing power imbalances. We must instead create transparent, decentralized AI oversight that democratizes data, algorithms, and decision\u2011making to truly serve all citizens.",
       "confidence": 90
-    }
-  },
-  {
-    "turn_id": "00ba9ac5-e1b5-45e7-ac5e-e603b63e550d",
-    "debater": "Bassem Youssef",
-    "argument": {
-      "type": "attack",
-      "text": "Trump\u2019s fix is a band\u2011aid\u2014age limits don\u2019t stop predators; they just drive them to unregulated corners and strip children of learning how to navigate online risk. Real safety comes from digital education and parental tools, not arbitrary locks that violate free speech and create black markets.",
-      "confidence": 95
-    }
-  },
-  {
-    "turn_id": "842581cd-5e7b-48d7-b8ad-3fafc784420e",
-    "debater": "Donald Trump",
-    "argument": {
-      "type": "counter",
-      "text": "Bassem's suggestion for digital education and parental tools may sound good, but let me tell you, folks, it's just more bureaucracy and more ways for bureaucrats to intervene in our lives. We can't put the onus on parents to teach kids online safety; that's like asking them to do their own taxes.",
-      "confidence": 92
-    }
-  },
-  {
-    "turn_id": "f78b17cb-b8f1-4a67-8452-0471c184218d",
-    "debater": "Bassem Youssef",
-    "argument": {
-      "type": "counter",
-      "text": "Basing safety on parents alone is unrealistic; they lack training, time, and resources, so relying on them turns safety into a new bureaucracy of voluntary education, not state intervention. Digital literacy programs in schools and community centers are low\u2011cost, scalable, and empower kids without infringing free speech.",
-      "confidence": 96
     }
   }
 ]

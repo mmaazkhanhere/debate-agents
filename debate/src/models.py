@@ -1,7 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Literal
 
-
 class TurnArgument(BaseModel):
     type: Literal["attack", "defense", "counter", "framing"] = Field(description="Strategic role of this response: attack = challenge opponent’s claim, defense = protect own claim, counter = rebut a specific point, framing = redefine the narrative, clarification = explain or refine a claim")
     text: str = Field(description="The debater’s argument expressed as a clear, persuasive, and logically structured paragraph.")
@@ -25,7 +24,7 @@ class DebateState(BaseModel):
         description="The central motion or topic being debated"
     )
     total_rounds: int = Field(
-        default=2,
+        default=1,
         description="Total number of debate rounds to run. One round is completed when both debaters have delivered an argument."
     )
     current_round: int = Field(
@@ -56,20 +55,14 @@ class DebateState(BaseModel):
         default_factory=list,
         description="Chronological log of all debate turns, used as conversational memory and grounding context."
     )
+    winner: str = Field(default="", description="Name of the winning debater")
 
 
-# class Score(BaseModel):
-#     debater_1: int
-#     debater_2: int
+class JudgeVerdictResponse(BaseModel):
+    judge: str = Field(description="Name of the judge")
+    winner: str = Field(description="Name of the winning debater for the judge")
+    reasoning: str = Field(description="Reasoning for the decision in concise 2 short sentences. One sentence on winner strength and one sentence on loser weakness")
+    winner_weakness: str = Field(description="One notable weakness of the winning debater in one short sentence") 
 
-# class BestQuotes(BaseModel):
-#     debater_1: str
-#     debater_2: str
-
-# class JudgeVerdict(BaseModel):
-#     judge: str
-#     winner: str # debater_1 | debater_2
-#     confidence: float
-#     score: Score
-#     best_quotes: BestQuotes
-#     reasoning: str
+class DebateWinner(BaseModel):
+    winner: str = Field(description="Name of the winning debater")

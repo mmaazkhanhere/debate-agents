@@ -112,7 +112,7 @@ class DebateFlow(Flow[DebateState]):
         self.state.turns.append(turn) 
         append_turn(turn)
 
-        await asyncio.sleep(18)
+        # await asyncio.sleep(18)
 
 
 
@@ -143,7 +143,7 @@ class DebateFlow(Flow[DebateState]):
         self.state.turns.append(turn)
         append_turn(turn)
 
-        await asyncio.sleep(18)
+        # await asyncio.sleep(18)
 
 
     @router(debater_2_answer)
@@ -153,16 +153,21 @@ class DebateFlow(Flow[DebateState]):
         if self.state.current_round < self.state.total_rounds:
             return "next_round"
         else:
-            return "finish"
+            return "judge"
 
 
-    @listen("finish")
-    async def conclude_debate(self):
-        print("\n" + "="*50)
-        print("DEBATE HAS ENDED")
-        print("="*50 + "\n")
-        LOG.info("Debate has ended")
-        return self.state
+    @listen("judge")
+    async def judge_debate(self):
+        LOG.info("Judging the debate")
+        judge_response = self.debate.judge_crew().kickoff(inputs={
+            "topic": self.state.topic, 
+            "debater_1": self.state.debater_1, 
+            "debater_2": self.state.debater_2,
+            "history": self._history_as_text()
+        })
+
+        LOG.info("Debate Winner: ", judge_response.pydantic)
+        self.state.winner = judge_response.pydantic
         
 
 async def run_debate_flow(debate_id: str, topic: str, debater_1: str, debater_2: str):
