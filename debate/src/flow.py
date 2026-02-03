@@ -54,16 +54,16 @@ class DebateFlow(Flow[DebateState]):
         return "\n\n".join(lines)
 
     @start()
-    async def moderator_topic_introduce(self):
-        LOG.info(f"Introducing the topic: {self.state.topic}")
+    async def moderator_debate_introduction(self):
+        LOG.info(f"Introducing the debate topic: {self.state.topic}")
         topic: str = self.state.topic
         llm = LLM(model="groq/openai/gpt-oss-120b")
-        topic_introduction = llm.call(f"""You are Piers Morgan. Introduce the topic: {topic} and debators 
+        debate_introduction = llm.call(f"""You are Piers Morgan. Introduce the topic: {topic} and debators 
         {self.state.debater_1} and {self.state.debater_2}. Pass some comments about the topics. Ensure it 
         is engaging and interesting for the audience. Keep introduction to 3 sentences.
         """)
-        LOG.info(f"Topic Introduction: {topic_introduction}")
-        self.state.moderator_introduction = topic_introduction
+        LOG.info(f"Debate Introduction: {debate_introduction}")
+        self.state.moderator_introduction = debate_introduction
 
         publish(
             self.state.debate_id,
@@ -71,7 +71,7 @@ class DebateFlow(Flow[DebateState]):
             {
                 "agent": "moderator_agent",
                 "topic": topic,
-                "output": topic_introduction,
+                "output": debate_introduction,
             },
         )
 
@@ -83,7 +83,7 @@ class DebateFlow(Flow[DebateState]):
         # time.sleep(10)
 
 
-    @listen(or_(moderator_topic_introduce, "next_round"))
+    @listen(or_(moderator_debate_introduction, "next_round"))
     async def debater_1_answer(self):
         LOG.info(f"Debater_1 Answering - Round {self.state.current_round}")
         
@@ -153,10 +153,36 @@ class DebateFlow(Flow[DebateState]):
         if self.state.current_round < self.state.total_rounds:
             return "next_round"
         else:
-            return "judge"
+            return "conclude_debate"
 
 
-    @listen("judge")
+    @listen("conclude_debate")
+    async def moderator_debate_conclusion(self):
+        LOG.info("Moderator Concluding the debate")
+        llm = LLM(model="groq/openai/gpt-oss-120b")
+        
+        debate_conclusion = llm.call(f"""You are Piers Morgan. Conclude the debate on the topic: {self.state.topic} 
+        between {self.state.debater_1} and {self.state.debater_2}. 
+        Review the following debate turns:
+        {self.state.turns}
+        
+        Provide a sharp conclusion and short insights on the arguments presented. 
+        Keep it engaging and limited to 2 sentences. End with something like lets see
+        what the judges think about the winner
+        """)
+
+        publish(
+            self.state.debate_id,
+            "moderator_conclusion_done",
+            {
+                "agent": "moderator_agent",
+                "topic": self.state.topic,
+                "output": debate_conclusion,
+            },
+        )
+
+
+    @listen("moderator_debate_conclusion")
     async def judge_debate(self):
         LOG.info("Judging the debate")
         judge_response = self.debate.judge_crew().kickoff(inputs={

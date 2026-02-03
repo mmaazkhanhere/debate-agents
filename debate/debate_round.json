@@ -16,5 +16,23 @@
       "text": "Trump's claim that balanced regulations with tech giants will secure AI's alignment is flawed because these companies already hold disproportionate influence and opacity; without open\u2011source governance, regulations risk reinforcing power imbalances. We must instead create transparent, decentralized AI oversight that democratizes data, algorithms, and decision\u2011making to truly serve all citizens.",
       "confidence": 90
     }
+  },
+  {
+    "turn_id": "2d684abb-8010-4363-afb8-af5b54be9e8d",
+    "debater": "Trump",
+    "argument": {
+      "type": "framing",
+      "text": "Folks, the climate change issue is a total hoax, a disaster created by China to make us look bad. It's a simple fact: they're the ones polluting, not us. And let me tell you, I've made some of the greatest deals with China, but this time, they're wrong on this one.",
+      "confidence": 90
+    }
+  },
+  {
+    "turn_id": "5903c45b-4b1b-407e-afa9-97195cac5831",
+    "debater": "Elon Musk",
+    "argument": {
+      "type": "attack",
+      "text": "Climate change is an observable, data-driven reality\u2014temperature records, ice melt, and sea-level rise unequivocally show it\u2014so calling it a 'hoax' ignores the scientific consensus. Blaming China alone misrepresents the global nature of emissions; the U.S. still accounts for a large share of historical CO\u2082, and tech-driven solutions must be shared worldwide. Ignoring this crisis would cripple future innovation, including the very ventures that make humanity a multi-planetary species.",
+      "confidence": 90
+    }
   }
 ]
