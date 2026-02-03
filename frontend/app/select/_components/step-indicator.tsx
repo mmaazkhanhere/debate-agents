@@ -5,19 +5,19 @@ import { DebaterOption, SelectedTopic, Step } from '../_types/type';
 import { STEPS } from '@/constants/select-constants';
 
 type Props = {
-    step: Step;
+    currentStep: Step;
     debater1: DebaterOption | null;
     debater2: DebaterOption | null;
     topic: SelectedTopic | null;
-    onStepChange: (step: Step) => void;
+    onCurrentStepChange: (step: Step) => void;
 };
 
 const StepIndicator = ({
-    step,
+    currentStep,
     debater1,
     debater2,
     topic,
-    onStepChange,
+    onCurrentStepChange,
 }: Props) => {
 
     const stepStatus: Record<Step, boolean> = {
@@ -26,7 +26,7 @@ const StepIndicator = ({
         topic: !!topic,
     };
 
-    const currentStepIndex = STEPS.findIndex((s) => s.id === step);
+    const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep);
 
     const canGoToStep = (targetStep: Step) => {
         const targetStepIndex = STEPS.findIndex((step) => step.id === targetStep);
@@ -58,7 +58,7 @@ const StepIndicator = ({
             className="flex items-center justify-center gap-2 md:gap-4 mb-8"
         >
             {STEPS.map((stepItem, index) => {
-                const isActive = step === stepItem.id;
+                const isActive = currentStep === stepItem.id;
                 const isComplete = stepStatus[stepItem.id];
                 const isClickable = canGoToStep(stepItem.id);
 
@@ -69,7 +69,7 @@ const StepIndicator = ({
                             aria-current={isActive ? 'step' : undefined}
                             aria-label={`${stepItem.label} ${isComplete ? 'completed' : ''}`}
                             disabled={!isClickable}
-                            onClick={() => isClickable && onStepChange(stepItem.id)}
+                            onClick={() => isClickable && onCurrentStepChange(stepItem.id)}
                             whileHover={isClickable ? { scale: 1.08 } : undefined}
                             whileTap={isClickable ? { scale: 0.95 } : undefined}
                             animate={{ scale: isActive ? 1.1 : 1 }}

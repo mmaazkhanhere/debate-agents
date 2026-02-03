@@ -1,154 +1,185 @@
 'use client';
 
-import * as React from "react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Brain, MessageCircle, Zap } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { DebaterOption } from "../_types/type";
 
 type Props = {
-    step: 'debater1' | 'debater2';
+    selectionStep: 'debater1' | 'debater2';
     debater: DebaterOption;
-    onSelect: (d: DebaterOption) => void;
+    onSelectDebater: (d: DebaterOption) => void;
+    selected?: boolean;
 };
 
-const Stat = ({
-    icon,
-    label,
-    value,
-}: {
-    icon: React.ReactNode;
-    label: string;
-    value: number;
-}) => (
-    <div className="flex items-center justify-between">
-        <div className="
-      flex items-center gap-2 text-xs
-      text-muted-foreground
-      group-hover:text-foreground
-      transition-colors
-    ">
-            {icon}
-            <span>{label}</span>
-        </div>
+const styleItems = [
+    { key: "logic", label: "Logic", color: "bg-sky-500", track: "bg-sky-500/15" },
+    { key: "charisma", label: "Emotion", color: "bg-rose-500", track: "bg-rose-500/15" },
+    { key: "aggression", label: "Aggression", color: "bg-amber-500", track: "bg-amber-500/15" },
+    { key: "wit", label: "Wit", color: "bg-emerald-500", track: "bg-emerald-500/15" },
+] as const;
 
-        <span className="text-sm font-bold tabular-nums text-foreground">
-            {value}
-        </span>
-    </div>
-);
-
-const DebaterCard = ({ step, debater, onSelect }: Props) => {
-    const isLeft = step === 'debater1';
-
-    const accent = isLeft
-        ? 'from-debater-left/80'
-        : 'from-debater-right/80';
+export default function DebaterCard({
+    selectionStep,
+    debater,
+    onSelectDebater,
+    selected = false,
+}: Props) {
+    const isLeft = selectionStep === 'debater1';
 
     return (
         <article
             itemScope
-            itemType="https://schema.org/Person"
             className="h-full"
         >
-            <Button
-                type="button"
-                variant="ghost"
-                onClick={() => onSelect(debater)}
+            <section
+                role="button"
+                tabIndex={0}
+                onClick={() => onSelectDebater(debater)}
+                onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        onSelectDebater(debater);
+                    }
+                }}
                 aria-label={`Select ${debater.name} as ${isLeft ? 'first' : 'second'} debater`}
-                className="
-                    group relative w-full h-full p-0 text-left overflow-hidden rounded-2xl border bg-card transition-all duration-300 
-                    hover:bg-primary/10 hover:ring-2 hover:ring-primary/40 hover:-translate-y-1 hover:shadow-xl focus-visible:outline-none 
-                    focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
+                className={`
+                    group relative w-full h-full cursor-pointer
+                    p-0 text-left overflow-hidden rounded-2xl border bg-card
+                    transition-all duration-300
+                    hover:bg-primary/10
+                    hover:ring-2 hover:ring-primary/40
+                    hover:shadow-xl
+                    hover:-translate-y-1
+                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary
+                    active:scale-[0.98]
+                    ${selected ? 'ring-2 ring-primary shadow-[0_0_0_3px_rgba(59,130,246,0.25)]' : ''}
+                `}
             >
-                {/* HERO IMAGE */}
-                <div className="relative h-52 w-full overflow-hidden">
-                    <Image
-                        src={debater.avatar}
-                        alt={`${debater.name} portrait`}
-                        fill
-                        priority
-                        itemProp="image"
-                        className="object-cover scale-105 group-hover:scale-110 transition-transform duration-500"
-                    />
+                {/* Persona accent strip */}
+                <div className="absolute inset-x-0 top-0 h-1 bg-primary" />
 
-
-
-                    {/* NAME + TITLE */}
-                    <header className="absolute bottom-4 left-4 right-4">
-                        <h3
-                            className="text-lg font-bold leading-tight text-white drop-shadow-md"
-                            itemProp="name"
-                        >
-                            {debater.name}
-                        </h3>
-                        <p
-                            className="text-xs text-white/85 truncate"
-                            itemProp="jobTitle"
-                        >
-                            {debater.title}
-                        </p>
-                    </header>
-                </div>
-
-                {/* CONTENT */}
-                <div className="p-4 space-y-4">
-                    {/* STATS */}
-                    <section
-                        aria-label="Debater statistics"
-                        className="rounded-xl bg-secondary p-3 space-y-2"
+                <div className="flex h-full w-full flex-col lg:flex-row">
+                    {/* IMAGE */}
+                    <div
+                        className="relative w-full h-[32%] min-h-[200px] overflow-hidden lg:h-full lg:w-[45%]"
                     >
-                        <Stat
-                            icon={<Brain className="w-3.5 h-3.5 transition-colors" />}
-                            label="Logic"
-                            value={debater.stats.logic}
+                        <Image
+                            src={debater.avatar}
+                            alt={`${debater.name} portrait`}
+                            fill
+                            priority
+                            itemProp="image"
+                            className="object-cover scale-100 saturate-90 contrast-105 group-hover:scale-105 transition-transform duration-500"
                         />
-                        <Stat
-                            icon={<MessageCircle className="w-3.5 h-3.5 transition-colors" />}
-                            label="Charisma"
-                            value={debater.stats.charisma}
+                        <div
+                            className="absolute inset-0 bg-linear-to-t from-black/40 via-black/10 to-transparent"
+                            aria-hidden
                         />
-                        <Stat
-                            icon={<Zap className="w-3.5 h-3.5 transition-colors" />}
-                            label="Aggression"
-                            value={debater.stats.aggression}
-                        />
-                    </section>
+                    </div>
 
-                    {/* META */}
-                    <section
-                        aria-label="Debater ideology and specialty"
-                        className="flex flex-wrap items-center gap-2"
-                    >
-                        <Badge
-                            className="text-xs border border-primary bg-secondary text-secondary-foreground"
-                            itemProp="knowsAbout"
-                        >
-                            {debater.ideology}
-                        </Badge>
-                        <Badge
-                            variant="secondary"
-                            className="text-xs"
-                        >
-                            {debater.specialty}
-                        </Badge>
-                    </section>
+                    {/* CONTENT */}
+                    <div className="flex flex-1 flex-col gap-5 p-5 lg:p-6">
+                        {/* HEADER */}
+                        <header className="space-y-1">
+                            <h3
+                                className="text-2xl font-semibold leading-tight"
+                                itemProp="name"
+                            >
+                                {debater.name}
+                            </h3>
+                            <p
+                                className="text-sm text-muted-foreground"
+                                itemProp="jobTitle"
+                            >
+                                {debater.title}
+                            </p>
+                        </header>
 
-                    {/* CTA — ALWAYS VISIBLE (A11Y FIX) */}
-                    <footer className="
-            flex items-center gap-1 pt-1 text-xs
-            text-muted-foreground
-            group-hover:text-foreground
-            transition-colors
-          ">
-                        <Zap className="w-3 h-3" aria-hidden />
-                        <span>Select debater</span>
-                    </footer>
+                        {/* STATS */}
+                        <section
+                            aria-label="Persona style breakdown"
+                            className="space-y-3 rounded-xl border bg-secondary/40 p-4"
+                        >
+                            {styleItems.map((item) => (
+                                <StatBar
+                                    key={item.key}
+                                    label={item.label}
+                                    value={debater.stats[item.key]}
+                                    color={item.color}
+                                    track={item.track}
+                                />
+                            ))}
+                        </section>
+
+                        {/* TRAITS */}
+                        <section aria-label="Signature traits" className="space-y-2">
+                            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                Signature traits
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                                <Badge
+                                    className="text-xs border border-primary/30 bg-primary/10 text-foreground"
+                                    itemProp="knowsAbout"
+                                >
+                                    {debater.ideology}
+                                </Badge>
+                                <Badge variant="secondary" className="text-xs">
+                                    {debater.specialty}
+                                </Badge>
+                                <Badge variant="outline" className="text-xs">
+                                    {debater.catchphrase}
+                                </Badge>
+                            </div>
+                        </section>
+
+                        {/* FOOTER CTA */}
+                        <footer
+                            className={`
+                                mt-auto flex items-center gap-2 text-sm font-semibold
+                                transition-colors
+                                ${selected ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}
+                            `}
+                        >
+                            <CheckCircle2 className="h-4 w-4" aria-hidden />
+                            <span>{selected ? 'Selected' : 'Select debater'}</span>
+                        </footer>
+                    </div>
                 </div>
-            </Button>
+            </section>
         </article>
     );
-};
+}
 
-export default DebaterCard;
+
+function StatBar({
+    label,
+    value,
+    color,
+    track,
+}: {
+    label: string;
+    value: number;
+    color: string;
+    track: string;
+}) {
+    const clamped = Math.min(100, Math.max(0, value));
+
+    return (
+        <div className="space-y-1.5">
+            <div className="flex items-center justify-between text-xs">
+                <span className="font-medium text-foreground">{label}</span>
+                <span className="hidden lg:inline font-semibold tabular-nums text-foreground">
+                    {clamped}
+                </span>
+            </div>
+
+            <div className={`h-1.5 lg:h-2 w-full rounded-full ${track}`}>
+                <div
+                    className={`h-full rounded-full ${color}`}
+                    style={{ width: `${clamped}%` }}
+                />
+            </div>
+        </div>
+    );
+}
