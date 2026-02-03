@@ -1,9 +1,8 @@
-import SelectDebateClient from './_components/select_debate_client'
-
+import DebateSetupScreen from "./_components/debate-setup-screen"
 
 const SelectPage = () => {
     return (
-        <div><SelectDebateClient /></div>
+        <div><DebateSetupScreen /></div>
     )
 }
 

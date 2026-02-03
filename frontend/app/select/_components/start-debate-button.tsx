@@ -1,43 +1,48 @@
-// app/debate/select/components/StartDebateButton.tsx
 'use client';
 
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { ChevronRight } from 'lucide-react';
-import { SelectedTopic } from '@/types/type_d';
 
+import { Button } from '@/components/ui/button';
+
+import { ChevronRight } from 'lucide-react';
+import { DebateTopicSelection } from '../_types/type';
 
 type Props = {
-    enabled: boolean;
+    canStart: boolean;
     onStart: () => void;
-    topic: SelectedTopic | null;
+    topic: DebateTopicSelection | null;
 };
 
-const StartDebateButton = ({ enabled, onStart, topic }: Props) => {
-    const tooShort = !!topic && topic.title.trim().length > 0 && topic.title.trim().length < 8;
+const StartDebateButton = ({ canStart, onStart, topic }: Props) => {
+    const isCustom = topic?.kind === 'custom';
+    const titleLength = topic?.title.trim().length ?? 0;
+
+    const isTooShort = isCustom && titleLength > 0 && titleLength < 8;
 
     return (
         <motion.div
-            className="flex flex-col items-center mt-8 gap-2"
+            className="flex flex-col items-center mt-8 gap-2 cursor-pointer"
             initial={{ opacity: 0 }}
-            animate={{ opacity: enabled ? 1 : 0.6 }}
+            animate={{ opacity: canStart ? 1 : 0.5 }}
         >
             <Button
                 onClick={onStart}
-                disabled={!enabled}
-                className="flex items-center gap-2 bg-primary hover:bg-primary/80 text-primary-foreground font-bold cursor-pointer py-6"
+                disabled={!canStart}
+                className="flex items-center gap-2 bg-primary hover:bg-primary/80 text-primary-foreground font-bold py-6 cursor-pointer"
+                aria-disabled={!canStart}
             >
                 Start The Debate
                 <ChevronRight className="w-5 h-5" />
             </Button>
 
-            {tooShort && (
+            {isTooShort && (
                 <p className="text-xs text-muted-foreground">
-                    Custom topic is a bit short — use at least <span className="font-medium">8 characters</span>.
+                    Custom topic is a bit short — use at least{' '}
+                    <span className="font-medium">8 characters</span>.
                 </p>
             )}
         </motion.div>
     );
-}
+};
 
 export default StartDebateButton;

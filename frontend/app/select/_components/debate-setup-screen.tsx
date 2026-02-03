@@ -10,7 +10,7 @@ import StartDebateButton from "./start-debate-button";
 import { useDebateSelection } from "@/hooks/useDebateSelection";
 import DebaterSelection from "./debater-selection";
 
-const SelectDebateClient = () => {
+const DebateSetupScreen = () => {
     const selection = useDebateSelection();
 
     const currentSelectionStep = selection.currentSelectionStep;
@@ -51,7 +51,7 @@ const SelectDebateClient = () => {
                                 onSelectTopic={selection.chooseTopic}
                             />
                             <StartDebateButton
-                                enabled={selection.isComplete}
+                                canStart={selection.isComplete}
                                 onStart={selection.startDebate}
                                 topic={selection.selectedTopic}
                             />
@@ -63,4 +63,4 @@ const SelectDebateClient = () => {
     );
 };
 
-export default SelectDebateClient;
+export default DebateSetupScreen;
