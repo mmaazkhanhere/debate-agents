@@ -1,15 +1,15 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { DebaterOption, SelectedTopic, Step } from '../_types/type';
 import { STEPS } from '@/constants/select-constants';
+import { DebaterProfile, DebateSetupStep, DebateTopicSelection } from '../_types/type';
 
 type Props = {
-    currentStep: Step;
-    debater1: DebaterOption | null;
-    debater2: DebaterOption | null;
-    topic: SelectedTopic | null;
-    onCurrentStepChange: (step: Step) => void;
+    currentStep: DebateSetupStep;
+    debater1: DebaterProfile | null;
+    debater2: DebaterProfile | null;
+    topic: DebateTopicSelection | null;
+    onCurrentStepChange: (step: DebateSetupStep) => void;
 };
 
 const StepIndicator = ({
@@ -20,7 +20,7 @@ const StepIndicator = ({
     onCurrentStepChange,
 }: Props) => {
 
-    const stepStatus: Record<Step, boolean> = {
+    const stepStatus: Record<DebateSetupStep, boolean> = {
         debater1: !!debater1,
         debater2: !!debater2,
         topic: !!topic,
@@ -28,7 +28,7 @@ const StepIndicator = ({
 
     const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep);
 
-    const canGoToStep = (targetStep: Step) => {
+    const canGoToStep = (targetStep: DebateSetupStep) => {
         const targetStepIndex = STEPS.findIndex((step) => step.id === targetStep);
         return targetStepIndex <= currentStepIndex || stepStatus[targetStep];
     };

@@ -3,28 +3,23 @@
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2 } from "lucide-react";
-import { DebaterOption } from "../_types/type";
+import { styleItems } from "@/constants/select-constants";
+import { DebaterProfile } from "../_types/type";
 
 type Props = {
     selectionStep: 'debater1' | 'debater2';
-    debater: DebaterOption;
-    onSelectDebater: (d: DebaterOption) => void;
+    debater: DebaterProfile;
+    onSelectDebater: (d: DebaterProfile) => void;
     selected?: boolean;
 };
 
-const styleItems = [
-    { key: "logic", label: "Logic", color: "bg-sky-500", track: "bg-sky-500/15" },
-    { key: "charisma", label: "Emotion", color: "bg-rose-500", track: "bg-rose-500/15" },
-    { key: "aggression", label: "Aggression", color: "bg-amber-500", track: "bg-amber-500/15" },
-    { key: "wit", label: "Wit", color: "bg-emerald-500", track: "bg-emerald-500/15" },
-] as const;
 
-export default function DebaterCard({
+const DebaterCard = ({
     selectionStep,
     debater,
     onSelectDebater,
     selected = false,
-}: Props) {
+}: Props) => {
     const isLeft = selectionStep === 'debater1';
 
     return (
@@ -183,3 +178,5 @@ function StatBar({
         </div>
     );
 }
+
+export default DebaterCard;

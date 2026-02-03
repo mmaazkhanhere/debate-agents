@@ -3,19 +3,19 @@
 import { motion } from 'framer-motion';
 import { useMemo } from 'react';
 import DebaterCard from './debater-card';
-import { DebaterOption } from '../_types/type';
-import { DEBATERS_AVAILABLE } from '@/constants/select-constants';
+import { DEBATERS_AVAILABLE } from '@/constants/debater-constant';
+import { DebaterProfile } from '../_types/type';
 
 type Props = {
     selectionStep: 'debater1' | 'debater2';
-    selectedDebater: DebaterOption | null;
-    onDebaterSelection: (d: DebaterOption) => void;
+    selectedDebater: DebaterProfile | null;
+    onDebaterSelection: (d: DebaterProfile) => void;
 };
 
 const DebaterSelection = ({ selectionStep, selectedDebater, onDebaterSelection }: Props) => {
     const available = useMemo(() => {
         return selectionStep === 'debater2'
-            ? DEBATERS_AVAILABLE.filter(d => d.id !== selectedDebater?.id)
+            ? DEBATERS_AVAILABLE.filter(debater => debater.id !== selectedDebater?.id)
             : DEBATERS_AVAILABLE;
     }, [selectionStep, selectedDebater]);
 
@@ -41,12 +41,12 @@ const DebaterSelection = ({ selectionStep, selectedDebater, onDebaterSelection }
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {available.map((debater, i) => (
+                {available.map((debater, index) => (
                     <motion.div
                         key={debater.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.06 }}
+                        transition={{ delay: index * 0.06 }}
                         layout
                     >
                         <DebaterCard selectionStep={selectionStep} debater={debater} onSelectDebater={onDebaterSelection} />

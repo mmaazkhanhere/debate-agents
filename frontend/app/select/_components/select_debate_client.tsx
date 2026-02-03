@@ -4,7 +4,7 @@ import { AnimatePresence } from "framer-motion";
 
 import Header from "./debater-header";
 import StepIndicator from "./step-indicator";
-import TopicGrid from "./topic-grid";
+import TopicSelection from "./topic-selection";
 import StartDebateButton from "./start-debate-button";
 
 import { useDebateSelection } from "@/hooks/useDebateSelection";
@@ -44,11 +44,11 @@ const SelectDebateClient = () => {
 
                     {currentSelectionStep === "topic" && selection.firstDebater && selection.secondDebater && (
                         <div key="topic">
-                            <TopicGrid
+                            <TopicSelection
                                 debater1={selection.firstDebater}
                                 debater2={selection.secondDebater}
-                                selected={selection.selectedTopic}
-                                onSelect={selection.chooseTopic}
+                                selectedTopic={selection.selectedTopic}
+                                onSelectTopic={selection.chooseTopic}
                             />
                             <StartDebateButton
                                 enabled={selection.isComplete}

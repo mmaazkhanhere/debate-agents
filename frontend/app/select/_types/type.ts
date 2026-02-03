@@ -1,4 +1,4 @@
-export type DebaterOption = {
+export type DebaterProfile = {
     id: string;
     name: string;
     title: string;
@@ -18,30 +18,27 @@ export type DebaterOption = {
     bio?: string;
 }
 
-export type DebateConfig = {
-    debater1: DebaterOption;
-    debater2: DebaterOption;
-    topic: SelectedTopic;
+export type DebateSessionConfig = {
+    debater1: DebaterProfile;
+    debater2: DebaterProfile;
+    topic: DebateTopicSelection;
 };
 
-export type TopicOption = {
+export type DebateTopic = {
     id: string;
     title: string;
-    category: string;
     icon: string;
-    difficulty: 'Easy' | 'Medium' | 'Hard';
 }
 
-export type SelectedTopic =
-    | (TopicOption & { kind?: 'preset' })
+export type DebateTopicSelection =
+    | (DebateTopic & { kind?: 'preset' })
     | {
         kind?: 'custom';
         id: 'custom';
         title: string;
-        category?: 'Custom';
-        difficulty?: 'Easy' | 'Medium' | 'Hard';
-        icon?: string;
+        icon: string;
     };
 
 
-export type Step = 'debater1' | 'debater2' | 'topic';
+export type DebateSetupStep = 'debater1' | 'debater2' | 'topic';
+
