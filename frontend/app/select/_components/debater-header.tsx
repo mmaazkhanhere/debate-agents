@@ -3,11 +3,22 @@
 
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/auth-context';
-import { LogOut, Swords } from 'lucide-react';
+import { LogOut, Moon, Sun, Swords } from 'lucide-react';
+import { useTheme } from 'next-themes';
+import { useEffect, useState } from 'react';
 
 
 const Header = () => {
     const { user, signOut } = useAuth();
+    const { theme, setTheme, resolvedTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    const currentTheme = theme === "system" ? resolvedTheme : theme;
+    const isDark = currentTheme === "dark";
 
     return (
         <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
@@ -24,11 +35,24 @@ const Header = () => {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 md:gap-4">
                     <div className="text-right hidden md:block">
                         <p className="text-sm font-medium text-foreground">{user?.username}</p>
                         <p className="text-xs text-muted-foreground">{user?.email}</p>
                     </div>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setTheme(isDark ? "light" : "dark")}
+                        className="text-muted-foreground hover:text-foreground"
+                        aria-label="Toggle color mode"
+                    >
+                        {mounted && isDark ? (
+                            <Sun className="w-4 h-4" />
+                        ) : (
+                            <Moon className="w-4 h-4" />
+                        )}
+                    </Button>
                     <Button
                         variant="ghost"
                         size="sm"

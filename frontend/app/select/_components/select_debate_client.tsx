@@ -1,58 +1,66 @@
-// app/debate/select/SelectDebateClient.tsx
-'use client';
+"use client";
 
-import { useDebateSelection } from '@/hooks/useDebateSelection';
-import { AnimatePresence } from 'framer-motion';
-import Header from './debater-header';
-import StepIndicator from './step-indicator';
-import DebaterGrid from './debater-grid';
-import TopicGrid from './topic-grid';
-import StartDebateButton from './start-debate-button';
+import { AnimatePresence } from "framer-motion";
 
+import Header from "./debater-header";
+import StepIndicator from "./step-indicator";
+import DebaterGrid from "./debater-grid";
+import TopicGrid from "./topic-grid";
+import StartDebateButton from "./start-debate-button";
 
-export default function SelectDebateClient() {
-    const {
-        step,
-        setStep,
-        debater1,
-        debater2,
-        topic,
-        canStart,
-        selectDebater,
-        selectTopic,
-        startDebate,
-    } = useDebateSelection();
+import { useDebateSelection } from "@/hooks/useDebateSelection";
+
+const SelectDebateClient = () => {
+    const selection = useDebateSelection();
+
+    const step = selection.currentSelectionStep;
+    const isDebaterStep = step === "debater1" || step === "debater2";
+
+    const onSelectDebater =
+        step === "debater1" ? selection.chooseFirstDebater : selection.chooseSecondDebater;
 
     return (
         <div className="min-h-screen bg-background overflow-auto">
             <Header />
 
             <main className="max-w-6xl mx-auto px-4 py-6">
-                <StepIndicator step={step} onStepChange={setStep} debater1={debater1} debater2={debater2} topic={topic} />
+                <StepIndicator
+                    step={step}
+                    onStepChange={selection.setCurrentSelectionStep}
+                    debater1={selection.firstDebater}
+                    debater2={selection.secondDebater}
+                    topic={selection.selectedTopic}
+                />
 
                 <AnimatePresence mode="wait">
-                    {(step === 'debater1' || step === 'debater2') && (
+                    {isDebaterStep && (
                         <DebaterGrid
                             key={step}
                             step={step}
-                            debater1={debater1}
-                            onSelect={selectDebater}
+                            debater1={selection.firstDebater}
+                            onSelect={onSelectDebater}
                         />
                     )}
 
-                    {step === 'topic' && debater1 && debater2 && (
+                    {step === "topic" && selection.firstDebater && selection.secondDebater && (
                         <div key="topic">
                             <TopicGrid
-                                debater1={debater1}
-                                debater2={debater2}
-                                selected={topic}
-                                onSelect={selectTopic}
+                                debater1={selection.firstDebater}
+                                debater2={selection.secondDebater}
+                                selected={selection.selectedTopic}
+                                onSelect={selection.chooseTopic}
                             />
-                            <StartDebateButton enabled={canStart} onStart={startDebate} topic={topic} />
+                            <StartDebateButton
+                                enabled={selection.isComplete}
+                                onStart={selection.startDebate}
+                                topic={selection.selectedTopic}
+                            />
                         </div>
                     )}
                 </AnimatePresence>
             </main>
         </div>
     );
-}
+};
+
+export default SelectDebateClient;

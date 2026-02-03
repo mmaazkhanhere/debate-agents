@@ -1,7 +1,8 @@
 'use client';
 
-import { DebaterOption, SelectedTopic, Step } from '@/types/type_d';
 import { motion } from 'framer-motion';
+import { DebaterOption, SelectedTopic, Step } from '../_types/type';
+import { STEPS } from '@/constants/select-constants';
 
 type Props = {
     step: Step;
@@ -11,12 +12,6 @@ type Props = {
     onStepChange: (step: Step) => void;
 };
 
-const steps: { id: Step; label: string }[] = [
-    { id: 'debater1', label: 'Choose first debater' },
-    { id: 'debater2', label: 'Choose second debater' },
-    { id: 'topic', label: 'Select topic' },
-];
-
 const StepIndicator = ({
     step,
     debater1,
@@ -24,64 +19,75 @@ const StepIndicator = ({
     topic,
     onStepChange,
 }: Props) => {
-    const isDone = (s: Step) =>
-        (s === 'debater1' && !!debater1) ||
-        (s === 'debater2' && !!debater2) ||
-        (s === 'topic' && !!topic);
 
-    const canNavigateTo = (s: Step) => s === step || isDone(s);
+    const stepStatus: Record<Step, boolean> = {
+        debater1: !!debater1,
+        debater2: !!debater2,
+        topic: !!topic,
+    };
+
+    const currentStepIndex = STEPS.findIndex((s) => s.id === step);
+
+    const canGoToStep = (targetStep: Step) => {
+        const targetStepIndex = STEPS.findIndex((step) => step.id === targetStep);
+        return targetStepIndex <= currentStepIndex || stepStatus[targetStep];
+    };
+
+    const getStepButtonClasses = (
+        isActive: boolean,
+        isComplete: boolean,
+        isClickable: boolean
+    ) => `
+        w-8 h-8 md:w-10 md:h-10 rounded-full
+        flex items-center justify-center
+        text-sm font-bold
+        transition-all
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-primary
+        ${isActive
+            ? 'bg-primary text-primary-foreground'
+            : isComplete
+                ? 'bg-crowd-positive text-white ring-2 ring-crowd-positive/60 shadow-md'
+                : 'bg-secondary text-muted-foreground'
+        }
+        ${isClickable ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}
+    `;
 
     return (
         <nav
             aria-label="Debate setup steps"
             className="flex items-center justify-center gap-2 md:gap-4 mb-8"
         >
-            {steps.map((s, i) => {
-                const active = step === s.id;
-                const done = isDone(s.id);
+            {STEPS.map((stepItem, index) => {
+                const isActive = step === stepItem.id;
+                const isComplete = stepStatus[stepItem.id];
+                const isClickable = canGoToStep(stepItem.id);
 
                 return (
-                    <div key={s.id} className="flex items-center">
+                    <div key={stepItem.id} className="flex items-center">
                         <motion.button
                             type="button"
-                            aria-label={s.label}
-                            aria-current={active ? 'step' : undefined}
-                            disabled={!canNavigateTo(s.id)}
-                            onClick={() => canNavigateTo(s.id) && onStepChange(s.id)}
-                            whileHover={canNavigateTo(s.id) ? { scale: 1.08 } : undefined}
-                            whileTap={canNavigateTo(s.id) ? { scale: 0.95 } : undefined}
-                            animate={{ scale: active ? 1.1 : 1 }}
-                            className={`
-                                w-8 h-8 md:w-10 md:h-10 rounded-full
-                                flex items-center justify-center
-                                text-sm font-bold
-                                transition-all
-                                focus:outline-none focus-visible:ring-2 focus-visible:ring-primary
-                                ${active
-                                    ? 'bg-primary text-primary-foreground'
-                                    : done
-                                        ? 'bg-crowd-positive text-white ring-2 ring-crowd-positive/60 shadow-md'
-                                        : 'bg-secondary text-muted-foreground'
-                                }
-                                ${canNavigateTo(s.id) ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}
-                            `}
+                            aria-current={isActive ? 'step' : undefined}
+                            aria-label={`${stepItem.label} ${isComplete ? 'completed' : ''}`}
+                            disabled={!isClickable}
+                            onClick={() => isClickable && onStepChange(stepItem.id)}
+                            whileHover={isClickable ? { scale: 1.08 } : undefined}
+                            whileTap={isClickable ? { scale: 0.95 } : undefined}
+                            animate={{ scale: isActive ? 1.1 : 1 }}
+                            className={getStepButtonClasses(isActive, isComplete, isClickable)}
                         >
-                            {i + 1}
+                            <span className="sr-only">{stepItem.label}</span>
+                            {index + 1}
                         </motion.button>
 
-                        {i < steps.length - 1 && (
+                        {index < STEPS.length - 1 && (
                             <div
                                 aria-hidden
                                 className={`
-                                w-8 md:w-16 h-0.5 mx-2 transition-colors
-                                ${(i === 0 && debater1) || (i === 1 && debater2)
-                                        ? 'bg-primary'
-                                        : 'bg-secondary'
-                                    }
-                            `}
+                                    w-8 md:w-16 h-0.5 mx-2 transition-colors
+                                    ${stepStatus[STEPS[index].id] ? 'bg-primary' : 'bg-secondary'}
+                                `}
                             />
                         )}
-
                     </div>
                 );
             })}

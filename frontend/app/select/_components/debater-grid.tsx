@@ -1,9 +1,10 @@
-// app/debate/select/components/DebaterGrid.tsx
+
 'use client';
 
-import { DebaterOption, debaterOptions } from '@/types/type_d';
 import { motion } from 'framer-motion';
 import DebaterCard from './debater-card';
+import { DebaterOption } from '../_types/type'
+import { DEBATERS_AVAILABLE } from '@/constants/select-constants';
 type Props = {
     step: 'debater1' | 'debater2';
     debater1: DebaterOption | null;
@@ -13,8 +14,8 @@ type Props = {
 export default function DebaterGrid({ step, debater1, onSelect }: Props) {
     const available =
         step === 'debater2'
-            ? debaterOptions.filter(d => d.id !== debater1?.id)
-            : debaterOptions;
+            ? DEBATERS_AVAILABLE.filter(d => d.id !== debater1?.id)
+            : DEBATERS_AVAILABLE;
 
     return (
         <motion.section

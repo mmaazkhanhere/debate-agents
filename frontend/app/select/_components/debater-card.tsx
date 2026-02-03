@@ -4,8 +4,8 @@ import * as React from "react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DebaterOption } from "@/types/type_d";
 import { Brain, MessageCircle, Zap } from "lucide-react";
+import { DebaterOption } from "../_types/type";
 
 type Props = {
     step: 'debater1' | 'debater2';
