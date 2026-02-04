@@ -9,7 +9,7 @@ export interface Debater {
 }
 
 export interface DebateArgument {
-    debaterId: Side;
+    debaterId?: Side;
     text: string;
     cardType?: CardType;
     confidence?: number;

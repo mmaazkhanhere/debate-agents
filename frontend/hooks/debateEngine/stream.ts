@@ -9,8 +9,24 @@ const isCardType = (value?: string): value is CardType => {
     return VALID_CARD_TYPES.includes(value as CardType);
 };
 
+const isDebaterName = (debate: DebateData, debaterName?: string): debaterName is string =>
+    !!debaterName &&
+    (debaterName === debate.debaters.left.name || debaterName === debate.debaters.right.name);
+
 export const getDebaterSide = (debate: DebateData, debaterName?: string): Side =>
     debaterName === debate.debaters.left.name ? "left" : "right";
+
+const hasArgumentText = (event: DebateEvent) =>
+    !!event.data?.argument?.text || !!event.argument?.text || !!event.text;
+
+const isJudgeEvent = (event: DebateEvent) =>
+    !!event.judge || !!event.data?.judge;
+
+const isModeratorEvent = (event: DebateEvent) =>
+    event.event === "moderator_intro_done" ||
+    event.event === "moderator_conclusion_done" ||
+    event.debater === "Moderator" ||
+    event.agent === "moderator_agent";
 
 export const getModeratorIntro = (events?: DebateEvent[]): string | null => {
     if (!events) return null;
@@ -20,8 +36,9 @@ export const getModeratorIntro = (events?: DebateEvent[]): string | null => {
     return introEvent?.data?.output || introEvent?.text || null;
 };
 
-export const mapEventToArgument = (event: DebateEvent, debate: DebateData): DebateArgument => {
+export const mapEventToArgument = (event: DebateEvent, debate: DebateData): DebateArgument | null => {
     const debaterName = event.debater || event.agent || event.data?.debater;
+    if (!isDebaterName(debate, debaterName)) return null;
     const debaterId = getDebaterSide(debate, debaterName);
 
     const argument = event.data?.argument || (typeof event.argument === "object" ? event.argument : undefined);
@@ -43,11 +60,7 @@ export const buildArguments = (debate: DebateData, events?: DebateEvent[]): Deba
     if (!events) return debate.arguments;
 
     return events
-        .filter(
-            e =>
-                e.event !== "moderator_intro_done" &&
-                e.debater !== "Moderator" &&
-                e.agent !== "moderator_agent"
-        )
-        .map(event => mapEventToArgument(event, debate));
+        .filter(e => !isModeratorEvent(e) && !isJudgeEvent(e) && hasArgumentText(e))
+        .map(event => mapEventToArgument(event, debate))
+        .filter((arg): arg is DebateArgument => !!arg);
 };

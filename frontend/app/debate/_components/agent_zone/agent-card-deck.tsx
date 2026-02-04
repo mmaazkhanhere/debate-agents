@@ -12,14 +12,15 @@ const AgentCardDeck = ({
     cardsRemaining,
     isActive
 }: Props) => {
+    const safeRemaining = Math.max(0, cardsRemaining);
     return (
         <motion.div
-            aria-label={`${cardsRemaining} cards remaining`}
+            aria-label={`${safeRemaining} cards remaining`}
             animate={isActive ? { y: [0, -3, 0] } : undefined}
             transition={{ duration: 1, repeat: isActive ? Infinity : 0 }}
             className="relative"
         >
-            {[...Array(Math.min(cardsRemaining, 3))].map((_, i) => (
+            {[...Array(Math.min(safeRemaining, 3))].map((_, i) => (
                 <div
                     key={i}
                     className={cn(
@@ -31,9 +32,9 @@ const AgentCardDeck = ({
             ))}
 
             <div className="relative w-16 h-24 rounded-lg border-2 flex items-center justify-center">
-                🎴
+                ðŸŽ´
                 <span className="sr-only">
-                    {cardsRemaining} cards remaining
+                    {safeRemaining} cards remaining
                 </span>
             </div>
         </motion.div>

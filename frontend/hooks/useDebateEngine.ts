@@ -1,171 +1,94 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useMachine } from "@xstate/react";
+import { debateMachine } from "./debateEngine/machine/debate.machine";
 import { DebateData } from "@/types/debate";
 import { DebateEvent } from "@/types/debate-event";
-import { DEFAULT_CONFIDENCE, PHASE_DELAYS } from "./debateEngine/constants";
-import { addCardIfMissing, createPlayedCard } from "./debateEngine/cards";
+import { useEffect, useMemo, useState } from "react";
 import { buildArguments, getModeratorIntro } from "./debateEngine/stream";
-import {
-    ConfidenceBySide,
-    DebateEngine,
-    DebatePhase,
-    PlayedCard,
-    ScoreBySide,
-    Side
-} from "./debateEngine/types";
+import { PlayedCard } from "./debateEngine/types";
 
-export function useDebateEngine(
-    debate: DebateData,
-    streamedArguments?: DebateEvent[],
-    isDebateFinished: boolean = false
-): DebateEngine {
-    const [phase, setPhase] = useState<DebatePhase>("intro");
-    const [roundIndex, setRoundIndex] = useState(-1);
-    const [activeSide, setActiveSide] = useState<Side | null>(null);
-    const [activeCardId, setActiveCardId] = useState<string | null>(null);
-
-    const [leftCards, setLeftCards] = useState<PlayedCard[]>([]);
-    const [rightCards, setRightCards] = useState<PlayedCard[]>([]);
-
-    const [confidence, setConfidence] = useState<ConfidenceBySide>({
-        left: DEFAULT_CONFIDENCE,
-        right: DEFAULT_CONFIDENCE
-    });
-    const [revealedJudges, setRevealedJudges] = useState(0);
-    const [selectedCard, setSelectedCard] = useState<PlayedCard | null>(null);
-
-    const timeoutIdsRef = useRef<number[]>([]);
-    const scores = useMemo<ScoreBySide>(() => ({ left: 0, right: 0 }), []);
-
-    useEffect(() => {
-        return () => {
-            timeoutIdsRef.current.forEach(id => window.clearTimeout(id));
-            timeoutIdsRef.current = [];
-        };
-    }, []);
-
-    const schedule = useCallback((callback: () => void, delayMs: number) => {
-        const id = window.setTimeout(callback, delayMs);
-        timeoutIdsRef.current.push(id);
-        return id;
-    }, []);
-
-    const streamedModeratorIntro = useMemo(
-        () => getModeratorIntro(streamedArguments),
-        [streamedArguments]
-    );
+export const useDebateEngine = (debate: DebateData, streamedEvents: DebateEvent[], isFinished: boolean) => {
 
     const argumentsList = useMemo(
-        () => buildArguments(debate, streamedArguments),
-        [debate, streamedArguments]
+        () => buildArguments(debate, streamedEvents),
+        [debate, streamedEvents]
     );
 
-    const currentArgument = argumentsList[roundIndex];
+    const moderatorIntro = useMemo(
+        () => getModeratorIntro(streamedEvents),
+        [streamedEvents]
+    );
 
-    const nextRound = useCallback(() => {
-        setRoundIndex(index => index + 1);
-        setActiveSide(null);
-        setActiveCardId(null);
-        setPhase("drawing");
-    }, []);
-
-    const completeArgument = useCallback(() => {
-        if (!currentArgument) return;
-
-        const side = currentArgument.debaterId;
-        setConfidence(values => ({
-            ...values,
-            [side]: currentArgument.confidence ?? values[side]
-        }));
-
-        if (roundIndex < argumentsList.length - 1) {
-            schedule(nextRound, PHASE_DELAYS.postArgumentMs);
-            return;
-        }
-
-        if (isDebateFinished) {
-            schedule(() => setPhase("judging"), PHASE_DELAYS.postArgumentMs);
-            return;
-        }
-
-        schedule(nextRound, PHASE_DELAYS.postArgumentMs);
-    }, [argumentsList.length, currentArgument, isDebateFinished, nextRound, roundIndex, schedule]);
-
-    const reset = useCallback(() => {
-        setPhase("intro");
-        setRoundIndex(-1);
-        setLeftCards([]);
-        setRightCards([]);
-        setConfidence({ left: DEFAULT_CONFIDENCE, right: DEFAULT_CONFIDENCE });
-        setRevealedJudges(0);
-        setActiveSide(null);
-        setActiveCardId(null);
-        setSelectedCard(null);
-    }, []);
+    const [state, send] = useMachine(debateMachine, {
+        input: {
+            debate,
+            argumentsList,
+            isDebateFinished: isFinished,
+        },
+    });
 
     useEffect(() => {
-        if (phase !== "drawing" || !currentArgument) return;
-
-        const timer = window.setTimeout(() => setPhase("playing"), PHASE_DELAYS.drawToPlayMs);
-        return () => window.clearTimeout(timer);
-    }, [phase, currentArgument]);
+        send({ type: "SYNC_ARGUMENTS", argumentsList });
+    }, [argumentsList, send]);
 
     useEffect(() => {
-        if (phase !== "playing" || !currentArgument) return;
+        if (state.value !== "intro") return;
+        if (state.context.roundIndex >= 0) return;
+        if (argumentsList.length === 0) return;
+        if (moderatorIntro && moderatorIntro.trim().length > 0) return;
+        send({ type: "START" });
+    }, [argumentsList.length, moderatorIntro, send, state.context.roundIndex, state.value]);
 
-        const card = createPlayedCard(currentArgument, debate, roundIndex, confidence);
-        const side = currentArgument.debaterId;
+    const [selectedCard, setSelectedCard] = useState<PlayedCard | null>(null);
 
-        if (side === "left") {
-            setLeftCards(prev => addCardIfMissing(prev, card));
-        } else {
-            setRightCards(prev => addCardIfMissing(prev, card));
-        }
+    const currentArgument = useMemo(
+        () => {
+            const index = state.context.roundIndex;
+            if (index < 0) return null;
+            return state.context.argumentsList[index] ?? null;
+        },
+        [state.context.roundIndex, state.context.argumentsList]
+    );
 
-        setActiveSide(side);
-        setActiveCardId(card.id);
+    const activeSide = currentArgument?.debaterId ?? null;
 
-        const timer = window.setTimeout(() => setPhase("speaking"), PHASE_DELAYS.playToSpeakMs);
-        return () => window.clearTimeout(timer);
-    }, [phase, currentArgument, debate, roundIndex, confidence]);
+    const activeCardId = useMemo(
+        () => {
+            if (!currentArgument || !activeSide) return null;
+            const cards = activeSide === "left" ? state.context.leftCards : state.context.rightCards;
+            return cards[cards.length - 1]?.id ?? null;
+        },
+        [currentArgument, activeSide, state.context.leftCards, state.context.rightCards]
+    );
 
-    const judges = debate.judges ?? [];
-
-    useEffect(() => {
-        if (phase !== "judging") return;
-
-        if (revealedJudges < judges.length) {
-            const timer = window.setTimeout(
-                () => setRevealedJudges(prev => prev + 1),
-                PHASE_DELAYS.judgeRevealMs
-            );
-            return () => window.clearTimeout(timer);
-        }
-
-        const timer = window.setTimeout(() => setPhase("verdict"), PHASE_DELAYS.verdictDelayMs);
-        return () => window.clearTimeout(timer);
-    }, [phase, revealedJudges, judges.length]);
+    const scores = useMemo(
+        () => ({
+            left: state.context.leftCards.length,
+            right: state.context.rightCards.length,
+        }),
+        [state.context.leftCards.length, state.context.rightCards.length]
+    );
 
     return {
-        phase,
-        roundIndex,
+        phase: state.value,
+        streamedModeratorIntro: moderatorIntro,
+        send,
+        roundIndex: state.context.roundIndex,
+        leftCards: state.context.leftCards,
+        rightCards: state.context.rightCards,
+        confidence: state.context.confidence,
+        scores,
         activeSide,
         activeCardId,
         currentArgument,
-        streamedModeratorIntro,
-        leftCards,
-        rightCards,
-        scores,
-        confidence,
-        revealedJudges,
+        revealedJudges: state.context.revealedJudges,
         selectedCard,
-        setPhase,
-        setActiveSide,
-        setActiveCardId,
-        setLeftCards,
-        setRightCards,
+
         setSelectedCard,
-        nextRound,
-        completeArgument,
-        reset
+        start: () => send({ type: "START" }),
+        nextRound: () => send({ type: "START" }),
+        completeArgument: () => send({ type: "COMPLETE_ARGUMENT" }),
+        conclude: () => send({ type: "CONCLUDE" }),
     };
 }
+
+

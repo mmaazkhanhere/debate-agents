@@ -6,6 +6,7 @@ export type DebatePhase =
     | "drawing"
     | "playing"
     | "speaking"
+    | "concluding"
     | "judging"
     | "verdict"
     | "waiting";

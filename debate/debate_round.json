@@ -1,73 +1,37 @@
 [
   {
-    "turn_id": "56d15266-6b08-41ec-a79a-37356835dbc6",
-    "debater": "Greta Thunberg",
+    "turn_id": "9b49d145-af07-4146-8cdf-5088b4b35e66",
+    "debater": "Jordan Peele",
     "argument": {
       "type": "attack",
-      "text": "Requiring parental consent for minors on social media is a necessary safeguard to protect young users from online predators, cyberbullying, and the addictive nature of social media platforms, which can have devastating consequences for their mental health and well-being. By giving parents control over their children's online activities, we can ensure that they are being guided and protected in a way that aligns with their individual needs and maturity levels. This approach would also promote a more responsible and healthy social media environment for all users, regardless of age.",
+      "text": "Platforms should be legally liable for misinformation as they have failed to effectively police their content, allowing the spread of life-threatening lies that undermine our public discourse and democratic institutions. We've seen instances of fake news and doctored videos used to incite violence and deceive the public, causing irreparable harm to individuals and communities. The tech giants' profiteering off advertising has become a ticking time bomb, and it's time they take responsibility for the spread of misinformation.",
       "confidence": 90
     }
   },
   {
-    "turn_id": "5c12d398-32d0-460d-aebd-9b3eff9b81c4",
+    "turn_id": "a129f7c3-7217-490b-ab81-f1018df08c7c",
+    "debater": "Bassem Youssef",
+    "argument": {
+      "type": "attack",
+      "text": "Holding platforms legally liable for misinformation would impose an unrealistic duty of constant content surveillance, chilling free expression and stifling innovation across the tech sector. Instead, targeted regulation that empowers users and independent fact\u2011checking bodies can effectively counter falsehoods without criminalizing neutral infrastructure. The legal burden on platforms is too high to enforce and would risk stifling legitimate discourse under a blanket liability framework.",
+      "confidence": 90
+    }
+  },
+  {
+    "turn_id": "26827de1-1204-4c1b-94ce-6030ba975d14",
+    "debater": "Donald Trump",
+    "argument": {
+      "type": "attack",
+      "text": "Folks, let me tell you, the concept of owning personal data is a total disaster, just like our opponent's idea of free market socialism. When you give a company your data, you're giving them leverage, they're making billions off of it, and all we get is a bunch of annoying ads and no compensation, it's a total loser",
+      "confidence": 90
+    }
+  },
+  {
+    "turn_id": "2e7f9316-5a1f-4b09-a84a-438e10601b05",
     "debater": "Jordan Peterson",
     "argument": {
       "type": "counter",
-      "text": "Requiring parental consent for every minor user would strip young people of the chance to learn responsibility online, yet evidence shows most cyber\u2011harassment and addiction occur when adults are present. The claim that consent protects them ignores that parents themselves may be ill\u2011suited to navigate digital ethics, and the result is an over\u2011regulated environment that stifles the very growth we need to develop digital citizenship. Thus the policy is counterproductive, making children more dependent on adults instead of fostering self\u2011discipline.",
-      "confidence": 90
-    }
-  },
-  {
-    "turn_id": "e96c11cf-6770-4db5-ab75-d4d61d6d414a",
-    "debater": "Donald Trump",
-    "argument": {
-      "type": "attack",
-      "text": "Social media is a total disaster, folks, it's causing more harm than good, and I know a thing or two about disasters, believe me, I've seen it all, but social media is poisoning our youth, spreading fake news and lies, and turning people against each other, it's a catastrophe, mark my words.",
-      "confidence": 95
-    }
-  },
-  {
-    "turn_id": "0262bd22-2f52-4f3c-bf3a-3160fe092048",
-    "debater": "Elon Musk",
-    "argument": {
-      "type": "attack",
-      "text": "Social media is not a 'disaster'; it's a catalyst for rapid information flow, entrepreneurship, and civic engagement. The real harm comes from unchecked algorithms and misinformation, not the platform itself\u2014regulation and better design can mitigate this without erasing the benefits. Trump\u2019s blanket dismissal ignores the millions of jobs, startups, and democratic debates enabled by these networks.",
-      "confidence": 90
-    }
-  },
-  {
-    "turn_id": "ff12f342-51e0-4c78-b738-15918d6fdb53",
-    "debater": "Donald Trump",
-    "argument": {
-      "type": "attack",
-      "text": "The fact is, social media is rotting our minds with toxic information and fake news. Just look at all the polls, folks, and the numbers are staggering - more people are getting their news from these so-called 'social media platforms' than reputable news sources. That's a direct path to societal decay, and I know it.",
-      "confidence": 95
-    }
-  },
-  {
-    "turn_id": "4550e68f-39b4-41fa-9570-ea0fe36cb201",
-    "debater": "Elon Musk",
-    "argument": {
-      "type": "attack",
-      "text": "While social media does spread misinformation, its net effect is to accelerate innovation, democratize information, and spur economic growth\u2014benefits that far outweigh the occasional harms, which can be mitigated by better regulation.",
-      "confidence": 90
-    }
-  },
-  {
-    "turn_id": "ae7cb7a4-d2c2-4584-bd1d-fb683e670643",
-    "debater": "Donald Trump",
-    "argument": {
-      "type": "attack",
-      "text": "Governments must heavily regulate cryptocurrencies to prevent rogue state actors and organized crime from exploiting these new technologies for illicit activities. We've seen it with money laundering, we've seen it with terrorism financing. Regulated, transparent, and secure cryptocurrency markets are essential for the integrity of our global financial system. The wild west days of unregulated cryptocurrency are over.",
-      "confidence": 90
-    }
-  },
-  {
-    "turn_id": "9cebec4c-3a90-451f-abd3-ea3e91d4f04a",
-    "debater": "Elon Musk",
-    "argument": {
-      "type": "attack",
-      "text": "The claim that heavy regulation will curb crime ignores that criminals will simply migrate to more opaque, decentralized systems; regulation also hampers innovation, stifling tech that could create secure, transparent financial solutions. A targeted approach that incentivizes compliance, coupled with robust enforcement of existing money\u2011laundering laws, would be far more effective than blanket bans.",
+      "text": "The claim that personal data ownership is a 'disaster' ignores the fact that data is a valuable resource that individuals should control; without ownership, we lose incentive for companies to invest in privacy and security. By recognizing data as property, we can establish a market for data rights that rewards individuals, fostering innovation while protecting privacy. This is not a 'total loser' but a structured system that balances economic freedom with personal dignity.",
       "confidence": 90
     }
   }
