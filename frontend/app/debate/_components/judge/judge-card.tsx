@@ -1,4 +1,4 @@
-import { Judge } from "@/data/mockDebate";
+import { Judge } from "@/types/debate";
 import { motion } from "framer-motion";
 import { memo } from "react";
 

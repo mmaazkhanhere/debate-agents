@@ -167,7 +167,6 @@ const ModeratorZone = ({
                             <ul className="text-xs text-muted-foreground space-y-1">
                                 <li>Each debater plays argument cards from their deck</li>
                                 <li>Cards can attack, defend, or counter points</li>
-                                <li>Crowd reactions influence final score</li>
                                 <li>Judges evaluate logic, evidence, and rhetoric</li>
                             </ul>
                             <Button variant="ghost" size="icon" onClick={onToggleRules}>

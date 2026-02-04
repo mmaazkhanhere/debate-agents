@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { countVotes } from "@/lib/utils";
-import { Judge } from "@/data/mockDebate";
+import { Judge } from "@/types/debate";
 import JudgeCard from "./judge-card";
 import Score from "./judge-debate-score";
 import Winner from "./judge-debate-winner";

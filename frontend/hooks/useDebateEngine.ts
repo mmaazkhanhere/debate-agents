@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, useMemo } from "react";
-import { DebateData, DebateArgument } from "@/data/mockDebate";
+import { DebateData, DebateArgument } from "@/types/debate";
 import { CardType } from "@/types/type_d";
 import { DebateEvent } from "../services/debate-api";
 
@@ -8,7 +8,6 @@ type Phase =
     | "drawing"
     | "playing"
     | "speaking"
-    | "reaction"
     | "judging"
     | "verdict"
     | "waiting"; // New state for waiting for data
@@ -35,7 +34,7 @@ export function useDebateEngine(
     const [leftCards, setLeftCards] = useState<PlayedCard[]>([]);
     const [rightCards, setRightCards] = useState<PlayedCard[]>([]);
 
-    const [scores, setScores] = useState({ left: 0, right: 0 });
+    const [scores] = useState({ left: 0, right: 0 });
     const [confidence, setConfidence] = useState({ left: 75, right: 75 });
     const [revealedJudges, setRevealedJudges] = useState(0);
     const [selectedCard, setSelectedCard] = useState<PlayedCard | null>(null);
@@ -48,7 +47,7 @@ export function useDebateEngine(
         return introEvent?.data?.output || introEvent?.text || null;
     }, [streamedArguments]);
 
-    // Merge mock arguments with streamed ones if provided
+    // Merge local arguments with streamed ones if provided
     const effectiveArguments = useMemo(() => {
         if (!streamedArguments) return debate.arguments;
 
@@ -79,15 +78,9 @@ export function useDebateEngine(
 
                 const confValue = argument?.confidence ?? event.data?.argument?.confidence ?? event.confidence ?? 75;
 
-                // Simple logic to derive reaction from confidence
-                let reaction: 'positive' | 'negative' | 'neutral' = 'neutral';
-                if (confValue > 80) reaction = 'positive';
-                else if (confValue < 40) reaction = 'negative';
-
                 return {
                     debaterId,
                     text,
-                    crowdReaction: reaction,
                     cardType: type,
                     confidence: confValue
                 } as DebateArgument;
@@ -103,33 +96,16 @@ export function useDebateEngine(
         setPhase("drawing");
     }, []);
 
-    const applyReaction = useCallback(() => {
+    const completeArgument = useCallback(() => {
         if (!currentArgument) return;
 
         const side = currentArgument.debaterId;
 
-        if (currentArgument.crowdReaction === "positive") {
-            setScores(s => ({ ...s, [side]: s[side] + 1 }));
-            // Set confidence from the card played
-            setConfidence(c => ({
-                ...c,
-                [side]: currentArgument.confidence ?? c[side]
-            }));
-        } else if (currentArgument.crowdReaction === "negative") {
-            // Even on negative reaction, we follow the card's reported confidence for the bar
-            setConfidence(c => ({
-                ...c,
-                [side]: currentArgument.confidence ?? c[side]
-            }));
-        } else {
-            // Neutral - still update confidence to match the card
-            setConfidence(c => ({
-                ...c,
-                [side]: currentArgument.confidence ?? c[side]
-            }));
-        }
-
-        setPhase("reaction");
+        // Update confidence to match the card
+        setConfidence(c => ({
+            ...c,
+            [side]: currentArgument.confidence ?? c[side]
+        }));
 
         // Logic for proceeding
         // If we have more arguments ready, go to next round
@@ -140,7 +116,7 @@ export function useDebateEngine(
         else if (isDebateFinished) {
             setTimeout(() => setPhase("judging"), 2000);
         }
-        // Else, we wait for more data. We can stay in 'reaction' or go to 'waiting'
+        // Else, we wait for more data. We can stay in 'drawing' or go to 'waiting'
         else {
             // We'll advance index to "ready" for next one, but phase will be 'drawing' 
             // and since currentArgument will be undefined, it will wait there.
@@ -153,7 +129,6 @@ export function useDebateEngine(
         setRoundIndex(-1);
         setLeftCards([]);
         setRightCards([]);
-        setScores({ left: 0, right: 0 });
         setConfidence({ left: 75, right: 75 });
         setRevealedJudges(0);
         setActiveSide(null);
@@ -202,10 +177,12 @@ export function useDebateEngine(
         }
     }, [phase, currentArgument, roundIndex, debate.debaters, confidence]);
 
+    const judges = debate.judges ?? [];
+
     // Judging reveal engine
     useEffect(() => {
         if (phase === "judging") {
-            if (revealedJudges < debate.judges.length) {
+            if (revealedJudges < judges.length) {
                 const timer = setTimeout(() => {
                     setRevealedJudges(prev => prev + 1);
                 }, 1500);
@@ -217,7 +194,7 @@ export function useDebateEngine(
                 return () => clearTimeout(timer);
             }
         }
-    }, [phase, revealedJudges, debate.judges.length]);
+    }, [phase, revealedJudges, judges.length]);
 
     return {
         phase,
@@ -239,7 +216,7 @@ export function useDebateEngine(
         setRightCards,
         setSelectedCard,
         nextRound,
-        applyReaction,
+        completeArgument,
         reset
     };
 }

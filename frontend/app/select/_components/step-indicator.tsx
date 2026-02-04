@@ -46,7 +46,7 @@ const StepIndicator = ({
         ${isActive
             ? 'bg-primary text-primary-foreground'
             : isComplete
-                ? 'bg-crowd-positive text-white ring-2 ring-crowd-positive/60 shadow-md'
+                ? 'bg-primary text-primary-foreground ring-2 ring-primary/60 shadow-md'
                 : 'bg-secondary text-muted-foreground'
         }
         ${isClickable ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}

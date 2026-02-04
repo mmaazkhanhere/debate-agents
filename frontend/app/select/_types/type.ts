@@ -24,6 +24,8 @@ export type DebateSessionConfig = {
     topic: DebateTopicSelection;
 };
 
+export type DebateConfig = DebateSessionConfig;
+
 export type DebateTopic = {
     id: string;
     title: string;

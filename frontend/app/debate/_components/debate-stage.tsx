@@ -1,14 +1,14 @@
 "use client"
 
 import { useEffect, useState, useRef } from "react";
-import { mockDebate, DebateData } from "@/data/mockDebate";
+import { DebateData } from "@/types/debate";
 import DebateLayout from "./debate-layout";
 import { useDebateEngine } from "@/hooks/useDebateEngine";
 import { useDebateAudio } from "@/hooks/useDebateAudio";
 import { useRouter } from "next/navigation";
 import { debateApi } from "@/services/debate-api";
 import { useDebateStream } from "@/hooks/useDebateStream";
-import { DebateConfig } from "@/types/type_d";
+import { DebateConfig } from "@/app/select/_types/type";
 
 const DebateStage = () => {
     const router = useRouter();
@@ -30,25 +30,24 @@ const DebateStage = () => {
 
             // Construct the full DebateData object from the selection
             const debateData: DebateData = {
-                ...mockDebate, // Default fallback for presenter, judges, etc.
                 topic: parsedConfig.topic.title,
                 debaters: {
                     left: {
-                        ...mockDebate.debaters.left,
                         name: parsedConfig.debater1.name,
                         title: parsedConfig.debater1.title,
-                        avatar: parsedConfig.debater1.avatar || mockDebate.debaters.left.avatar,
+                        avatar: parsedConfig.debater1.avatar,
                         id: 'left'
                     },
                     right: {
-                        ...mockDebate.debaters.right,
                         name: parsedConfig.debater2.name,
                         title: parsedConfig.debater2.title,
-                        avatar: parsedConfig.debater2.avatar || mockDebate.debaters.right.avatar,
+                        avatar: parsedConfig.debater2.avatar,
                         id: 'right'
                     }
                 },
-                arguments: []
+                arguments: [],
+                judges: [],
+                totalRounds: 2
             };
 
             setConfig(debateData);
@@ -83,7 +82,17 @@ const DebateStage = () => {
 
     // Pass data to engine (only if config is loaded)
     // We use a safe fallback for the engine call to prevent crashes during loading
-    const engineConfig = config || mockDebate;
+    const engineConfig: DebateData = config || {
+        topic: "",
+        presenter: { name: "Moderator" },
+        debaters: {
+            left: { id: "left", name: "", title: "", avatar: "" },
+            right: { id: "right", name: "", title: "", avatar: "" }
+        },
+        arguments: [],
+        judges: [],
+        totalRounds: 2
+    };
     const engine = useDebateEngine(engineConfig, messages, isDebateFinished);
 
     useDebateAudio(engine.phase, !!config);
@@ -99,10 +108,10 @@ const DebateStage = () => {
         const totalRounds = config?.totalRounds || 2;
         const finalArgumentIndex = (totalRounds * 2) - 1;
 
-        if (engine.roundIndex === finalArgumentIndex && engine.phase === 'reaction') {
+        if (engine.roundIndex === finalArgumentIndex && engine.phase === 'speaking') {
             const timer = setTimeout(() => {
                 handleEndDebate();
-            }, 3000); // Give it some time to show the last reaction
+            }, 3000);
             return () => clearTimeout(timer);
         }
     }, [engine.roundIndex, engine.phase, config?.totalRounds]);

@@ -3,8 +3,6 @@ import { useCallback, useRef, useEffect } from 'react';
 type SoundType =
     | 'intro'
     | 'argument'
-    | 'crowd-cheer'
-    | 'crowd-boo'
     | 'timer-tick'
     | 'timer-warning'
     | 'judge-reveal'
@@ -36,12 +34,6 @@ class SoundGenerator {
                 break;
             case 'argument':
                 await this.playArgument(ctx, volume);
-                break;
-            case 'crowd-cheer':
-                await this.playCrowdCheer(ctx, volume);
-                break;
-            case 'crowd-boo':
-                await this.playCrowdBoo(ctx, volume);
                 break;
             case 'timer-tick':
                 await this.playTimerTick(ctx, volume);
@@ -86,52 +78,6 @@ class SoundGenerator {
 
         osc.start();
         osc.stop(ctx.currentTime + 0.15);
-    }
-
-    private async playCrowdCheer(ctx: AudioContext, volume: number) {
-        // White noise burst with positive envelope
-        const bufferSize = ctx.sampleRate * 0.5;
-        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-        const data = buffer.getChannelData(0);
-
-        for (let i = 0; i < bufferSize; i++) {
-            data[i] = (Math.random() * 2 - 1) * Math.sin(Math.PI * i / bufferSize);
-        }
-
-        const source = ctx.createBufferSource();
-        const filter = ctx.createBiquadFilter();
-        const gain = ctx.createGain();
-
-        source.buffer = buffer;
-        filter.type = 'bandpass';
-        filter.frequency.value = 2000;
-        filter.Q.value = 0.5;
-
-        source.connect(filter);
-        filter.connect(gain);
-        gain.connect(ctx.destination);
-
-        gain.gain.setValueAtTime(volume * 0.4, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
-
-        source.start();
-    }
-
-    private async playCrowdBoo(ctx: AudioContext, volume: number) {
-        // Low rumble
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sawtooth';
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-
-        osc.frequency.setValueAtTime(150, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.4);
-        gain.gain.setValueAtTime(volume * 0.3, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-
-        osc.start();
-        osc.stop(ctx.currentTime + 0.4);
     }
 
     private async playTimerTick(ctx: AudioContext, volume: number) {

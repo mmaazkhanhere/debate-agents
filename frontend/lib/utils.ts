@@ -1,4 +1,4 @@
-import { Judge } from "@/data/mockDebate";
+import { Judge } from "@/types/debate";
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
@@ -9,7 +9,7 @@ export function cn(...inputs: ClassValue[]) {
 export const getDifficultyColor = (difficulty: string) => {
   switch (difficulty) {
     case 'Easy':
-      return 'bg-crowd-positive/20 text-crowd-positive border-crowd-positive/40';
+      return 'bg-primary/20 text-primary border-primary/40';
     case 'Medium':
       return 'bg-primary/20 text-primary border-primary/40';
     case 'Hard':

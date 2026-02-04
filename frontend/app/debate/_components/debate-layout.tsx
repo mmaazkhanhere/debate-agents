@@ -7,9 +7,11 @@ import CardDetailModal from "./card-detail-modal";
 
 const DebateLayout = ({ debate, engine, onExit }: any) => {
     const isJudging = engine.phase === "judging" || engine.phase === "verdict";
+    const judges = debate.judges || [];
+    const presenter = debate.presenter || { name: "Moderator" };
 
     const winner = engine.phase === "verdict"
-        ? (debate.judges.filter((j: any) => j.vote === "left").length > debate.judges.filter((j: any) => j.vote === "right").length ? "left" : "right")
+        ? (judges.filter((j: any) => j.vote === "left").length > judges.filter((j: any) => j.vote === "right").length ? "left" : "right")
         : null;
 
     return (
@@ -18,8 +20,8 @@ const DebateLayout = ({ debate, engine, onExit }: any) => {
                 topic={debate.topic}
                 round={Math.floor(Math.max(0, engine.roundIndex) / 2)}
                 totalRounds={debate.totalRounds}
-                presenterName={debate.presenter.name}
-                announcement={(engine.phase === "intro") ? (engine.streamedModeratorIntro || debate.presenter.introText) : undefined}
+                presenterName={presenter.name}
+                announcement={(engine.phase === "intro") ? (engine.streamedModeratorIntro || presenter.introText) : undefined}
                 onAnnouncementComplete={engine.phase === "intro" ? engine.nextRound : undefined}
             />
 
@@ -71,13 +73,13 @@ const DebateLayout = ({ debate, engine, onExit }: any) => {
                     speaker={engine.activeSide === "left" ? debate.debaters.left.name : debate.debaters.right.name}
                     side={engine.activeSide || "left"}
                     isVisible={engine.phase === "speaking"}
-                    onComplete={engine.applyReaction}
+                    onComplete={engine.completeArgument}
                 />
             )}
 
-            {isJudging && (
+            {isJudging && judges.length > 0 && (
                 <JudgePanel
-                    judges={debate.judges}
+                    judges={judges}
                     revealedCount={engine.revealedJudges}
                     winner={winner}
                     debaterNames={{

@@ -1,6 +1,4 @@
 
-export type Reaction = "positive" | "negative" | "neutral" | null;
-
 export type CardType =
     | "attack"
     | "defense"
