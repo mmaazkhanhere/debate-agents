@@ -1,37 +1,19 @@
 [
   {
-    "turn_id": "d6fdda75-a3c7-496c-9fe3-e2ce0c133d71",
-    "debater": "Donald Trump",
+    "turn_id": "56d15266-6b08-41ec-a79a-37356835dbc6",
+    "debater": "Greta Thunberg",
+    "argument": {
+      "type": "attack",
+      "text": "Requiring parental consent for minors on social media is a necessary safeguard to protect young users from online predators, cyberbullying, and the addictive nature of social media platforms, which can have devastating consequences for their mental health and well-being. By giving parents control over their children's online activities, we can ensure that they are being guided and protected in a way that aligns with their individual needs and maturity levels. This approach would also promote a more responsible and healthy social media environment for all users, regardless of age.",
+      "confidence": 90
+    }
+  },
+  {
+    "turn_id": "5c12d398-32d0-460d-aebd-9b3eff9b81c4",
+    "debater": "Jordan Peterson",
     "argument": {
       "type": "counter",
-      "text": "Elon's concerns about AI governance are valid, but we need a more balanced approach, not a blanket ban. By working with top tech companies and governments worldwide, we can establish clear regulations and ensure AI serves humanity's interests, not just a select few.",
-      "confidence": 85
-    }
-  },
-  {
-    "turn_id": "efa8aee7-b432-4ba6-a597-1e9235a9477b",
-    "debater": "Elon Musk",
-    "argument": {
-      "type": "attack",
-      "text": "Trump's claim that balanced regulations with tech giants will secure AI's alignment is flawed because these companies already hold disproportionate influence and opacity; without open\u2011source governance, regulations risk reinforcing power imbalances. We must instead create transparent, decentralized AI oversight that democratizes data, algorithms, and decision\u2011making to truly serve all citizens.",
-      "confidence": 90
-    }
-  },
-  {
-    "turn_id": "2d684abb-8010-4363-afb8-af5b54be9e8d",
-    "debater": "Trump",
-    "argument": {
-      "type": "framing",
-      "text": "Folks, the climate change issue is a total hoax, a disaster created by China to make us look bad. It's a simple fact: they're the ones polluting, not us. And let me tell you, I've made some of the greatest deals with China, but this time, they're wrong on this one.",
-      "confidence": 90
-    }
-  },
-  {
-    "turn_id": "5903c45b-4b1b-407e-afa9-97195cac5831",
-    "debater": "Elon Musk",
-    "argument": {
-      "type": "attack",
-      "text": "Climate change is an observable, data-driven reality\u2014temperature records, ice melt, and sea-level rise unequivocally show it\u2014so calling it a 'hoax' ignores the scientific consensus. Blaming China alone misrepresents the global nature of emissions; the U.S. still accounts for a large share of historical CO\u2082, and tech-driven solutions must be shared worldwide. Ignoring this crisis would cripple future innovation, including the very ventures that make humanity a multi-planetary species.",
+      "text": "Requiring parental consent for every minor user would strip young people of the chance to learn responsibility online, yet evidence shows most cyber\u2011harassment and addiction occur when adults are present. The claim that consent protects them ignores that parents themselves may be ill\u2011suited to navigate digital ethics, and the result is an over\u2011regulated environment that stifles the very growth we need to develop digital citizenship. Thus the policy is counterproductive, making children more dependent on adults instead of fostering self\u2011discipline.",
       "confidence": 90
     }
   }
