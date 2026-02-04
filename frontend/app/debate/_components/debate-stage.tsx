@@ -6,7 +6,7 @@ import DebateLayout from "./debate-layout";
 import { useDebateEngine } from "@/hooks/useDebateEngine";
 import { useDebateAudio } from "@/hooks/useDebateAudio";
 import { useRouter } from "next/navigation";
-import { debateApi } from "@/services/debate-api";
+import { startDebate } from "@/actions/debate-api";
 import { useDebateStream } from "@/hooks/useDebateStream";
 import { DebateConfig } from "@/app/select/_types/type";
 
@@ -58,7 +58,7 @@ const DebateStage = () => {
                 hasInitiated.current = true;
 
                 try {
-                    const id = await debateApi.startDebate(
+                    const id = await startDebate(
                         debateData.topic,
                         debateData.debaters.left.name,
                         debateData.debaters.right.name

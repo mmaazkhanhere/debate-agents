@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DebateData } from "@/types/debate";
-import { DebateEvent } from "../services/debate-api";
+import { DebateEvent } from "@/types/debate-event";
 import { DEFAULT_CONFIDENCE, PHASE_DELAYS } from "./debateEngine/constants";
 import { addCardIfMissing, createPlayedCard } from "./debateEngine/cards";
 import { buildArguments, getModeratorIntro } from "./debateEngine/stream";

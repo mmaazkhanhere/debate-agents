@@ -1,5 +1,5 @@
 import { DebateData, DebateArgument } from "@/types/debate";
-import { DebateEvent } from "@/services/debate-api";
+import { DebateEvent } from "@/types/debate-event";
 import { CardType } from "@/types/type_d";
 import { DEFAULT_CONFIDENCE, VALID_CARD_TYPES } from "./constants";
 import { Side } from "./types";

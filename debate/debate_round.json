@@ -16,5 +16,59 @@
       "text": "Requiring parental consent for every minor user would strip young people of the chance to learn responsibility online, yet evidence shows most cyber\u2011harassment and addiction occur when adults are present. The claim that consent protects them ignores that parents themselves may be ill\u2011suited to navigate digital ethics, and the result is an over\u2011regulated environment that stifles the very growth we need to develop digital citizenship. Thus the policy is counterproductive, making children more dependent on adults instead of fostering self\u2011discipline.",
       "confidence": 90
     }
+  },
+  {
+    "turn_id": "e96c11cf-6770-4db5-ab75-d4d61d6d414a",
+    "debater": "Donald Trump",
+    "argument": {
+      "type": "attack",
+      "text": "Social media is a total disaster, folks, it's causing more harm than good, and I know a thing or two about disasters, believe me, I've seen it all, but social media is poisoning our youth, spreading fake news and lies, and turning people against each other, it's a catastrophe, mark my words.",
+      "confidence": 95
+    }
+  },
+  {
+    "turn_id": "0262bd22-2f52-4f3c-bf3a-3160fe092048",
+    "debater": "Elon Musk",
+    "argument": {
+      "type": "attack",
+      "text": "Social media is not a 'disaster'; it's a catalyst for rapid information flow, entrepreneurship, and civic engagement. The real harm comes from unchecked algorithms and misinformation, not the platform itself\u2014regulation and better design can mitigate this without erasing the benefits. Trump\u2019s blanket dismissal ignores the millions of jobs, startups, and democratic debates enabled by these networks.",
+      "confidence": 90
+    }
+  },
+  {
+    "turn_id": "ff12f342-51e0-4c78-b738-15918d6fdb53",
+    "debater": "Donald Trump",
+    "argument": {
+      "type": "attack",
+      "text": "The fact is, social media is rotting our minds with toxic information and fake news. Just look at all the polls, folks, and the numbers are staggering - more people are getting their news from these so-called 'social media platforms' than reputable news sources. That's a direct path to societal decay, and I know it.",
+      "confidence": 95
+    }
+  },
+  {
+    "turn_id": "4550e68f-39b4-41fa-9570-ea0fe36cb201",
+    "debater": "Elon Musk",
+    "argument": {
+      "type": "attack",
+      "text": "While social media does spread misinformation, its net effect is to accelerate innovation, democratize information, and spur economic growth\u2014benefits that far outweigh the occasional harms, which can be mitigated by better regulation.",
+      "confidence": 90
+    }
+  },
+  {
+    "turn_id": "ae7cb7a4-d2c2-4584-bd1d-fb683e670643",
+    "debater": "Donald Trump",
+    "argument": {
+      "type": "attack",
+      "text": "Governments must heavily regulate cryptocurrencies to prevent rogue state actors and organized crime from exploiting these new technologies for illicit activities. We've seen it with money laundering, we've seen it with terrorism financing. Regulated, transparent, and secure cryptocurrency markets are essential for the integrity of our global financial system. The wild west days of unregulated cryptocurrency are over.",
+      "confidence": 90
+    }
+  },
+  {
+    "turn_id": "9cebec4c-3a90-451f-abd3-ea3e91d4f04a",
+    "debater": "Elon Musk",
+    "argument": {
+      "type": "attack",
+      "text": "The claim that heavy regulation will curb crime ignores that criminals will simply migrate to more opaque, decentralized systems; regulation also hampers innovation, stifling tech that could create secure, transparent financial solutions. A targeted approach that incentivizes compliance, coupled with robust enforcement of existing money\u2011laundering laws, would be far more effective than blanket bans.",
+      "confidence": 90
+    }
   }
 ]
