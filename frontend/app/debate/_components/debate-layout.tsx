@@ -1,6 +1,6 @@
 import { useDebateViewModel } from "@/hooks/useDebateViewModel";
 import DebateArena from "./debate_layout/debate-arena";
-import DebateOverlays from "./debate_layout/debate-overlay";
+import DebateRuntimeOverlays from "./debate_layout/debate-runtime-overlays";
 import DebatePresenter from "./debate-presenter";
 
 
@@ -41,7 +41,7 @@ const DebateLayout = ({ debate, engine, onExit }: DebateLayoutProps) => {
 
             <DebateArena debate={debate} engine={engine} />
 
-            <DebateOverlays
+            <DebateRuntimeOverlays
                 debate={debate}
                 engine={engine}
                 judges={vm.judges}

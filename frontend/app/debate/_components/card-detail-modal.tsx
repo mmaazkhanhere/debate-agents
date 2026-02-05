@@ -148,10 +148,7 @@ const CardDetailModal = ({ isOpen, onClose, card }: CardDetailModalProps) => {
                                         </div>
                                     </div>
 
-                                    <div className="text-right">
-                                        <span className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Source</span>
-                                        <p className="text-sm font-medium text-slate-300">Debate Intelligence Core v1.0</p>
-                                    </div>
+
                                 </div>
                             </main>
                         </div>

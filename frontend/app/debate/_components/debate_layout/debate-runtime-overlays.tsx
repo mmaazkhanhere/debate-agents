@@ -1,8 +1,8 @@
-import CardSpeechOverlay from "../card-speech-overlay";
+import DebaterSpeechOverlay from "../debater_speech_overlay/debater-speech-overlay";
 import JudgePanel from "../judge/judge-panel";
 import CardDetailModal from "../card-detail-modal";
 
-type DebateOverlaysProps = {
+type DebateRuntimeOverlaysProps = {
     debate: any;
     engine: any;
     judges: any[];
@@ -10,27 +10,27 @@ type DebateOverlaysProps = {
     winner: string | null;
 }
 
-const DebateOverlays = ({
+const DebateRuntimeOverlays = ({
     debate,
     engine,
     judges,
     isJudging,
     winner,
-}: DebateOverlaysProps) => {
+}: DebateRuntimeOverlaysProps) => {
     return (
         <>
             {/* Speech Overlay */}
             {engine.currentArgument && (
-                <CardSpeechOverlay
-                    text={engine.currentArgument.text}
-                    speaker={
+                <DebaterSpeechOverlay
+                    speechText={engine.currentArgument.text}
+                    debaterName={
                         engine.activeSide === "left"
                             ? debate.debaters.left.name
                             : debate.debaters.right.name
                     }
-                    side={engine.activeSide || "left"}
-                    isVisible={engine.phase === "speaking"}
-                    onComplete={engine.completeArgument}
+                    debaterSide={engine.activeSide || "left"}
+                    isActiveTurn={engine.phase === "speaking"}
+                    onSpeechFinished={engine.completeArgument}
                 />
             )}
 
@@ -57,4 +57,4 @@ const DebateOverlays = ({
     );
 };
 
-export default DebateOverlays;
+export default DebateRuntimeOverlays;

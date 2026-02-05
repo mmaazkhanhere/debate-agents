@@ -1,92 +1,20 @@
 [
   {
-    "turn_id": "e71194a5-db51-463a-b4d7-a7dc075bea3f",
-    "debater": "Donald Trump",
-    "argument": {
-      "type": "defense",
-      "text": "Platforms have a moral responsibility to prioritize preventing hate speech, which is a form of verbal terrorism that destroys lives, families, and communities. By allowing hate speech to spread unchecked, platforms become complicit in promoting divisiveness, intolerance, and violence. History has proven that strong leadership and decisive action are necessary to protect citizens from hate, and I believe platforms must lead by example.",
-      "confidence": 90
-    }
-  },
-  {
-    "turn_id": "d6cf10cf-3d10-4ddf-aeb0-673dc7b5cc18",
-    "debater": "Bassem Youssef",
+    "turn_id": "783360ea-dd39-4d3c-8206-3e652d7f2fff",
+    "debater": "Elon Musk",
     "argument": {
       "type": "attack",
-      "text": "Trump's claim that platforms must lead by example ignores that hate\u2011speech regulations differ widely and that blanket suppression risks overreach and political manipulation, eroding the very freedoms it pretends to protect; a nuanced, targeted approach preserves free speech while curbing hate. Platforms can enforce community standards that isolate hate without banning users wholesale, showing that protecting society need not come at the cost of open debate. By prioritizing freedom first, we avoid the slippery slope of censorship and maintain a marketplace of ideas that ultimately safeguards against extremism.",
-      "confidence": 95
+      "text": "Social media's primary role is to spread information with the intention of shaping public perception, however, it has become a key enabler of the spread of misinformation, and the amplification of divisive and hateful ideologies, which can lead to social unrest and undermine trust in institutions. This harm far outweighs any benefits social media may provide in terms of connecting people and facilitating real-time communication. The lack of effective regulation and accountability has exacerbated this issue, allowing malicious actors to exploit social media's vast reach and influence.",
+      "confidence": 92
     }
   },
   {
-    "turn_id": "1663de8c-5041-40dc-90fa-e366e15479c7",
-    "debater": "Jordan Peterson",
-    "argument": {
-      "type": "framing",
-      "text": "The concept of personal data ownership is not merely a matter of convenience or privacy; it's a fundamental issue of existential dignity and autonomy. If individuals are not in control of their own digital existence, they're reduced to mere commodities, stripped of agency and self-determination. Therefore, owning personal data and being compensated for its use is a basic human right, akin to the right to free speech or assembly.",
-      "confidence": 95
-    }
-  },
-  {
-    "turn_id": "50a7a436-0939-413f-978a-23dff24d35c8",
-    "debater": "Bassem Youssef",
-    "argument": {
-      "type": "attack",
-      "text": "Peterson elevates data ownership to a basic human right, but that framing ignores the economic reality: if everyone claims ownership, market mechanisms collapse and innovation stalls, harming the very society he claims to defend. True autonomy comes from informed consent and robust regulation, not blanket ownership that would commodify personal data without clear value creation. Thus, individuals should have control and fair compensation only in a structured system that balances privacy, innovation, and economic viability.",
-      "confidence": 90
-    }
-  },
-  {
-    "turn_id": "bf37b841-2400-4125-9d1a-c9f8b3272a1f",
-    "debater": "Jordan Peterson",
-    "argument": {
-      "type": "framing",
-      "text": "Individuals have a fundamental right to own and control their own personal data. This is not a radical idea - we already consider individuals to be the owners of their bodies and the producers of their labor, and it is only logical that we extend this same principle to the data they generate through their digital interactions. Compensating individuals for their data would be a crucial step in restoring their agency and autonomy in the digital age.",
-      "confidence": 95
-    }
-  },
-  {
-    "turn_id": "85006b19-9e91-4718-b33a-29e7409254d4",
-    "debater": "Bassem Youssef",
-    "argument": {
-      "type": "attack",
-      "text": "Peterson\u2019s claim that personal data ownership is a straightforward extension of bodily autonomy ignores that data is inherently collective, generated through complex networks; assigning ownership to individuals would fracture the very markets that enable personalization and innovation. Moreover, compensating each person for every data point creates administrative overhead and incentives for fraud, ultimately harming the public good. A more realistic approach is to impose stringent data\u2011use regulations and privacy protections while allowing limited, opt\u2011in monetization.",
-      "confidence": 85
-    }
-  },
-  {
-    "turn_id": "2afbe919-f866-4809-934e-c333a3bcf2ae",
-    "debater": "Jordan Peele",
-    "argument": {
-      "type": "attack",
-      "text": "Allowing hate speech on platforms enables the normalization of extremist ideologies, which inevitably leads to real-world violence and harm. This is exemplified by the tragic events of the Christchurch mosque shootings, where the perpetrator livestreamed his attack on Facebook, spreading hate and violence to a global audience. In this sense, prioritizing hate speech over preventing it can have devastating consequences for our collective safety and well-being.",
-      "confidence": 90
-    }
-  },
-  {
-    "turn_id": "aecd9b22-63de-4162-9900-b3fa7dd07a99",
-    "debater": "Bassem Youssef",
+    "turn_id": "73ff6c19-c33f-4d66-a1aa-19d98484472c",
+    "debater": "Greta Thunberg",
     "argument": {
       "type": "counter",
-      "text": "Jordan's example proves the point: when platforms allow unchecked hate speech, they become tools for real\u2011world terror; protecting free speech cannot justify exposing society to that risk. Prioritizing hate\u2011speech suppression is a proactive safeguard that actually preserves the very freedoms we cherish. The evidence from Christchurch shows that unregulated speech on social media can directly facilitate violence, so the balance must tilt toward prevention.",
+      "text": "Musk's focus on misinformation ignores the tangible benefits: millions of people use social media for civic engagement, real-time disaster response, and climate activism, which have led to tangible policy shifts; without these platforms, the rapid mobilization of climate protests would be impossible; thus the net impact is not purely negative.",
       "confidence": 95
-    }
-  },
-  {
-    "turn_id": "ec9ced23-1dad-48a8-a2ad-75e34a880887",
-    "debater": "Jordan Peterson",
-    "argument": {
-      "type": "framing",
-      "text": "Implementing Universal Basic Income before AI takes most jobs requires a clear understanding of its primary function, which is a social safety net and a means to retrain and upskill workers displaced by automation. It would be shortsighted to rely on UBI solely as a substitute for technological progress, rather than a complementary solution to empower individuals to adapt to the changing job market. By reframing UBI in this context, we can ensure it serves a vital purpose in human flourishing.",
-      "confidence": 95
-    }
-  },
-  {
-    "turn_id": "c08b5e34-d30f-4e74-84d6-f5ab7a5eb100",
-    "debater": "Bassem Youssef",
-    "argument": {
-      "type": "attack",
-      "text": "Peterson underestimates how quickly AI will displace workers; UBI is not a mere safety net but a preemptive fiscal buffer that guarantees basic needs while the economy restructures. Waiting for AI to take jobs will leave millions in poverty and erode social cohesion, whereas a timely UBI provides the freedom to pursue new skills, entrepreneurship, or caregiving without the fear of collapse. Thus, implementing UBI before AI dominates is the only prudent path to stability and individual agency.",
-      "confidence": 90
     }
   }
 ]
