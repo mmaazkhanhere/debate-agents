@@ -39,7 +39,7 @@ const DebateStage = () => {
     };
 
     useEffect(() => {
-        if (engine.phase === "conclusion") {
+        if (engine.phase === "complete") {
             handleEndDebate();
         }
     }, [engine.phase]);

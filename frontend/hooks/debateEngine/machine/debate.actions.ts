@@ -42,3 +42,11 @@ export const syncArguments = assign<DebateMachineContext, DebateMachineEvent, an
         return event.argumentsList;
     },
 });
+
+export const syncFinished = assign<DebateMachineContext, DebateMachineEvent, any, any, any>({
+    isDebateFinished: ({ event, context }) => {
+        if (event.type !== "SYNC_FINISHED") return context.isDebateFinished;
+        return event.isDebateFinished;
+    },
+});
+

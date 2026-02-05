@@ -20,6 +20,9 @@ export type DebateMachineInput = {
 
 export type DebateMachineEvent =
     | { type: "START" }
-    | { type: "SYNC_ARGUMENTS"; argumentsList: DebateArgument[] }
     | { type: "COMPLETE_ARGUMENT" }
-    | { type: "CONCLUDE" };
+    | { type: "CONCLUDE" }
+    | { type: "SYNC_ARGUMENTS"; argumentsList: DebateArgument[] }
+    | { type: "SYNC_FINISHED"; isDebateFinished: boolean };
+
+

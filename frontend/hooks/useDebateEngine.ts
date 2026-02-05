@@ -13,6 +13,16 @@ export const useDebateEngine = (debate: DebateData, streamedEvents: DebateEvent[
         [debate, streamedEvents]
     );
 
+    const expectedArgumentCount = useMemo(
+        () => Math.max(0, (debate.totalRounds ?? 0) * 2),
+        [debate.totalRounds]
+    );
+
+    const effectiveIsFinished = useMemo(
+        () => isFinished || (expectedArgumentCount > 0 && argumentsList.length >= expectedArgumentCount),
+        [argumentsList.length, expectedArgumentCount, isFinished]
+    );
+
     const presenterIntro = useMemo(
         () => getPresenterIntro(streamedEvents),
         [streamedEvents]
@@ -27,13 +37,29 @@ export const useDebateEngine = (debate: DebateData, streamedEvents: DebateEvent[
         input: {
             debate,
             argumentsList,
-            isDebateFinished: isFinished,
+            isDebateFinished: effectiveIsFinished,
         },
     });
 
     useEffect(() => {
+        console.log(
+            "[DEBATE MACHINE]",
+            "phase =", state.value,
+            "roundIndex =", state.context.roundIndex,
+            "isDebateFinished =", state.context.isDebateFinished
+        );
+    }, [state.value, state.context.roundIndex, state.context.isDebateFinished]);
+
+
+    useEffect(() => {
         send({ type: "SYNC_ARGUMENTS", argumentsList });
     }, [argumentsList, send]);
+
+    useEffect(() => {
+        send({ type: "SYNC_FINISHED", isDebateFinished: effectiveIsFinished });
+    }, [effectiveIsFinished, send]);
+
+
 
     useEffect(() => {
         if (state.value !== "intro") return;
@@ -93,8 +119,8 @@ export const useDebateEngine = (debate: DebateData, streamedEvents: DebateEvent[
         start: () => send({ type: "START" }),
         nextRound: () => send({ type: "START" }),
         completeArgument: () => send({ type: "COMPLETE_ARGUMENT" }),
-        conclude: () => send({ type: "CONCLUDE" }),
+        sendConclude: () => send({ type: "CONCLUDE" }),
+
     };
 }
-
 

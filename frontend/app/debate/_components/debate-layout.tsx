@@ -28,6 +28,7 @@ const DebateLayout = ({ debate, engine, onExit }: DebateLayoutProps) => {
                             ? engine.presenterConclusionResponse ?? undefined
                             : undefined
                 }
+
                 onAnnouncementFinished={
                     engine.phase === "intro"
                         ? engine.nextRound

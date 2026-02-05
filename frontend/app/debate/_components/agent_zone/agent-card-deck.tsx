@@ -32,7 +32,6 @@ const AgentCardDeck = ({
             ))}
 
             <div className="relative w-16 h-24 rounded-lg border-2 flex items-center justify-center">
-                ðŸŽ´
                 <span className="sr-only">
                     {safeRemaining} cards remaining
                 </span>

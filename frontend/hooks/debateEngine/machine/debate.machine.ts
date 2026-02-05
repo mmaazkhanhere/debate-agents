@@ -19,7 +19,11 @@ export const debateMachine = createMachine({
         SYNC_ARGUMENTS: {
             actions: actions.syncArguments,
         },
+        SYNC_FINISHED: {
+            actions: actions.syncFinished,
+        },
     },
+
 
     states: {
         intro: {
