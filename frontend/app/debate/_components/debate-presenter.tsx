@@ -38,12 +38,14 @@ const DebatePresenter = ({
             className="relative w-full bg-linear-to-b from-slate-900/95 to-slate-950/95 border-b border-primary/20"
         >
             <div className="max-w-6xl mx-auto px-6 py-4">
-                <main className="flex items-center justify-between">
-                    <section>
+                <main className="flex items-center justify-between gap-4">
+                    <section className="min-w-0">
                         <p className="text-xs font-medium text-red-400 uppercase tracking-wider">
                             Live Debate
                         </p>
-                        <h1 className="text-lg md:text-xl font-display truncate">{debateTopic}</h1>
+                        <h1 className="text-lg md:text-xl font-display break-words whitespace-normal md:truncate">
+                            {debateTopic}
+                        </h1>
                     </section>
 
                     <aside className="flex items-center gap-4">

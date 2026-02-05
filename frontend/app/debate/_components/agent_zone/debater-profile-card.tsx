@@ -31,7 +31,7 @@ const DebaterProfileCard = ({
     return (
         <motion.article
             className={cn(
-                "relative p-4 rounded-xl border-2",
+                "relative w-auto max-w-[240px] p-4 rounded-xl border-2 md:max-w-none",
                 "bg-linear-to-b from-slate-800/90 to-slate-900/90",
                 isCurrentTurn
                     ? side === "left"

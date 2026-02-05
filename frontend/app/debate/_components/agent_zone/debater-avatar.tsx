@@ -24,8 +24,7 @@ const DebaterAvatar = ({ src, side }: DebaterAvatarProps) => {
                 src={src}
                 alt=""
                 fill
-                width={64}
-                height={64}
+                sizes="64px"
                 className="object-cover"
                 priority={false}
             />

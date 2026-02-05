@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 const ArenaVsDivider = () => {
     return (
-        <section className="relative flex flex-col items-center justify-center">
+        <section className="relative flex flex-col items-center justify-center py-3 md:py-0">
             <motion.div
                 animate={{ scale: [1, 1.05, 1], opacity: [0.8, 1, 0.8] }}
                 transition={{ duration: 3, repeat: Infinity }}
@@ -24,7 +24,7 @@ const ArenaVsDivider = () => {
                 </div>
             </motion.div>
 
-            <div className="absolute top-0 bottom-0 w-px bg-linear-to-b from-transparent via-primary/30 to-transparent" />
+            <div className="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 bg-linear-to-r from-transparent via-primary/30 to-transparent md:left-1/2 md:right-auto md:top-0 md:h-full md:w-px md:-translate-x-1/2 md:-translate-y-0 md:bg-linear-to-b" />
         </section>
     );
 }

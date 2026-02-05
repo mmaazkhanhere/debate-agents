@@ -9,7 +9,7 @@ import { ArenaPlayedCard } from "./arena-board";
 type ArenaCardStackProps = {
     title: string;
     titleClassName: string;
-    align: "items-start" | "items-end";
+    align: string;
     direction: "left" | "right";
     cards: ArenaPlayedCard[];
     activeCardId: string | null;

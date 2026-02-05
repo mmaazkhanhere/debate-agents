@@ -34,17 +34,17 @@ export const ArenaBoard = ({
 }: ArenaBoardProps) => {
     return (
         <motion.div
-            className="relative w-full flex-1 flex items-center justify-center px-8"
+            className="relative flex w-full flex-1 items-center justify-center px-4 md:px-8"
             animate={isShaking ? { x: [0, -5, 5, -3, 3, 0] } : undefined}
             transition={{ duration: 0.4 }}
         >
             <ArenaBackground />
 
-            <div className="relative max-w-5xl w-full flex gap-8">
+            <div className="relative w-full max-w-5xl flex flex-col gap-6 md:flex-row md:gap-8">
                 <ArenaCardStack
                     title="Challenger"
                     titleClassName="text-blue-400/80"
-                    align="items-end"
+                    align="items-center md:items-end"
                     direction="left"
                     cards={leftCards}
                     activeCardId={activeCardId}
@@ -56,7 +56,7 @@ export const ArenaBoard = ({
                 <ArenaCardStack
                     title="Defender"
                     titleClassName="text-red-400/80"
-                    align="items-start"
+                    align="items-center md:items-start"
                     direction="right"
                     cards={rightCards}
                     activeCardId={activeCardId}

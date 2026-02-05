@@ -16,7 +16,7 @@ const DebateLayout = ({ debate, engine, onExit }: DebateLayoutProps) => {
     const vm = useDebateViewModel(debate, engine);
 
     return (
-        <div className="flex h-screen flex-col overflow-hidden bg-slate-950 text-slate-50">
+        <div className="flex min-h-screen flex-col overflow-y-auto bg-slate-950 text-slate-50">
             <DebatePresenter
                 debateTopic={debate.topic}
                 currentRound={vm.round}

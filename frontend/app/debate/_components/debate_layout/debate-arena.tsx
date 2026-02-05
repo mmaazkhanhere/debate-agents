@@ -9,9 +9,9 @@ type DebateArenaProps = {
 
 const DebateArena = ({ debate, engine }: DebateArenaProps) => {
     return (
-        <main className="relative flex flex-1 items-center justify-between px-12 py-8">
+        <main className="relative flex flex-1 flex-col items-stretch gap-6 px-4 py-4 md:flex-row md:items-center md:justify-between md:px-12 md:py-8 md:pb-10">
             {/* Left Agent */}
-            <div className="z-10 w-80">
+            <div className="z-10 order-1 w-full md:w-80">
                 <DebaterSection
                     side="left"
                     name={debate.debaters.left.name}
@@ -25,8 +25,8 @@ const DebateArena = ({ debate, engine }: DebateArenaProps) => {
             </div>
 
             {/* Arena Board */}
-            <section className="absolute inset-0 flex items-center justify-center">
-                <div className="w-full max-w-4xl h-full">
+            <section className="relative order-2 flex min-h-[320px] w-full flex-1 items-center justify-center md:absolute md:inset-0 md:min-h-0">
+                <div className="h-full w-full max-w-4xl">
                     <ArenaBoard
                         leftCards={engine.leftCards}
                         rightCards={engine.rightCards}
@@ -37,7 +37,7 @@ const DebateArena = ({ debate, engine }: DebateArenaProps) => {
             </section>
 
             {/* Right Agent */}
-            <div className="z-10 w-80">
+            <div className="z-10 order-3 w-full md:w-80">
                 <DebaterSection
                     side="right"
                     name={debate.debaters.right.name}
