@@ -1,14 +1,14 @@
 
-type Props = {
+type DebaterIdentityProps = {
     name: string;
     title: string;
     side: "left" | "right";
 }
-const AgentIdentity = ({
+const DebaterIdentity = ({
     name,
     title,
     side
-}: Props) => {
+}: DebaterIdentityProps) => {
     return (
         <div className={side === "left" ? "text-left" : "text-right"}>
             <h3 className="text-sm font-bold">{name}</h3>
@@ -17,4 +17,4 @@ const AgentIdentity = ({
     );
 }
 
-export default AgentIdentity
+export default DebaterIdentity

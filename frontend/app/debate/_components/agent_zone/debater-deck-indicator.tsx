@@ -1,26 +1,27 @@
-import { cn } from '@/lib/utils'
 import { motion } from 'framer-motion'
 
-type Props = {
+import { cn } from '@/lib/utils'
+
+type DebaterDeckIndicatorProps = {
     side: "left" | "right";
     cardsRemaining: number;
-    isActive: boolean;
+    isCurrentTurn: boolean;
 }
 
-const AgentCardDeck = ({
+const DebaterDeckIndicator = ({
     side,
     cardsRemaining,
-    isActive
-}: Props) => {
-    const safeRemaining = Math.max(0, cardsRemaining);
+    isCurrentTurn
+}: DebaterDeckIndicatorProps) => {
+    const numberOfCardsLeft = Math.max(0, cardsRemaining);
     return (
         <motion.div
-            aria-label={`${safeRemaining} cards remaining`}
-            animate={isActive ? { y: [0, -3, 0] } : undefined}
-            transition={{ duration: 1, repeat: isActive ? Infinity : 0 }}
+            aria-label={`${numberOfCardsLeft} cards remaining`}
+            animate={isCurrentTurn ? { y: [0, -3, 0] } : undefined}
+            transition={{ duration: 1, repeat: isCurrentTurn ? Infinity : 0 }}
             className="relative"
         >
-            {[...Array(Math.min(safeRemaining, 3))].map((_, i) => (
+            {[...Array(Math.min(numberOfCardsLeft, 5))].map((_, i) => (
                 <div
                     key={i}
                     className={cn(
@@ -33,11 +34,11 @@ const AgentCardDeck = ({
 
             <div className="relative w-16 h-24 rounded-lg border-2 flex items-center justify-center">
                 <span className="sr-only">
-                    {safeRemaining} cards remaining
+                    {numberOfCardsLeft} cards remaining
                 </span>
             </div>
         </motion.div>
     );
 }
 
-export default AgentCardDeck
+export default DebaterDeckIndicator

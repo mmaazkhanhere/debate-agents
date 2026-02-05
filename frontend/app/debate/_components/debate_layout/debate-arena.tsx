@@ -1,4 +1,5 @@
-import AgentZone from "../agent_zone/agent-zone";
+
+import DebaterSection from "../agent_zone/debater-section";
 import ArenaBoard from "../arena_board/arena-board";
 
 type DebateArenaProps = {
@@ -11,14 +12,14 @@ const DebateArena = ({ debate, engine }: DebateArenaProps) => {
         <main className="relative flex flex-1 items-center justify-between px-12 py-8">
             {/* Left Agent */}
             <div className="z-10 w-80">
-                <AgentZone
+                <DebaterSection
                     side="left"
                     name={debate.debaters.left.name}
-                    confidence={engine.confidence.left}
-                    score={engine.scores.left}
+                    debaterConfidence={engine.confidence.left}
+                    debaterScore={engine.scores.left}
                     title={debate.debaters.left.title}
                     avatar={debate.debaters.left.avatar}
-                    isActive={engine.activeSide === "left"}
+                    isCurrentTurn={engine.activeSide === "left"}
                     cardsRemaining={3 - engine.leftCards.length}
                 />
             </div>
@@ -37,14 +38,14 @@ const DebateArena = ({ debate, engine }: DebateArenaProps) => {
 
             {/* Right Agent */}
             <div className="z-10 w-80">
-                <AgentZone
+                <DebaterSection
                     side="right"
                     name={debate.debaters.right.name}
-                    confidence={engine.confidence.right}
-                    score={engine.scores.right}
+                    debaterConfidence={engine.confidence.right}
+                    debaterScore={engine.scores.right}
                     title={debate.debaters.right.title}
                     avatar={debate.debaters.right.avatar}
-                    isActive={engine.activeSide === "right"}
+                    isCurrentTurn={engine.activeSide === "right"}
                     cardsRemaining={3 - engine.rightCards.length}
                 />
             </div>

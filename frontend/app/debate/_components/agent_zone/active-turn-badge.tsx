@@ -2,16 +2,16 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Sparkles } from "lucide-react";
 
-type TurnIndicator = {
-    isActive: boolean;
-    side: "left" | "right";
+type ActiveTurnBadgeProps = {
+    isCurrentTurn: boolean;
+    debaterSide: "left" | "right";
 }
 
-const TurnIndicator = ({
-    isActive,
-    side
-}: TurnIndicator) => {
-    if (!isActive) return null;
+const ActiveTurnBadge = ({
+    isCurrentTurn,
+    debaterSide
+}: ActiveTurnBadgeProps) => {
+    if (!isCurrentTurn) return null;
 
     return (
         <motion.div
@@ -20,7 +20,7 @@ const TurnIndicator = ({
             className={cn(
                 "absolute -top-8 flex items-center gap-2 px-3 py-1 rounded-full",
                 "bg-linear-to-r border",
-                side === "left"
+                debaterSide === "left"
                     ? "from-blue-500/20 to-blue-600/20 border-blue-500/30 left-0"
                     : "from-red-500/20 to-red-600/20 border-red-500/30 right-0"
             )}
@@ -30,7 +30,7 @@ const TurnIndicator = ({
             <Sparkles
                 className={cn(
                     "w-3 h-3",
-                    side === "left" ? "text-blue-400" : "text-red-400"
+                    debaterSide === "left" ? "text-blue-400" : "text-red-400"
                 )}
                 aria-hidden
             />
@@ -41,4 +41,4 @@ const TurnIndicator = ({
     );
 }
 
-export default TurnIndicator
+export default ActiveTurnBadge
