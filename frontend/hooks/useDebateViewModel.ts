@@ -15,7 +15,11 @@ export const useDebateViewModel = (debate: any, engine: DebateEngine) => {
                 : "right"
             : null;
 
-    const round = Math.floor(Math.max(0, engine.roundIndex) / 2);
+    const totalRounds = debate.totalRounds ?? 0;
+    const computedRound = engine.roundIndex < 0
+        ? 0
+        : Math.floor(engine.roundIndex / 2) + 1;
+    const round = totalRounds > 0 ? Math.min(computedRound, totalRounds) : computedRound;
 
     return {
         isJudging,
