@@ -27,7 +27,7 @@ export const useDebateSession = () => {
             },
             arguments: [],
             judges: [],
-            totalRounds: 2,
+            totalRounds: 1, //TODO: This is something that is going to be received from backend
         };
 
         setConfig(debateData);

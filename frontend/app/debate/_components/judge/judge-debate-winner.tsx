@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { memo } from "react";
 
 type Props = {
-    winner: "left" | "right";
+    winner: string;
     debaterNames: { left: string; right: string };
 }
 

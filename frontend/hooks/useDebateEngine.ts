@@ -3,7 +3,7 @@ import { debateMachine } from "./debateEngine/machine/debate.machine";
 import { DebateData } from "@/types/debate";
 import { DebateEvent } from "@/types/debate-event";
 import { useEffect, useMemo, useState } from "react";
-import { buildArguments, getModeratorIntro } from "./debateEngine/stream";
+import { buildArguments, getPresenterConclusion, getPresenterIntro } from "./debateEngine/stream";
 import { PlayedCard } from "./debateEngine/types";
 
 export const useDebateEngine = (debate: DebateData, streamedEvents: DebateEvent[], isFinished: boolean) => {
@@ -13,8 +13,13 @@ export const useDebateEngine = (debate: DebateData, streamedEvents: DebateEvent[
         [debate, streamedEvents]
     );
 
-    const moderatorIntro = useMemo(
-        () => getModeratorIntro(streamedEvents),
+    const presenterIntro = useMemo(
+        () => getPresenterIntro(streamedEvents),
+        [streamedEvents]
+    );
+
+    const presenterConclusion = useMemo(
+        () => getPresenterConclusion(streamedEvents),
         [streamedEvents]
     );
 
@@ -34,9 +39,9 @@ export const useDebateEngine = (debate: DebateData, streamedEvents: DebateEvent[
         if (state.value !== "intro") return;
         if (state.context.roundIndex >= 0) return;
         if (argumentsList.length === 0) return;
-        if (moderatorIntro && moderatorIntro.trim().length > 0) return;
+        if (presenterIntro && presenterIntro.trim().length > 0) return;
         send({ type: "START" });
-    }, [argumentsList.length, moderatorIntro, send, state.context.roundIndex, state.value]);
+    }, [argumentsList.length, presenterIntro, send, state.context.roundIndex, state.value]);
 
     const [selectedCard, setSelectedCard] = useState<PlayedCard | null>(null);
 
@@ -70,7 +75,8 @@ export const useDebateEngine = (debate: DebateData, streamedEvents: DebateEvent[
 
     return {
         phase: state.value,
-        streamedModeratorIntro: moderatorIntro,
+        presenterIntroResponse: presenterIntro,
+        presenterConclusionResponse: presenterConclusion,
         send,
         roundIndex: state.context.roundIndex,
         leftCards: state.context.leftCards,

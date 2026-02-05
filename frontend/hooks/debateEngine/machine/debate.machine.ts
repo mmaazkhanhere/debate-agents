@@ -49,7 +49,7 @@ export const debateMachine = createMachine({
                 COMPLETE_ARGUMENT: [
                     {
                         guard: guards.isLastRoundAndFinished,
-                        target: "judging",
+                        target: "moderatorConclusion",
                         actions: actions.applyConfidence,
                     },
                     {
@@ -60,20 +60,25 @@ export const debateMachine = createMachine({
             },
         },
 
+        moderatorConclusion: {
+            on: {
+                CONCLUDE: "judging",
+            },
+        },
+
         judging: {
             after: {
-                [PHASE_DELAYS.verdictDelayMs]: "verdict",
+                [PHASE_DELAYS.verdictDelayMs]: "winnerAnnouncement",
             },
         },
 
-        verdict: {
+        winnerAnnouncement: {
             on: {
-                CONCLUDE: "conclusion",
+                CONCLUDE: "complete",
             },
         },
 
-        conclusion: {
-            type: "final",
-        },
+        complete: { type: "final" }
+
     },
 });

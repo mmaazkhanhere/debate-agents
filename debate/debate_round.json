@@ -1,38 +1,20 @@
 [
   {
-    "turn_id": "9b49d145-af07-4146-8cdf-5088b4b35e66",
-    "debater": "Jordan Peele",
+    "turn_id": "e71194a5-db51-463a-b4d7-a7dc075bea3f",
+    "debater": "Donald Trump",
     "argument": {
-      "type": "attack",
-      "text": "Platforms should be legally liable for misinformation as they have failed to effectively police their content, allowing the spread of life-threatening lies that undermine our public discourse and democratic institutions. We've seen instances of fake news and doctored videos used to incite violence and deceive the public, causing irreparable harm to individuals and communities. The tech giants' profiteering off advertising has become a ticking time bomb, and it's time they take responsibility for the spread of misinformation.",
+      "type": "defense",
+      "text": "Platforms have a moral responsibility to prioritize preventing hate speech, which is a form of verbal terrorism that destroys lives, families, and communities. By allowing hate speech to spread unchecked, platforms become complicit in promoting divisiveness, intolerance, and violence. History has proven that strong leadership and decisive action are necessary to protect citizens from hate, and I believe platforms must lead by example.",
       "confidence": 90
     }
   },
   {
-    "turn_id": "a129f7c3-7217-490b-ab81-f1018df08c7c",
+    "turn_id": "d6cf10cf-3d10-4ddf-aeb0-673dc7b5cc18",
     "debater": "Bassem Youssef",
     "argument": {
       "type": "attack",
-      "text": "Holding platforms legally liable for misinformation would impose an unrealistic duty of constant content surveillance, chilling free expression and stifling innovation across the tech sector. Instead, targeted regulation that empowers users and independent fact\u2011checking bodies can effectively counter falsehoods without criminalizing neutral infrastructure. The legal burden on platforms is too high to enforce and would risk stifling legitimate discourse under a blanket liability framework.",
-      "confidence": 90
-    }
-  },
-  {
-    "turn_id": "26827de1-1204-4c1b-94ce-6030ba975d14",
-    "debater": "Donald Trump",
-    "argument": {
-      "type": "attack",
-      "text": "Folks, let me tell you, the concept of owning personal data is a total disaster, just like our opponent's idea of free market socialism. When you give a company your data, you're giving them leverage, they're making billions off of it, and all we get is a bunch of annoying ads and no compensation, it's a total loser",
-      "confidence": 90
-    }
-  },
-  {
-    "turn_id": "2e7f9316-5a1f-4b09-a84a-438e10601b05",
-    "debater": "Jordan Peterson",
-    "argument": {
-      "type": "counter",
-      "text": "The claim that personal data ownership is a 'disaster' ignores the fact that data is a valuable resource that individuals should control; without ownership, we lose incentive for companies to invest in privacy and security. By recognizing data as property, we can establish a market for data rights that rewards individuals, fostering innovation while protecting privacy. This is not a 'total loser' but a structured system that balances economic freedom with personal dignity.",
-      "confidence": 90
+      "text": "Trump's claim that platforms must lead by example ignores that hate\u2011speech regulations differ widely and that blanket suppression risks overreach and political manipulation, eroding the very freedoms it pretends to protect; a nuanced, targeted approach preserves free speech while curbing hate. Platforms can enforce community standards that isolate hate without banning users wholesale, showing that protecting society need not come at the cost of open debate. By prioritizing freedom first, we avoid the slippery slope of censorship and maintain a marketplace of ideas that ultimately safeguards against extremism.",
+      "confidence": 95
     }
   }
 ]

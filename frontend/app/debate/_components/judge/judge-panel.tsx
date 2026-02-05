@@ -9,7 +9,7 @@ import Winner from "./judge-debate-winner";
 interface JudgePanelProps {
     judges: Judge[];
     revealedCount: number;
-    winner: "left" | "right" | null;
+    winner: string | null;
     debaterNames: { left: string; right: string };
 }
 

@@ -22,19 +22,27 @@ const hasArgumentText = (event: DebateEvent) =>
 const isJudgeEvent = (event: DebateEvent) =>
     !!event.judge || !!event.data?.judge;
 
-const isModeratorEvent = (event: DebateEvent) =>
+const isPresenterEvent = (event: DebateEvent) =>
     event.event === "moderator_intro_done" ||
     event.event === "moderator_conclusion_done" ||
-    event.debater === "Moderator" ||
     event.agent === "moderator_agent";
 
-export const getModeratorIntro = (events?: DebateEvent[]): string | null => {
+export const getPresenterIntro = (events?: DebateEvent[]): string | null => {
     if (!events) return null;
     const introEvent = events.find(
-        e => e.event === "moderator_intro_done" || e.debater === "Moderator"
+        e => e.event === "moderator_intro_done"
     );
     return introEvent?.data?.output || introEvent?.text || null;
 };
+
+export const getPresenterConclusion = (events?: DebateEvent[]): string | null => {
+    if (!events) return null;
+    const conclusionEvent = events.find(
+        e => e.event === "moderator_conclusion_done"
+    );
+    return conclusionEvent?.data?.output || conclusionEvent?.text || null;
+};
+
 
 export const mapEventToArgument = (event: DebateEvent, debate: DebateData): DebateArgument | null => {
     const debaterName = event.debater || event.agent || event.data?.debater;
@@ -60,7 +68,7 @@ export const buildArguments = (debate: DebateData, events?: DebateEvent[]): Deba
     if (!events) return debate.arguments;
 
     return events
-        .filter(e => !isModeratorEvent(e) && !isJudgeEvent(e) && hasArgumentText(e))
+        .filter(e => !isPresenterEvent(e) && !isJudgeEvent(e) && hasArgumentText(e))
         .map(event => mapEventToArgument(event, debate))
         .filter((arg): arg is DebateArgument => !!arg);
 };

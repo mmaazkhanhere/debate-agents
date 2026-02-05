@@ -1,7 +1,7 @@
 import { DebateData, DebateArgument } from "@/types/debate";
 import { PlayedCard, ConfidenceBySide } from "../types";
 
-export interface DebateMachineContext {
+export type DebateMachineContext = {
     debate: DebateData | null;
     argumentsList: DebateArgument[];
     roundIndex: number;
@@ -12,7 +12,7 @@ export interface DebateMachineContext {
     isDebateFinished: boolean;
 }
 
-export interface DebateMachineInput {
+export type DebateMachineInput = {
     debate: DebateData | null;
     argumentsList: DebateArgument[];
     isDebateFinished: boolean;
