@@ -1,54 +1,83 @@
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { countVotes } from "@/lib/utils";
-import { Judge } from "@/types/debate";
-import JudgeCard from "./judge-card";
-import Score from "./judge-debate-score";
-import Winner from "./judge-debate-winner";
 
-interface JudgePanelProps {
+import { countVotes } from "@/lib/utils";
+import type { Judge } from "@/types/debate";
+
+import JudgeCard from "./judge-card";
+import DebateScore from "./debate-score";
+import DebateWinner from "./debate-winner";
+
+type JudgePanelProps = {
     judges: Judge[];
-    revealedCount: number;
+    revealedJudgeCount: number;
     winner: string | null;
-    debaterNames: { left: string; right: string };
+    debaterNames: {
+        left: string;
+        right: string;
+    };
 }
 
 const JudgePanel = ({
     judges,
-    revealedCount,
+    revealedJudgeCount,
     winner,
     debaterNames,
 }: JudgePanelProps) => {
-    const { left, right } = countVotes(judges);
-    const allRevealed = revealedCount >= judges.length;
+    const voteTotals = useMemo(() => countVotes(judges), [judges]);
+    const { left: leftVotes, right: rightVotes } = voteTotals;
+
+    const areAllJudgesRevealed = revealedJudgeCount >= judges.length;
+
+    const revealedJudges = useMemo(
+        () => judges.slice(0, revealedJudgeCount),
+        [judges, revealedJudgeCount]
+    );
 
     return (
-        <main
-            role="main"
+        <section
             aria-label="Debate verdict"
-            className="absolute inset-0 bg-background/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-6"
+            className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-background/95 p-6 backdrop-blur-md"
         >
             <motion.h2
-                className="font-display text-3xl md:text-4xl text-primary mb-8 tracking-wider"
+                className="font-display mb-8 text-3xl tracking-wider text-primary md:text-4xl"
                 initial={{ y: -20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
             >
                 The Verdict
             </motion.h2>
 
-            <section aria-label="Judges verdicts" className="flex flex-wrap justify-center gap-4 md:gap-6 mb-8 max-w-4xl">
+            <section
+                aria-label="Judges verdicts"
+                className="mb-8 flex max-w-4xl flex-wrap justify-center gap-4 md:gap-6"
+            >
                 <AnimatePresence>
-                    {judges.slice(0, revealedCount).map(j => (
-                        <JudgeCard key={j.id} judge={j} debaterNames={debaterNames} />
+                    {revealedJudges.map((judge) => (
+                        <JudgeCard
+                            key={judge.id}
+                            judge={judge}
+                            debaterNames={debaterNames}
+                        />
                     ))}
                 </AnimatePresence>
             </section>
 
-            {allRevealed ? <Score left={left} right={right} debaterNames={debaterNames} /> : null}
+            {areAllJudgesRevealed && (
+                <DebateScore
+                    leftScore={leftVotes}
+                    rightScore={rightVotes}
+                    debaterNames={debaterNames}
+                />
+            )}
 
-            {winner ? <Winner winner={winner} debaterNames={debaterNames} /> : null}
-        </main>
+            {winner && (
+                <DebateWinner
+                    winnerSide={winner}
+                    debaterNames={debaterNames}
+                />
+            )}
+        </section>
     );
 }
 
-export default JudgePanel;
+export default memo(JudgePanel);
