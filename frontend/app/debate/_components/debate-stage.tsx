@@ -8,6 +8,7 @@ import { useDebateStream } from "@/hooks/useDebateStream";
 import { useDebateSession } from "@/hooks/useDebateSession";
 import { useEffect, useState, useMemo } from "react";
 import { DebateData } from "@/types/debate";
+import { buildJudges } from "@/hooks/debateEngine/stream";
 
 const EMPTY_DEBATE: DebateData = {
     topic: "",
@@ -28,9 +29,14 @@ const DebateStage = () => {
 
     // Always provide stable config to hooks
     const safeConfig = useMemo(() => config ?? EMPTY_DEBATE, [config]);
+    const judges = useMemo(() => buildJudges(safeConfig, messages), [safeConfig, messages]);
+    const enrichedDebate = useMemo(
+        () => ({ ...safeConfig, judges }),
+        [safeConfig, judges]
+    );
 
-    // ✅ Hooks are now unconditional
-    const engine = useDebateEngine(safeConfig, messages, isDebateFinished);
+    // Hooks are now unconditional
+    const engine = useDebateEngine(enrichedDebate, messages, isDebateFinished);
     useDebateAudio(engine.phase, !!config);
 
     const handleEndDebate = () => {
@@ -56,7 +62,7 @@ const DebateStage = () => {
     return (
         <div className="relative">
             <DebateLayout
-                debate={config}
+                debate={enrichedDebate}
                 engine={engine}
                 onExit={() => router.push("/select")}
             />

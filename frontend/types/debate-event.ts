@@ -15,6 +15,10 @@ export interface DebateEvent {
         agent?: string;
         topic?: string;
         output?: string;
+        judge?: string;
+        winner?: string;
+        reasoning?: string;
+        winner_weakness?: string;
     };
     // Legacy/Fallback fields
     turn_id?: string;
@@ -28,4 +32,9 @@ export interface DebateEvent {
     text?: string;
     confidence?: number;
     step?: string;
+    output?: string;
+    judge?: string;
+    winner?: string;
+    reasoning?: string;
+    winner_weakness?: string;
 }

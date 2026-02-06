@@ -5,6 +5,7 @@ import { DebateEvent } from "@/types/debate-event";
 import { useEffect, useMemo, useState } from "react";
 import { buildArguments, getPresenterConclusion, getPresenterIntro } from "./debateEngine/stream";
 import { PlayedCard } from "./debateEngine/types";
+import { PHASE_DELAYS } from "./debateEngine/constants";
 
 export const useDebateEngine = (debate: DebateData, streamedEvents: DebateEvent[], isFinished: boolean) => {
 
@@ -70,6 +71,35 @@ export const useDebateEngine = (debate: DebateData, streamedEvents: DebateEvent[
     }, [argumentsList.length, presenterIntro, send, state.context.roundIndex, state.value]);
 
     const [selectedCard, setSelectedCard] = useState<PlayedCard | null>(null);
+    const [revealedJudges, setRevealedJudges] = useState(0);
+
+    const judgeCount = debate.judges?.length ?? 0;
+
+    useEffect(() => {
+        if (state.value !== "judging" && state.value !== "winnerAnnouncement") {
+            setRevealedJudges(0);
+            return;
+        }
+        if (judgeCount === 0) {
+            setRevealedJudges(0);
+            return;
+        }
+
+        let current = 0;
+        setRevealedJudges(0);
+
+        const interval = window.setInterval(() => {
+            current += 1;
+            setRevealedJudges(current);
+            if (current >= judgeCount) {
+                window.clearInterval(interval);
+            }
+        }, PHASE_DELAYS.judgeRevealMs);
+
+        return () => {
+            window.clearInterval(interval);
+        };
+    }, [judgeCount, state.value]);
 
     const currentArgument = useMemo(
         () => {
@@ -112,7 +142,7 @@ export const useDebateEngine = (debate: DebateData, streamedEvents: DebateEvent[
         activeSide,
         activeCardId,
         currentArgument,
-        revealedJudges: state.context.revealedJudges,
+        revealedJudges,
         selectedCard,
 
         setSelectedCard,
@@ -123,4 +153,3 @@ export const useDebateEngine = (debate: DebateData, streamedEvents: DebateEvent[
 
     };
 }
-

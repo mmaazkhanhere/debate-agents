@@ -11,6 +11,6 @@ export function useDebateAudio(phase: string, enabled: boolean) {
     useEffect(() => {
         if (phase === "intro") playSound("intro");
         if (phase === "playing") playSound("argument");
-        if (phase === "verdict") playSound("victory");
+        if (phase === "winnerAnnouncement") playSound("victory");
     }, [phase, playSound]);
 }
