@@ -72,21 +72,24 @@ class Debate():
     def logical_analyst_verdict(self) -> Task:
         return Task(
             config=self.tasks_config['logical_analyst_verdict'],
-            output_pydantic=JudgeVerdictResponse
+            output_pydantic=JudgeVerdictResponse,
+            agent=self.logical_analyst_judge(),
         )
 
     @task
     def debate_strategist_verdict(self) -> Task:
         return Task(
             config=self.tasks_config['debate_strategist_verdict'],
-            output_pydantic=JudgeVerdictResponse
+            output_pydantic=JudgeVerdictResponse,
+            agent=self.debate_strategist_judge(),
         )
 
     @task
     def persuasion_verdict(self) -> Task:
         return Task(
             config=self.tasks_config['persuasion_verdict'],
-            output_pydantic=JudgeVerdictResponse
+            output_pydantic=JudgeVerdictResponse,
+            agent=self.persuasion_judge(),
         )
 
 

@@ -29,6 +29,56 @@ type JudgePayload = {
 const cleanText = (value?: string) =>
     value?.replace(/\s+/g, " ").trim() ?? "";
 
+const extractLoosePayload = (rawText: string): JudgePayload | null => {
+    if (!rawText.trim()) return null;
+
+    const source = rawText.replace(/\r/g, "");
+    const lower = source.toLowerCase();
+
+    const patterns = [
+        { key: "judge", aliases: ["judge"] },
+        { key: "winner", aliases: ["winner"] },
+        { key: "reasoning", aliases: ["reasoning", "rationale"] },
+        { key: "winner_weakness", aliases: ["winner_weakness", "winner weakness", "weakness"] },
+    ] as const;
+
+    const hits: Array<{ key: keyof JudgePayload; start: number; end: number }> = [];
+
+    for (const entry of patterns) {
+        for (const alias of entry.aliases) {
+            const match = new RegExp(`\\b${alias.replace(/\s+/g, "\\s+")}\\b\\s*[:=]`, "i").exec(lower);
+            if (match && typeof match.index === "number") {
+                hits.push({
+                    key: entry.key,
+                    start: match.index,
+                    end: match.index + match[0].length,
+                });
+                break;
+            }
+        }
+    }
+
+    if (hits.length === 0) return null;
+
+    hits.sort((a, b) => a.start - b.start);
+    const payload: JudgePayload = {};
+
+    for (let i = 0; i < hits.length; i += 1) {
+        const current = hits[i];
+        const next = hits[i + 1];
+        const slice = source.slice(current.end, next?.start ?? source.length);
+        const cleaned = slice
+            .replace(/^[\s"'`{]+/, "")
+            .replace(/[\s"'`,}]+$/, "")
+            .trim();
+        if (cleaned) {
+            payload[current.key] = cleaned;
+        }
+    }
+
+    return payload.winner ? payload : null;
+};
+
 const parseJsonFromText = (rawText?: string): JudgePayload | null => {
     if (!rawText) return null;
     const trimmed = rawText.trim();
@@ -49,7 +99,7 @@ const parseJsonFromText = (rawText?: string): JudgePayload | null => {
         }
     }
 
-    return null;
+    return extractLoosePayload(trimmed);
 };
 
 const extractJudgePayload = (event: DebateEvent): JudgePayload | null => {
@@ -114,6 +164,10 @@ const inferVoteSide = (debate: DebateData, winner?: string): Side | null => {
     if (normalizedWinner === "right" || normalizedWinner === rightName) return "right";
     if (leftName && normalizedWinner.includes(leftName)) return "left";
     if (rightName && normalizedWinner.includes(rightName)) return "right";
+    if (/debater[_\s-]*1|speaker[_\s-]*1|side[_\s-]*1/.test(normalizedWinner)) return "left";
+    if (/debater[_\s-]*2|speaker[_\s-]*2|side[_\s-]*2/.test(normalizedWinner)) return "right";
+    if (/affirmative|pro\b/.test(normalizedWinner)) return "left";
+    if (/negative|con\b/.test(normalizedWinner)) return "right";
 
     return null;
 };

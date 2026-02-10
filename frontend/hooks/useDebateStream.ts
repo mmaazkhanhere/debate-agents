@@ -50,8 +50,11 @@ export const useDebateStream = (debateId: string | null): UseDebateStreamReturn 
         eventSourceRef.current = es;
 
         const handleMessage = (event: MessageEvent) => {
+            console.log("[SSE] raw", { type: event.type, data: event.data });
             const parsed = parseDebateEvent(event.data, event.type);
+            console.log("[SSE] parsed", parsed);
             if (isValidDebateEvent(parsed)) {
+                console.log("[SSE] accepted", parsed);
                 setMessages((prev) => [...prev, parsed]);
             }
         };
