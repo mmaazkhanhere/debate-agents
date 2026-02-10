@@ -48,6 +48,7 @@ logical_analyst_verdict:
     Judge the debate based on logical coherence, consistency,
     and disciplined reasoning.
     Penalize fallacies, evasions, and unsafe rhetoric.
+    Return JSON with fields: judge (your name), winner, reasoning, winner_weakness.
   expected_output: >
     JSON verdict selecting a winner with reasoning and quotes.
   agent: logical_analyst_judge
@@ -57,6 +58,7 @@ debate_strategist_verdict:
   description: >
     Judge the debate based on strategic execution:
     framing, timing, responsiveness, and exploitation of weaknesses.
+    Return JSON with fields: judge (your name), winner, reasoning, winner_weakness.
   expected_output: >
     JSON verdict selecting a winner with reasoning and quotes.
   agent: debate_strategist_judge
@@ -67,6 +69,7 @@ persuasion_verdict:
     Judge the debate based on persuasiveness,
     emotional resonance, clarity, and watchability
     for a general audience.
+    Return JSON with fields: judge (your name), winner, reasoning, winner_weakness.
   expected_output: >
     JSON verdict selecting a winner with reasoning and quotes.
   agent: persuasion_judge
