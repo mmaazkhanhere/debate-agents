@@ -1,11 +1,26 @@
 import DebaterSpeechOverlay from "../debater_speech_overlay/debater-speech-overlay";
 import JudgePanel from "../judge/judge-panel";
 import CardDetailModal from "../card-detail-modal";
+import type { DebateData, Judge } from "@/types/debate";
+import type { PlayedCard } from "@/hooks/debateEngine/types";
+import type { Side } from "@/types/type_d";
+
+type DebateRuntimeEngine = {
+    currentArgument: {
+        text: string;
+    } | null;
+    activeSide: Side | null;
+    phase: string;
+    completeArgument: () => void;
+    revealedJudges: number;
+    selectedCard: PlayedCard | null;
+    setSelectedCard: (card: PlayedCard | null) => void;
+};
 
 type DebateRuntimeOverlaysProps = {
-    debate: any;
-    engine: any;
-    judges: any[];
+    debate: DebateData;
+    engine: DebateRuntimeEngine;
+    judges: Judge[];
     isJudging: boolean;
     winner: string | null;
 }
@@ -38,7 +53,7 @@ const DebateRuntimeOverlays = ({
             {isJudging && judges.length > 0 && (
                 <JudgePanel
                     judges={judges}
-                    revealedCount={engine.revealedJudges}
+                    revealedJudgeCount={engine.revealedJudges}
                     winner={winner}
                     debaterNames={{
                         left: debate.debaters.left.name,

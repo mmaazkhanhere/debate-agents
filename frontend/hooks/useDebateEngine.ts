@@ -74,9 +74,10 @@ export const useDebateEngine = (debate: DebateData, streamedEvents: DebateEvent[
     const [revealedJudges, setRevealedJudges] = useState(0);
 
     const judgeCount = debate.judges?.length ?? 0;
+    const isVerdictPhase = state.value === "judging" || state.value === "winnerAnnouncement";
 
     useEffect(() => {
-        if (state.value !== "judging" && state.value !== "winnerAnnouncement") {
+        if (!isVerdictPhase) {
             setRevealedJudges(0);
             return;
         }
@@ -99,7 +100,7 @@ export const useDebateEngine = (debate: DebateData, streamedEvents: DebateEvent[
         return () => {
             window.clearInterval(interval);
         };
-    }, [judgeCount, state.value]);
+    }, [isVerdictPhase, judgeCount]);
 
     const currentArgument = useMemo(
         () => {
