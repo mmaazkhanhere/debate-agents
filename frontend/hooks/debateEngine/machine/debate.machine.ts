@@ -53,7 +53,7 @@ export const debateMachine = createMachine({
                 COMPLETE_ARGUMENT: [
                     {
                         guard: guards.isLastRoundAndFinished,
-                        target: "moderatorConclusion",
+                        target: "presenterConclusion",
                         actions: actions.applyConfidence,
                     },
                     {
@@ -64,7 +64,7 @@ export const debateMachine = createMachine({
             },
         },
 
-        moderatorConclusion: {
+        presenterConclusion: {
             on: {
                 CONCLUDE: "judging",
             },

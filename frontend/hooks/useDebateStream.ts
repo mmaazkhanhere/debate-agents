@@ -22,8 +22,8 @@ const CUSTOM_EVENT_TYPES = [
     "agent_response",
     "data",
     "agent_done",
-    "moderator_intro_done",
-    "moderator_conclusion_done",
+    "presenter_intro_done",
+    "presenter_conclusion_done",
 ];
 
 export const useDebateStream = (debateId: string | null): UseDebateStreamReturn => {

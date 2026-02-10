@@ -134,14 +134,14 @@ const extractJudgePayload = (event: DebateEvent): JudgePayload | null => {
 const isJudgeEvent = (event: DebateEvent) => !!extractJudgePayload(event);
 
 const isPresenterEvent = (event: DebateEvent) =>
-    event.event === "moderator_intro_done" ||
-    event.event === "moderator_conclusion_done" ||
-    event.agent === "moderator_agent";
+    event.event === "presenter_intro_done" ||
+    event.event === "presenter_conclusion_done" ||
+    event.agent === "presenter_agent";
 
 export const getPresenterIntro = (events?: DebateEvent[]): string | null => {
     if (!events) return null;
     const introEvent = events.find(
-        e => e.event === "moderator_intro_done"
+        e => e.event === "presenter_intro_done"
     );
     return introEvent?.data?.output || introEvent?.text || null;
 };
@@ -149,7 +149,7 @@ export const getPresenterIntro = (events?: DebateEvent[]): string | null => {
 export const getPresenterConclusion = (events?: DebateEvent[]): string | null => {
     if (!events) return null;
     const conclusionEvent = events.find(
-        e => e.event === "moderator_conclusion_done"
+        e => e.event === "presenter_conclusion_done"
     );
     return conclusionEvent?.data?.output || conclusionEvent?.text || null;
 };

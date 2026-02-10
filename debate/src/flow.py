@@ -54,7 +54,7 @@ class DebateFlow(Flow[DebateState]):
         return "\n\n".join(lines)
 
     @start()
-    async def moderator_debate_introduction(self):
+    async def presenter_introduction(self):
         LOG.info(f"Introducing the debate topic: {self.state.topic}")
         topic: str = self.state.topic
         llm = LLM(model="groq/openai/gpt-oss-120b")
@@ -63,13 +63,13 @@ class DebateFlow(Flow[DebateState]):
         is engaging and interesting for the audience. Keep introduction to 3 sentences.
         """)
         LOG.info(f"Debate Introduction: {debate_introduction}")
-        self.state.moderator_introduction = debate_introduction
+        self.state.presenter_introduction = debate_introduction
 
         publish(
             self.state.debate_id,
-            "moderator_intro_done",
+            "presenter_intro_done",
             {
-                "agent": "moderator_agent",
+                "agent": "presenter_agent",
                 "topic": topic,
                 "output": debate_introduction,
             },
@@ -83,7 +83,7 @@ class DebateFlow(Flow[DebateState]):
         # time.sleep(10)
 
 
-    @listen(or_(moderator_debate_introduction, "next_round"))
+    @listen(or_(presenter_introduction, "next_round"))
     async def debater_1_answer(self):
         LOG.info(f"Debater_1 Answering - Round {self.state.current_round}")
         
@@ -157,8 +157,8 @@ class DebateFlow(Flow[DebateState]):
 
 
     @listen("conclude_debate")
-    async def moderator_debate_conclusion(self):
-        LOG.info("Moderator Concluding the debate")
+    async def presenter_conclusion(self):
+        LOG.info("Presenter Concluding the debate")
         llm = LLM(model="groq/openai/gpt-oss-120b")
         
         debate_conclusion = llm.call(f"""You are Piers Morgan. Conclude the debate on the topic: {self.state.topic} 
@@ -173,16 +173,16 @@ class DebateFlow(Flow[DebateState]):
 
         publish(
             self.state.debate_id,
-            "moderator_conclusion_done",
+            "presenter_conclusion_done",
             {
-                "agent": "moderator_agent",
+                "agent": "presenter_agent",
                 "topic": self.state.topic,
                 "output": debate_conclusion,
             },
         )
 
 
-    @listen("moderator_debate_conclusion")
+    @listen("presenter_conclusion")
     async def judge_debate(self):
         LOG.info("Judging the debate")
         judge_response = self.debate.judge_crew().kickoff(inputs={

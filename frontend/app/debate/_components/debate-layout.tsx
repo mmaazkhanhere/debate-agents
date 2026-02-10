@@ -24,7 +24,7 @@ const DebateLayout = ({ debate, engine, onExit }: DebateLayoutProps) => {
                 announcementText={
                     engine.phase === "intro"
                         ? engine.presenterIntroResponse ?? undefined
-                        : engine.phase === "moderatorConclusion"
+                        : engine.phase === "presenterConclusion"
                             ? engine.presenterConclusionResponse ?? undefined
                             : undefined
                 }
@@ -32,7 +32,7 @@ const DebateLayout = ({ debate, engine, onExit }: DebateLayoutProps) => {
                 onAnnouncementFinished={
                     engine.phase === "intro"
                         ? engine.nextRound
-                        : engine.phase === "moderatorConclusion"
+                        : engine.phase === "presenterConclusion"
                             ? engine.sendConclude
                             : undefined
                 }

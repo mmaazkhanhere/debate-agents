@@ -31,9 +31,9 @@ class DebateState(BaseModel):
         default=0,
         description="The active round number; increments after both debaters complete a turn."
     )
-    moderator_introduction: str = Field(
+    presenter_introduction: str = Field(
         default="",
-        description="Neutral introduction by the moderator that frames the topic, stakes, and rules of the debate."
+        description="Neutral introduction by the presenter that frames the topic, stakes, and rules of the debate."
     )
     debater_1: str = Field(
         default="",

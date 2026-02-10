@@ -24,32 +24,3 @@ export type PlayedCard = {
     side: Side;
     confidence: number;
 }
-
-// export type DebateEngineState = {
-//     phase: DebatePhase;
-//     roundIndex: number;
-//     activeSide: Side | null;
-//     activeCardId: string | null;
-//     currentArgument?: DebateArgument;
-//     streamedModeratorIntro: string | null;
-//     leftCards: PlayedCard[];
-//     rightCards: PlayedCard[];
-//     scores: ScoreBySide;
-//     confidence: ConfidenceBySide;
-//     revealedJudges: number;
-//     selectedCard: PlayedCard | null;
-// }
-
-// export type DebateEngineActions = {
-//     setPhase: (phase: DebatePhase) => void;
-//     setActiveSide: (side: Side | null) => void;
-//     setActiveCardId: (id: string | null) => void;
-//     setLeftCards: (cards: PlayedCard[] | ((prev: PlayedCard[]) => PlayedCard[])) => void;
-//     setRightCards: (cards: PlayedCard[] | ((prev: PlayedCard[]) => PlayedCard[])) => void;
-//     setSelectedCard: (card: PlayedCard | null) => void;
-//     nextRound: () => void;
-//     completeArgument: () => void;
-//     reset: () => void;
-// }
-
-// export type DebateEngine = DebateEngineState & DebateEngineActions;
