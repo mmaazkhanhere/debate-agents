@@ -2,6 +2,7 @@ import logging
 import warnings
 import uuid
 import asyncio
+import os
 
 from .utils import append_turn, load_persona
 from .models import DebateState
@@ -28,6 +29,11 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
 )
+
+INTRO_SLEEP_SEC = float(os.getenv("INTRO_SLEEP_SEC", "10"))
+TURN_SLEEP_SEC = float(os.getenv("TURN_SLEEP_SEC", "18"))
+CONCLUDE_SLEEP_SEC = float(os.getenv("CONCLUDE_SLEEP_SEC", "0"))
+JUDGE_SLEEP_SEC = float(os.getenv("JUDGE_SLEEP_SEC", "0"))
 
 
 class DebateFlow(Flow[DebateState]):
@@ -80,7 +86,8 @@ class DebateFlow(Flow[DebateState]):
         self.state.debater_1_persona = load_persona(self.state.debater_1)
         self.state.debater_2_persona = load_persona(self.state.debater_2)
 
-        # time.sleep(10)
+        if INTRO_SLEEP_SEC > 0:
+            await asyncio.sleep(INTRO_SLEEP_SEC)
 
 
     @listen(or_(presenter_introduction, "next_round"))
@@ -112,7 +119,8 @@ class DebateFlow(Flow[DebateState]):
         self.state.turns.append(turn) 
         append_turn(turn)
 
-        # await asyncio.sleep(18)
+        if TURN_SLEEP_SEC > 0:
+            await asyncio.sleep(TURN_SLEEP_SEC)
 
 
 
@@ -143,7 +151,8 @@ class DebateFlow(Flow[DebateState]):
         self.state.turns.append(turn)
         append_turn(turn)
 
-        # await asyncio.sleep(18)
+        if TURN_SLEEP_SEC > 0:
+            await asyncio.sleep(TURN_SLEEP_SEC)
 
 
     @router(debater_2_answer)
@@ -180,6 +189,8 @@ class DebateFlow(Flow[DebateState]):
                 "output": debate_conclusion,
             },
         )
+        if CONCLUDE_SLEEP_SEC > 0:
+            await asyncio.sleep(CONCLUDE_SLEEP_SEC)
 
 
     @listen("presenter_conclusion")
@@ -194,6 +205,8 @@ class DebateFlow(Flow[DebateState]):
 
         LOG.info("Debate Winner: ", judge_response.pydantic)
         self.state.winner = judge_response.pydantic
+        if JUDGE_SLEEP_SEC > 0:
+            await asyncio.sleep(JUDGE_SLEEP_SEC)
         
 
 async def run_debate_flow(debate_id: str, topic: str, debater_1: str, debater_2: str):

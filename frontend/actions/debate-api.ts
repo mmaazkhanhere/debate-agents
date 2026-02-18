@@ -23,8 +23,13 @@ interface StartDebateResponse {
 export async function startDebate(
     topic: string,
     debater1: string,
-    debater2: string
+    debater2: string,
+    sessionId: string,
+    userId?: string | null
 ): Promise<string> {
+    if (!sessionId || sessionId.trim().length === 0) {
+        throw new Error("sessionId is required to start a debate");
+    }
     const response = await fetch(`${API_BASE_URL}/debate`, {
         method: "POST",
         headers: {
@@ -34,6 +39,8 @@ export async function startDebate(
             topic,
             debater_1: debater1,
             debater_2: debater2,
+            session_id: sessionId,
+            user_id: userId ?? null,
         }),
     });
 
@@ -53,4 +60,19 @@ export async function startDebate(
  */
 export function buildDebateEventsUrl(debateId: string): string {
     return `${API_BASE_URL}/debate/${debateId}/events`;
+}
+
+export function buildDebateEventsUrlWithIdentity(
+    debateId: string,
+    sessionId: string,
+    userId?: string | null
+): string {
+    if (!sessionId || sessionId.trim().length === 0) {
+        throw new Error("sessionId is required to subscribe to debate events");
+    }
+    const params = new URLSearchParams({ session_id: sessionId });
+    if (userId) {
+        params.set("user_id", userId);
+    }
+    return `${API_BASE_URL}/debate/${debateId}/events?${params.toString()}`;
 }

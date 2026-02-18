@@ -23,8 +23,8 @@ const EMPTY_DEBATE: DebateData = {
 
 const DebateStage = () => {
     const router = useRouter();
-    const { config, debateId } = useDebateSession();
-    const { messages, isConnected, close } = useDebateStream(debateId);
+    const { config, debateId, sessionId, userId } = useDebateSession();
+    const { messages, isConnected, close } = useDebateStream(debateId, sessionId, userId);
     const [isDebateFinished, setIsDebateFinished] = useState(false);
 
     // Always provide stable config to hooks

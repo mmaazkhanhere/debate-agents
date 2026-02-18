@@ -2,22 +2,36 @@ import time
 import uuid
 import asyncio
 import json
+import logging
 
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, Request, BackgroundTasks
+from fastapi import FastAPI, Request, HTTPException, Query
 from sse_starlette.sse import EventSourceResponse
 
 from src.flow import run_debate_flow
 from src.utils import redis_client
+from src.storage import (
+    init_db,
+    upsert_session,
+    create_debate,
+    get_debate_owner,
+    cleanup_expired_sessions,
+    cleanup_old_debates,
+)
 from pydantic import BaseModel
 
 class DebateRequest(BaseModel):
     topic: str
     debater_1: str
     debater_2: str
+    session_id: str
+    user_id: str | None = None
 
 
 app: FastAPI = FastAPI()
+LOG = logging.getLogger("debate_api")
+
+init_db()
 
 origins = [
     "http://localhost:8000",
@@ -53,20 +67,78 @@ def redis_test():
     return {"value": redis_client.get("ping")}
 
 @app.post("/debate")
-def start_debate(req: DebateRequest, bg: BackgroundTasks):
+async def start_debate(req: DebateRequest):
+    if not req.session_id or not req.session_id.strip():
+        raise HTTPException(status_code=400, detail="session_id is required")
+
+    upsert_session(req.session_id, req.user_id)
+    cleanup_expired_sessions()
+    cleanup_old_debates()
+
     debate_id: str = str(uuid.uuid4())
-    bg.add_task(
-        run_debate_flow,
-        debate_id,
-        req.topic,
-        req.debater_1,
-        req.debater_2,
+    create_debate(
+        debate_id=debate_id,
+        session_id=req.session_id,
+        user_id=req.user_id,
+        topic=req.topic,
+        debater_1=req.debater_1,
+        debater_2=req.debater_2,
+    )
+
+    LOG.info(
+        "Debate created",
+        extra={
+            "debate_id": debate_id,
+            "session_id": req.session_id,
+            "user_id": req.user_id,
+        },
+    )
+    asyncio.create_task(
+        run_debate_flow(
+            debate_id,
+            req.topic,
+            req.debater_1,
+            req.debater_2,
+        )
     )
     return {"debate_id": debate_id}
 
 
 @app.get("/debate/{debate_id}/events")
-async def debate_events(debate_id: str):
+async def debate_events(
+    debate_id: str,
+    session_id: str = Query(...),
+    user_id: str | None = Query(default=None),
+):
+    if not session_id or not session_id.strip():
+        raise HTTPException(status_code=400, detail="session_id is required")
+
+    owner = get_debate_owner(debate_id)
+    if not owner:
+        raise HTTPException(status_code=404, detail="debate not found")
+    if owner["user_id"]:
+        if not user_id or owner["user_id"] != user_id:
+            LOG.warning(
+                "Unauthorized debate stream access",
+                extra={
+                    "debate_id": debate_id,
+                    "session_id": session_id,
+                    "user_id": user_id,
+                },
+            )
+            raise HTTPException(status_code=403, detail="not authorized")
+    else:
+        if owner["session_id"] != session_id:
+            LOG.warning(
+                "Unauthorized debate stream access",
+                extra={
+                    "debate_id": debate_id,
+                    "session_id": session_id,
+                    "user_id": user_id,
+                },
+            )
+            raise HTTPException(status_code=403, detail="not authorized")
+
     stream = f"debate:{debate_id}"
     last_id = "0-0"
 

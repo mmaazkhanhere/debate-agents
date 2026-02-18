@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { DebateEvent } from "@/types/debate-event";
-import { buildDebateEventsUrl } from "@/actions/debate-api";
+import { buildDebateEventsUrlWithIdentity } from "@/actions/debate-api";
 import {
     createEventSource,
     registerEventListeners,
@@ -26,7 +26,11 @@ const CUSTOM_EVENT_TYPES = [
     "presenter_conclusion_done",
 ];
 
-export const useDebateStream = (debateId: string | null): UseDebateStreamReturn => {
+export const useDebateStream = (
+    debateId: string | null,
+    sessionId: string | null,
+    userId?: string | null
+): UseDebateStreamReturn => {
     const [messages, setMessages] = useState<DebateEvent[]>([]);
     const [isConnected, setIsConnected] = useState(false);
     const [error, setError] = useState<Event | null>(null);
@@ -40,12 +44,12 @@ export const useDebateStream = (debateId: string | null): UseDebateStreamReturn 
     }, []);
 
     useEffect(() => {
-        if (!debateId) return;
+        if (!debateId || !sessionId) return;
 
         setMessages([]);
         setError(null);
 
-        const url = buildDebateEventsUrl(debateId);
+        const url = buildDebateEventsUrlWithIdentity(debateId, sessionId, userId ?? null);
         const es = createEventSource(url);
         eventSourceRef.current = es;
 
@@ -68,7 +72,7 @@ export const useDebateStream = (debateId: string | null): UseDebateStreamReturn 
         );
 
         return close;
-    }, [debateId, close]);
+    }, [debateId, sessionId, userId, close]);
 
     return { messages, isConnected, error, close };
 }

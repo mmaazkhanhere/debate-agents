@@ -3,12 +3,17 @@ import { startDebate } from "@/actions/debate-api";
 import { DebateData } from "@/types/debate";
 import { DebateConfig } from "@/app/select/_types/type";
 import { useRouter } from "next/navigation";
+import { useClientSessionId } from "@/hooks/useClientSessionId";
+import { useAuth } from "@/contexts/auth-context";
 
 export const useDebateSession = () => {
     const router = useRouter();
     const [config, setConfig] = useState<DebateData | null>(null);
     const [debateId, setDebateId] = useState<string | null>(null);
     const hasInitiated = useRef(false);
+    const sessionId = useClientSessionId();
+    const { user } = useAuth();
+    const userId = user?.id ?? null;
 
     useEffect(() => {
         const stored = sessionStorage.getItem("debate_config");
@@ -34,18 +39,21 @@ export const useDebateSession = () => {
 
         const init = async () => {
             if (hasInitiated.current) return;
+            if (!sessionId) return;
             hasInitiated.current = true;
 
             const id = await startDebate(
                 debateData.topic,
                 debateData.debaters.left.name,
-                debateData.debaters.right.name
+                debateData.debaters.right.name,
+                sessionId,
+                userId
             );
             setDebateId(id);
         };
 
         init();
-    }, [router]);
+    }, [router, sessionId, userId]);
 
-    return { config, debateId };
+    return { config, debateId, sessionId, userId };
 }
