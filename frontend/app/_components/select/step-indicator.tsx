@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { STEPS } from '@/constants/select-constants';
-import { DebaterProfile, DebateSetupStep, DebateTopicSelection } from '../_types/type';
+import { DebaterProfile, DebateSetupStep, DebateTopicSelection } from '@/types/debate-selection';
 
 type Props = {
     currentStep: DebateSetupStep;

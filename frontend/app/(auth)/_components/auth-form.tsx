@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 
 import type { AuthMode } from './auth-card';
 import { useAuth } from '@/contexts/auth-context';
-import { ArrowRight, Lock, Mail, Sparkles, User } from 'lucide-react';
+import { ArrowRight, Lock, Mail, User } from 'lucide-react';
 
 interface Props {
     mode: AuthMode;
@@ -40,7 +40,7 @@ export default function AuthForm({ mode }: Props) {
         setLoading(false);
 
         if (result.success) {
-            router.push('/select');
+            router.push('/');
             return;
         }
 

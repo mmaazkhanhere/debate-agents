@@ -1,4 +1,4 @@
-import { DebateTopicSelection } from "@/app/select/_types/type";
+import { DebateTopicSelection } from "@/types/debate-selection";
 
 export const topicOptions: DebateTopicSelection[] = [
     {

@@ -1,11 +1,7 @@
-import React from 'react'
+import DebateSetupScreen from "./_components/select/debate-setup-screen";
 
-type Props = {}
+const HomePage = () => {
+    return <DebateSetupScreen />;
+};
 
-const MainPage = (props: Props) => {
-    return (
-        <div>MainPage</div>
-    )
-}
-
-export default MainPage
+export default HomePage;

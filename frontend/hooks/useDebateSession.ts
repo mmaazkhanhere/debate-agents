@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { startDebate } from "@/actions/debate-api";
 import { DebateData } from "@/types/debate";
-import { DebateConfig } from "@/app/select/_types/type";
+import { DebateConfig } from "@/types/debate-selection";
 import { useRouter } from "next/navigation";
 import { useClientSessionId } from "@/hooks/useClientSessionId";
 import { useAuth } from "@/contexts/auth-context";
@@ -18,7 +18,7 @@ export const useDebateSession = () => {
     useEffect(() => {
         const stored = sessionStorage.getItem("debate_config");
         if (!stored) {
-            router.push("/select");
+            router.push("/");
             return;
         }
 

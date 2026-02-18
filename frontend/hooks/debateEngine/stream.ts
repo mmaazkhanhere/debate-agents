@@ -106,24 +106,24 @@ const extractJudgePayload = (event: DebateEvent): JudgePayload | null => {
     if (event.data?.judge && typeof event.data.judge === "string") {
         return {
             judge: event.data.judge,
-            winner: (event.data as any).winner,
-            reasoning: (event.data as any).reasoning,
-            winner_weakness: (event.data as any).winner_weakness,
+            winner: event.data.winner,
+            reasoning: event.data.reasoning,
+            winner_weakness: event.data.winner_weakness,
         };
     }
 
-    if ((event as any).judge && typeof (event as any).judge === "string") {
+    if (event.judge && typeof event.judge === "string") {
         return {
-            judge: (event as any).judge,
-            winner: (event as any).winner,
-            reasoning: (event as any).reasoning,
-            winner_weakness: (event as any).winner_weakness,
+            judge: event.judge,
+            winner: event.winner,
+            reasoning: event.reasoning,
+            winner_weakness: event.winner_weakness,
         };
     }
 
     const rawOutput =
         event.data?.output ||
-        (event as any).output ||
+        event.output ||
         event.text;
     const parsed = parseJsonFromText(rawOutput);
     if (parsed?.judge) return parsed;
@@ -133,25 +133,37 @@ const extractJudgePayload = (event: DebateEvent): JudgePayload | null => {
 
 const isJudgeEvent = (event: DebateEvent) => !!extractJudgePayload(event);
 
+const isPresenterAgent = (event: DebateEvent) =>
+    event.agent === "presenter_agent" || event.data?.agent === "presenter_agent";
+
+const getEventOutput = (event: DebateEvent): string | null =>
+    event.data?.output || event.output || event.text || null;
+
 const isPresenterEvent = (event: DebateEvent) =>
     event.event === "presenter_intro_done" ||
     event.event === "presenter_conclusion_done" ||
-    event.agent === "presenter_agent";
+    isPresenterAgent(event);
 
 export const getPresenterIntro = (events?: DebateEvent[]): string | null => {
     if (!events) return null;
-    const introEvent = events.find(
-        e => e.event === "presenter_intro_done"
-    );
-    return introEvent?.data?.output || introEvent?.text || null;
+    const introEvent = events.find(e => e.event === "presenter_intro_done");
+    if (introEvent) return getEventOutput(introEvent);
+
+    const presenterEvents = events.filter(isPresenterAgent);
+    if (presenterEvents.length === 0) return null;
+
+    return getEventOutput(presenterEvents[0]);
 };
 
 export const getPresenterConclusion = (events?: DebateEvent[]): string | null => {
     if (!events) return null;
-    const conclusionEvent = events.find(
-        e => e.event === "presenter_conclusion_done"
-    );
-    return conclusionEvent?.data?.output || conclusionEvent?.text || null;
+    const conclusionEvent = events.find(e => e.event === "presenter_conclusion_done");
+    if (conclusionEvent) return getEventOutput(conclusionEvent);
+
+    const presenterEvents = events.filter(isPresenterAgent);
+    if (presenterEvents.length < 2) return null;
+
+    return getEventOutput(presenterEvents[presenterEvents.length - 1]);
 };
 
 const inferVoteSide = (debate: DebateData, winner?: string): Side | null => {

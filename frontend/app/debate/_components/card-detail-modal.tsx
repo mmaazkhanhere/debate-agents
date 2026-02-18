@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Flame, Shield, Zap, Brain, MessageSquare } from "lucide-react";
+import type { ComponentType, SVGProps } from "react";
 import { cn } from "@/lib/utils";
 import { CardType, Side } from "@/types/type_d";
 
@@ -18,9 +19,11 @@ interface CardDetailModalProps {
     } | null;
 }
 
+type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
+
 const CARD_TYPE_CONFIG: Record<
     CardType,
-    { icon: any; label: string; gradient: string; color: string }
+    { icon: IconComponent; label: string; gradient: string; color: string }
 > = {
     attack: {
         icon: Flame,

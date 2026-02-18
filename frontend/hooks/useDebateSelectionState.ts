@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import type { DebaterOption, SelectedTopic, Step } from '@/app/select/_types/type';
+import type { DebaterOption, SelectedTopic, Step } from '@/types/debate-selection';
 
 export function useDebateState() {
     const [currentSelectionStep, setCurrentSelectionStep] = useState<Step>('debater1');

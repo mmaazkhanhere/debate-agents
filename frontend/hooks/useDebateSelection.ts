@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useDebateState } from "./useDebateSelectionState";
 import { useDebateNavigation } from "./useDebateSelectionNavigation";
-import type { DebateConfig } from "@/app/select/_types/type";
+import type { DebateConfig } from "@/types/debate-selection";
 
 export const useDebateSelection = () => {
     const state = useDebateState();

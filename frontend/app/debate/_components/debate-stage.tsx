@@ -1,12 +1,11 @@
 "use client";
 
 import DebateLayout from "./debate-layout";
-import { useRouter } from "next/navigation";
 import { useDebateEngine } from "@/hooks/useDebateEngine";
 import { useDebateAudio } from "@/hooks/useDebateAudio";
 import { useDebateStream } from "@/hooks/useDebateStream";
 import { useDebateSession } from "@/hooks/useDebateSession";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { DebateData } from "@/types/debate";
 import { buildJudges } from "@/hooks/debateEngine/stream";
 
@@ -22,9 +21,8 @@ const EMPTY_DEBATE: DebateData = {
 };
 
 const DebateStage = () => {
-    const router = useRouter();
     const { config, debateId, sessionId, userId } = useDebateSession();
-    const { messages, isConnected, close } = useDebateStream(debateId, sessionId, userId);
+    const { messages, close } = useDebateStream(debateId, sessionId, userId);
     const [isDebateFinished, setIsDebateFinished] = useState(false);
 
     // Always provide stable config to hooks
@@ -39,16 +37,16 @@ const DebateStage = () => {
     const engine = useDebateEngine(enrichedDebate, messages, isDebateFinished);
     useDebateAudio(engine.phase, !!config);
 
-    const handleEndDebate = () => {
+    const handleEndDebate = useCallback(() => {
         setIsDebateFinished(true);
         close();
-    };
+    }, [close]);
 
     useEffect(() => {
         if (engine.phase === "complete") {
             handleEndDebate();
         }
-    }, [engine.phase]);
+    }, [engine.phase, handleEndDebate]);
 
     // Only UI is conditional
     if (!config) {
@@ -64,7 +62,6 @@ const DebateStage = () => {
             <DebateLayout
                 debate={enrichedDebate}
                 engine={engine}
-                onExit={() => router.push("/select")}
             />
         </div>
     );

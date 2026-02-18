@@ -8,7 +8,7 @@ import { topicOptions } from '@/constants/topic-constant';
 
 import CustomTopicCard from './custom-topic-card';
 import TopicCard from './topic-card';
-import { DebaterProfile, DebateTopicSelection } from '../_types/type';
+import { DebaterProfile, DebateTopicSelection } from '@/types/debate-selection';
 
 
 type Props = {

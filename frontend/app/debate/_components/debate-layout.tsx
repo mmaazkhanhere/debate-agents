@@ -2,17 +2,18 @@ import { useDebateViewModel } from "@/hooks/useDebateViewModel";
 import DebateArena from "./debate_layout/debate-arena";
 import DebateRuntimeOverlays from "./debate_layout/debate-runtime-overlays";
 import DebatePresenter from "./debate-presenter";
+import type { DebateData } from "@/types/debate";
+import type { DebateEngine } from "@/hooks/useDebateEngine";
 
 
 
 type DebateLayoutProps = {
-    debate: any;
-    engine: any;
-    onExit?: () => void;
-}
+    debate: DebateData;
+    engine: DebateEngine;
+};
 
 
-const DebateLayout = ({ debate, engine, onExit }: DebateLayoutProps) => {
+const DebateLayout = ({ debate, engine }: DebateLayoutProps) => {
     const vm = useDebateViewModel(debate, engine);
 
     return (

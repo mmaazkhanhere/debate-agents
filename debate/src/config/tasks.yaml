@@ -52,7 +52,6 @@ logical_analyst_verdict:
   expected_output: >
     JSON verdict selecting a winner with reasoning and quotes.
   agent: logical_analyst_judge
-  output_file: logical_analyst_verdict.md
 
 debate_strategist_verdict:
   description: >
@@ -62,7 +61,6 @@ debate_strategist_verdict:
   expected_output: >
     JSON verdict selecting a winner with reasoning and quotes.
   agent: debate_strategist_judge
-  output_file: debate_strategist_verdict.md
 
 persuasion_verdict:
   description: >
@@ -73,4 +71,3 @@ persuasion_verdict:
   expected_output: >
     JSON verdict selecting a winner with reasoning and quotes.
   agent: persuasion_judge
-  output_file: persuasion_verdict.md

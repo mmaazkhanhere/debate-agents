@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2 } from "lucide-react";
 import { styleItems } from "@/constants/select-constants";
-import { DebaterProfile } from "../_types/type";
+import { DebaterProfile } from "@/types/debate-selection";
 
 type Props = {
     selectionStep: 'debater1' | 'debater2';

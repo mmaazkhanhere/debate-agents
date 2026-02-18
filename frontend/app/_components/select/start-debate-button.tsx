@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 
 import { ChevronRight } from 'lucide-react';
-import { DebateTopicSelection } from '../_types/type';
+import { DebateTopicSelection } from '@/types/debate-selection';
 
 type Props = {
     canStart: boolean;

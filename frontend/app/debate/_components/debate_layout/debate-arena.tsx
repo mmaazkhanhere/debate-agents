@@ -1,11 +1,13 @@
 
 import DebaterSection from "../agent_zone/debater-section";
 import { ArenaBoard } from "../arena_board/arena-board";
+import type { DebateData } from "@/types/debate";
+import type { DebateEngine } from "@/hooks/useDebateEngine";
 
 type DebateArenaProps = {
-    debate: any;
-    engine: any;
-}
+    debate: DebateData;
+    engine: DebateEngine;
+};
 
 const DebateArena = ({ debate, engine }: DebateArenaProps) => {
     return (

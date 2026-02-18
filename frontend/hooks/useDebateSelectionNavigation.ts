@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
-import type { DebateConfig } from '@/app/select/_types/type';
+import type { DebateConfig } from '@/types/debate-selection';
 
 export const useDebateNavigation = () => {
     const router = useRouter();

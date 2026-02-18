@@ -70,5 +70,59 @@
       "text": "Requiring parental consent imposes a paternalistic gate that erodes adolescents' capacity for autonomous decision\u2011making, essential for adult competence; while protecting against predators is important, technology already offers robust privacy controls and education without full consent. The real trade\u2011off is between safety and the developmental need for self\u2011regulation; imposing consent forces a zero\u2011risk model that undermines the very resilience we want to cultivate.",
       "confidence": 95
     }
+  },
+  {
+    "turn_id": "a6691191-f5f8-479c-8e22-e1a52d860d31",
+    "debater": "Bassem Youssef",
+    "argument": {
+      "type": "counter",
+      "text": "While Jordan Peele argues that AI-generated art should not be eligible for copyright protection due to its lack of human creativity, I counter that a more nuanced approach recognizes AI's capacity for innovation within its programming parameters, yet acknowledges the fundamental role of human creators in shaping the artistic vision, thereby justifying copyright protection. This approach balances the incentives for human artists while acknowledging the rapidly evolving landscape of artificial intelligence. In doing so, it provides a sustainable foundation for both artistic advancement and industry growth.",
+      "confidence": 95
+    }
+  },
+  {
+    "turn_id": "33639b21-65c0-4ce0-aa8c-087126c05321",
+    "debater": "Jordan Peele",
+    "argument": {
+      "type": "attack",
+      "text": "Bassem's notion that AI can innovate under human guidance conflates algorithmic output with genuine creative intent; the core of copyright is human authorship, and granting protection to machine-generated works would erode incentives for real artists. By denying copyright to AI art we preserve the moral and economic fabric that nurtures human creativity, while still allowing open-source use of algorithmic outputs. The only viable path is to treat AI works as public domain, keeping the art market fair and sustainable.",
+      "confidence": 90
+    }
+  },
+  {
+    "turn_id": "7ee3fc5a-b20b-4d18-873c-d512119162dd",
+    "debater": "Donald Trump",
+    "argument": {
+      "type": "attack",
+      "text": "Social media is doing more harm than good for society, because it has created a culture of division, where people are more likely to engage with false information and hate speech than with fact-based discussions and constructive debate. This has led to the erosion of civil discourse and the normalization of extreme views, ultimately undermining our democratic institutions and social cohesion.",
+      "confidence": 95
+    }
+  },
+  {
+    "turn_id": "6299e71a-f1a7-4e64-854c-eb90ce0758f9",
+    "debater": "Greta Thunberg",
+    "argument": {
+      "type": "counter",
+      "text": "While Mr. Trump highlights division and misinformation, data shows that social media also accelerates climate action, connecting activists and enabling rapid mobilization, which has led to tangible policy changes; the platform\u2019s design amplifies both harms and benefits, so declaring it solely damaging oversimplifies its complex societal role.",
+      "confidence": 90
+    }
+  },
+  {
+    "turn_id": "d7f38768-e253-4b6a-99d8-c02bdb4abfad",
+    "debater": "Donald Trump",
+    "argument": {
+      "type": "attack",
+      "text": "Elon Musk's argument for not implementing Universal Basic Income before AI takes most jobs is unrealistic. The truth is, AI will inevitably displace millions of Americans, and without a safety net, we'll have widespread poverty, and our economy will suffer. We cannot afford to wait, and Universal Basic Income is the smart, forward-thinking answer.",
+      "confidence": 95
+    }
+  },
+  {
+    "turn_id": "2edd7136-a757-4d18-b858-5b293737f128",
+    "debater": "Elon Musk",
+    "argument": {
+      "type": "counter",
+      "text": "The claim that UBI is the smart, forward\u2011thinking answer ignores that it would lock in a stagnant economy and stifle the innovation that AI actually creates; instead, scaling targeted skills training and fostering new industries will preserve high\u2011wage jobs and reduce poverty without a blanket payout. AI displaces routine roles, but it simultaneously creates demand for highly technical and creative positions that can be rapidly filled by a workforce trained in AI literacy. Implementing UBI prematurely would discourage the very entrepreneurial mindset that ensures society adapts and thrives.",
+      "confidence": 90
+    }
   }
 ]

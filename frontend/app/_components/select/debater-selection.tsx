@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useMemo } from 'react';
 import DebaterCard from './debater-card';
 import { DEBATERS_AVAILABLE } from '@/constants/debater-constant';
-import { DebaterProfile } from '../_types/type';
+import { DebaterProfile } from '@/types/debate-selection';
 
 type Props = {
     selectionStep: 'debater1' | 'debater2';

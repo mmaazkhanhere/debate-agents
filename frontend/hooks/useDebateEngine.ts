@@ -154,3 +154,5 @@ export const useDebateEngine = (debate: DebateData, streamedEvents: DebateEvent[
 
     };
 }
+
+export type DebateEngine = ReturnType<typeof useDebateEngine>;

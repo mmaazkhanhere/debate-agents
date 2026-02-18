@@ -1,4 +1,4 @@
-import type { DebaterProfile, DebateSetupStep } from '@/app/select/_types/type';
+import type { DebateSetupStep } from '@/types/debate-selection';
 
 export const STEPS: { id: DebateSetupStep; label: string }[] = [
     { id: 'debater1', label: 'Choose first debater' },

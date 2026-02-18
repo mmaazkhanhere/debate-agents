@@ -1,5 +1,4 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { cn } from "@/lib/utils";
 import { useTypewriter } from "@/hooks/useTypewriter";
 import SpeakerHeader from "./speaker-header";
 import SpeechBubble from "./speech-bubble";

@@ -1,4 +1,4 @@
-import { DebaterProfile } from "@/app/select/_types/type";
+import { DebaterProfile } from "@/types/debate-selection";
 
 export const DEBATERS_AVAILABLE: DebaterProfile[] = [
     {

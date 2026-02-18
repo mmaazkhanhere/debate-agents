@@ -1,7 +1,8 @@
-import { DebateEngine } from "./debateEngine/types";
+import type { DebateData } from "@/types/debate";
+import type { DebateEngine } from "@/hooks/useDebateEngine";
 
 
-export const useDebateViewModel = (debate: any, engine: DebateEngine) => {
+export const useDebateViewModel = (debate: DebateData, engine: DebateEngine) => {
     const isJudging =
         engine.phase === "judging" || engine.phase === "winnerAnnouncement";
 
