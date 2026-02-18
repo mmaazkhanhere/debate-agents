@@ -15,6 +15,8 @@ export interface DebateArgument {
     confidence?: number;
 }
 
+export type JudgeRubricScore = Record<string, [number, number]>;
+
 export interface Judge {
     id: number;
     name: string;
@@ -22,6 +24,7 @@ export interface Judge {
     vote: Side;
     reasoning: string;
     quotedLine: string;
+    rubricScore?: JudgeRubricScore;
 }
 
 export interface DebatePresenter {

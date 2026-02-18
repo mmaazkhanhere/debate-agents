@@ -29,6 +29,20 @@ const JudgeCard = ({ judge, debaterNames, onOpen }: JudgeCardProps) => {
 
     const reasoning = (judge.reasoning ?? "").trim();
     const quotedLine = (judge.quotedLine ?? "").trim();
+    const rubricEntries = useMemo(() => {
+        if (!judge.rubricScore) return [];
+        return Object.entries(judge.rubricScore).map(([key, scores]) => {
+            const label = key
+                .replace(/_/g, " ")
+                .replace(/\b\w/g, (char) => char.toUpperCase());
+            return {
+                key,
+                label,
+                left: scores[0],
+                right: scores[1],
+            };
+        });
+    }, [judge.rubricScore]);
     const shouldShowToggle = reasoning.length + quotedLine.length > 200;
     const initials = useMemo(() => {
         const parts = judge.name.trim().split(/\s+/).filter(Boolean);
@@ -91,14 +105,41 @@ const JudgeCard = ({ judge, debaterNames, onOpen }: JudgeCardProps) => {
                 {reasoning}
             </p>
 
-            <blockquote
-                itemProp="knowsAbout"
-                className="mt-2 border-l-2 border-primary/50 pl-2 text-xs italic text-foreground/70 line-clamp-2"
-            >
-                <span aria-hidden>&ldquo;</span>
-                {quotedLine}
-                <span aria-hidden>&rdquo;</span>
-            </blockquote>
+            {rubricEntries.length > 0 && (
+                <div className="mt-3 rounded-lg border border-border/60 bg-background/60 p-2">
+                    <div className="grid grid-cols-[1fr_auto_auto] gap-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        <span>Rubric</span>
+                        <span className="text-debater-left-glow">{debaterNames.left}</span>
+                        <span className="text-debater-right-glow">{debaterNames.right}</span>
+                    </div>
+                    <div className="mt-2 space-y-1">
+                        {rubricEntries.map((entry) => (
+                            <div
+                                key={entry.key}
+                                className="grid grid-cols-[1fr_auto_auto] items-center gap-2 text-xs"
+                            >
+                                <span className="text-foreground/80">{entry.label}</span>
+                                <span className="font-semibold text-debater-left-glow">{entry.left}</span>
+                                <span className="font-semibold text-debater-right-glow">{entry.right}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {quotedLine && (
+                <div className="mt-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        Winner weakness
+                    </p>
+                    <p
+                        itemProp="knowsAbout"
+                        className="text-xs italic text-foreground/70 line-clamp-2"
+                    >
+                        {quotedLine}
+                    </p>
+                </div>
+            )}
 
             {shouldShowToggle && (
                 <button

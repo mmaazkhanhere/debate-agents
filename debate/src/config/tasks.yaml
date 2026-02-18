@@ -45,29 +45,34 @@ generate_answer_debater_2:
 
 logical_analyst_verdict:
   description: >
-    Judge the debate based on logical coherence, consistency,
-    and disciplined reasoning.
-    Penalize fallacies, evasions, and unsafe rhetoric.
-    Return JSON with fields: judge (your name), winner, reasoning, winner_weakness.
+    Judge the debate ONLY on logical coherence, internal consistency and sound reasoning.
+    Score BOTH debaters using the LogicalAnalystRubric fields:
+    validity_score, consistency_score, support_score, fallacy_penalty (index 0=debater_1, 1=debater_2).
+    Do not evaluate persuasion style or debate tactics except where they affect logical clarity.
+    Return JSON matching the LogicalAnalystVerdict schema: judge, winner, reasoning, rubric_score, winner_weakness.
   expected_output: >
-    JSON verdict selecting a winner with reasoning and quotes.
+    A valid JSON object that conforms exactly to LogicalAnalystVerdict (including rubric_score lists of length 2).
   agent: logical_analyst_judge
 
 debate_strategist_verdict:
   description: >
-    Judge the debate based on strategic execution:
-    framing, timing, responsiveness, and exploitation of weaknesses.
-    Return JSON with fields: judge (your name), winner, reasoning, winner_weakness.
+    Judge the debate ONLY on debate strategy, responsiveness (clash), how they exploit opponents weakness and how they defend their own points.
+    Score BOTH debaters using the DebateStrategistRubric fields:
+    responsiveness_score, clash_score, defense_score, exploitation_score, evasion_penalty (index 0=debater_1, 1=debater_2).
+    Do not judge truth or logical validity except insofar as it affects concessions and unanswered challenges.
+    If the debate format is single-round, score defense/exploitation based only on opportunities that actually occurred.
+    Return JSON matching the DebateStrategistVerdict schema: judge, winner, reasoning, rubric_score, winner_weakness.
   expected_output: >
-    JSON verdict selecting a winner with reasoning and quotes.
+    A valid JSON object that conforms exactly to DebateStrategistVerdict (including rubric_score lists of length 2).
   agent: debate_strategist_judge
 
 persuasion_verdict:
   description: >
-    Judge the debate based on persuasiveness,
-    emotional resonance, clarity, and watchability
-    for a general audience.
-    Return JSON with fields: judge (your name), winner, reasoning, winner_weakness.
+    Judge the debate ONLY on clarity and persuasiveness to a reasonable general audience.
+    Score BOTH debaters using the PersuasionRubric fields:
+    clarity_score, structure_score, rhetorical_impact_score, audience_connection_score, obscurity_penalty (index 0=debater_1, 1=debater_2).
+    Do not judge logical validity or rebuttal completeness except as perceived by a reasonable audience.
+    Return JSON matching the PersuasionVerdict schema: judge, winner, reasoning, rubric_score, winner_weakness.
   expected_output: >
-    JSON verdict selecting a winner with reasoning and quotes.
+    A valid JSON object that conforms exactly to PersuasionVerdict (including rubric_score lists of length 2).
   agent: persuasion_judge

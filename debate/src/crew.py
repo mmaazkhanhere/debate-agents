@@ -1,6 +1,6 @@
 
-from .models import DebateTurn, JudgeVerdictResponse, DebateWinner
-from crewai import Agent, Crew, Process, Task, LLM
+from .models import DebateTurn, LogicalAnalystVerdict, DebateStrategistVerdict, PersuasionVerdict
+from crewai import Agent, Crew, Process, Task, LLM, Process
 from crewai.project import CrewBase, agent, crew, task
 
 
@@ -72,7 +72,7 @@ class Debate():
     def logical_analyst_verdict(self) -> Task:
         return Task(
             config=self.tasks_config['logical_analyst_verdict'],
-            output_pydantic=JudgeVerdictResponse,
+            output_pydantic=LogicalAnalystVerdict,
             agent=self.logical_analyst_judge(),
         )
 
@@ -80,7 +80,7 @@ class Debate():
     def debate_strategist_verdict(self) -> Task:
         return Task(
             config=self.tasks_config['debate_strategist_verdict'],
-            output_pydantic=JudgeVerdictResponse,
+            output_pydantic=DebateStrategistVerdict,
             agent=self.debate_strategist_judge(),
         )
 
@@ -88,7 +88,7 @@ class Debate():
     def persuasion_verdict(self) -> Task:
         return Task(
             config=self.tasks_config['persuasion_verdict'],
-            output_pydantic=JudgeVerdictResponse,
+            output_pydantic=PersuasionVerdict,
             agent=self.persuasion_judge(),
         )
 
@@ -116,5 +116,4 @@ class Debate():
             agents=[self.logical_analyst_judge(), self.debate_strategist_judge(), self.persuasion_judge()],
             tasks=[self.logical_analyst_verdict(), self.debate_strategist_verdict(), self.persuasion_verdict()],
             verbose=True,
-            response_format=DebateWinner
         )

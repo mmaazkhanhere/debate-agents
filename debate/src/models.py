@@ -1,5 +1,16 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, conint, conlist
 from typing import Literal
+
+
+# ---------- Shared constrained types ----------
+Score0to10 = conint(ge=0, le=10)
+Penalty0to5 = conint(ge=0, le=5)
+
+# Exactly two debaters (index 0 = debater_1, index 1 = debater_2)
+ScorePair = conlist(Score0to10, min_length=2, max_length=2)
+PenaltyPair = conlist(Penalty0to5, min_length=2, max_length=2)
+
+
 
 class TurnArgument(BaseModel):
     type: Literal["attack", "defense", "counter", "framing"] = Field(description="Strategic role of this response: attack = challenge opponent’s claim, defense = protect own claim, counter = rebut a specific point, framing = redefine the narrative, clarification = explain or refine a claim")
@@ -57,12 +68,103 @@ class DebateState(BaseModel):
     )
     winner: str = Field(default="", description="Name of the winning debater")
 
+# ================================
+# Logical Analyst Output
+# ================================
+class LogicalAnalystRubric(BaseModel):
+    validity_score: ScorePair = Field(
+        description="Per-debater logical validity of inferences (0–10). Index 0=debater_1, 1=debater_2."
+    )
+    consistency_score: ScorePair = Field(
+        description="Per-debater internal consistency across claims (0–10). Index 0=debater_1, 1=debater_2."
+    )
+    support_score: ScorePair = Field(
+        description="Per-debater quality of support (reasons/evidence backing claims) (0–10). Index 0=debater_1, 1=debater_2."
+    )
+    fallacy_penalty: PenaltyPair = Field(
+        description="Per-debater penalty for clear fallacies/contradictions (0–5). Higher = worse. Index 0=debater_1, 1=debater_2."
+    )
 
-class JudgeVerdictResponse(BaseModel):
-    judge: str = Field(description="Name of the judge")
-    winner: str = Field(description="Name of the winning debater for the judge")
-    reasoning: str = Field(description="Reasoning for the decision in concise 2 short sentences. One sentence on winner strength and one sentence on loser weakness")
-    winner_weakness: str = Field(description="One notable weakness of the winning debater in one short sentence") 
+class LogicalAnalystVerdict(BaseModel):
+    judge: Literal["Dr. Asha Raman"] = Field(description="Name of the judge persona.")
+    winner: str = Field(description="Name of the winning debater (must match one debater name in the transcript).")
+    reasoning: str = Field(
+        description="Exactly 2 short sentences: (1) winner’s strongest logical advantage, (2) loser’s decisive logical flaw."
+    )
+    rubric_score: LogicalAnalystRubric = Field(
+        description="Rubric scores for both debaters (index 0=debater_1, index 1=debater_2)."
+    )
+    winner_weakness: str = Field(
+        description="One short sentence describing a notable logical weakness of the winner."
+    )
+
+
+# ================================
+# Debate Strategist Output
+# ================================
+class DebateStrategistRubric(BaseModel):
+    responsiveness_score: ScorePair = Field(
+        description="Per-debater directness/completeness in answering opponent’s strongest points (0–10). Index 0=debater_1, 1=debater_2."
+    )
+    clash_score: ScorePair = Field(
+        description="Per-debater engagement with the central points of dispute (0–10). Index 0=debater_1, 1=debater_2."
+    )
+    defense_score: ScorePair = Field(
+        description="Per-debater ability to protect key claims under attack (0–10). Index 0=debater_1, 1=debater_2."
+    )
+    exploitation_score: ScorePair = Field(
+        description="Per-debater ability to capitalize on opponent weaknesses/concessions (0–10). Index 0=debater_1, 1=debater_2."
+    )
+    evasion_penalty: PenaltyPair = Field(
+        description="Per-debater penalty for dodging, reframing away, or non-answers (0–5). Higher = worse. Index 0=debater_1, 1=debater_2."
+    )
+
+class DebateStrategistVerdict(BaseModel):
+    judge: Literal["Marcus Reed"] = Field(description="Name of the judge persona.")
+    winner: str = Field(description="Name of the winning debater (must match one debater name in the transcript).")
+    reasoning: str = Field(
+        description="Exactly 2 short sentences: (1) winner’s best strategic edge in the exchange, (2) loser’s key strategic failure."
+    )
+    rubric_score: DebateStrategistRubric = Field(
+        description="Rubric scores for both debaters (index 0=debater_1, index 1=debater_2)."
+    )
+    winner_weakness: str = Field(
+        description="One short sentence describing a notable strategic weakness of the winner."
+    )
+
+
+# ================================
+# Persuasion Verdict Output
+# ================================
+class PersuasionRubric(BaseModel):
+    clarity_score: ScorePair = Field(
+        description="Per-debater clarity and intelligibility for a general audience (0–10). Index 0=debater_1, 1=debater_2."
+    )
+    structure_score: ScorePair = Field(
+        description="Per-debater organization/signposting/narrative coherence (0–10). Index 0=debater_1, 1=debater_2."
+    )
+    rhetorical_impact_score: ScorePair = Field(
+        description="Per-debater rhetorical force and memorability (0–10). Index 0=debater_1, 1=debater_2."
+    )
+    audience_connection_score: ScorePair = Field(
+        description="Per-debater audience resonance/relatability (0–10). Index 0=debater_1, 1=debater_2."
+    )
+    obscurity_penalty: PenaltyPair = Field(
+        description="Per-debater penalty for jargon, muddiness, or incoherence (0–5). Higher = worse. Index 0=debater_1, 1=debater_2."
+    )
+
+class PersuasionVerdict(BaseModel):
+    judge: Literal["Elena Marquez"] = Field(description="Name of the judge persona.")
+    winner: str = Field(description="Name of the winning debater (must match one debater name in the transcript).")
+    reasoning: str = Field(
+        description="Exactly 2 short sentences: (1) why winner persuades more clearly/strongly, (2) what most undermines the loser’s persuasiveness."
+    )
+    rubric_score: PersuasionRubric = Field(
+        description="Rubric scores for both debaters (index 0=debater_1, index 1=debater_2)."
+    )
+    winner_weakness: str = Field(
+        description="One short sentence describing a notable communication weakness of the winner."
+    )
 
 class DebateWinner(BaseModel):
     winner: str = Field(description="Name of the winning debater")

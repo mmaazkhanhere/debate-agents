@@ -24,6 +24,7 @@ type JudgePayload = {
     winner?: string;
     reasoning?: string;
     winner_weakness?: string;
+    rubric_score?: Record<string, number[]>;
 };
 
 const cleanText = (value?: string) =>
@@ -79,6 +80,23 @@ const extractLoosePayload = (rawText: string): JudgePayload | null => {
     return payload.winner ? payload : null;
 };
 
+const normalizeRubricScore = (rubric?: Record<string, number[]> | null) => {
+    if (!rubric || typeof rubric !== "object") return null;
+
+    const entries = Object.entries(rubric)
+        .map(([key, value]) => {
+            if (!Array.isArray(value) || value.length < 2) return null;
+            const left = Number(value[0]);
+            const right = Number(value[1]);
+            if (!Number.isFinite(left) || !Number.isFinite(right)) return null;
+            return [key, [left, right] as [number, number]] as const;
+        })
+        .filter(Boolean) as Array<[string, [number, number]]>;
+
+    if (entries.length === 0) return null;
+    return Object.fromEntries(entries);
+};
+
 const parseJsonFromText = (rawText?: string): JudgePayload | null => {
     if (!rawText) return null;
     const trimmed = rawText.trim();
@@ -109,6 +127,7 @@ const extractJudgePayload = (event: DebateEvent): JudgePayload | null => {
             winner: event.data.winner,
             reasoning: event.data.reasoning,
             winner_weakness: event.data.winner_weakness,
+            rubric_score: event.data.rubric_score,
         };
     }
 
@@ -118,6 +137,7 @@ const extractJudgePayload = (event: DebateEvent): JudgePayload | null => {
             winner: event.winner,
             reasoning: event.reasoning,
             winner_weakness: event.winner_weakness,
+            rubric_score: event.rubric_score,
         };
     }
 
@@ -197,13 +217,14 @@ export const buildJudges = (debate: DebateData, events?: DebateEvent[]): Judge[]
         const vote = inferVoteSide(debate, payload.winner);
         if (!vote) continue;
 
-        const name = cleanText(payload.judge) || cleanText(event.agent) || "Judge";
-        const title = cleanText(event.agent) || "Judge";
-        const reasoning = cleanText(payload.reasoning);
-        const quotedLine = cleanText(payload.winner_weakness);
+    const name = cleanText(payload.judge) || cleanText(event.agent) || "Judge";
+    const title = cleanText(event.agent) || "Judge";
+    const reasoning = cleanText(payload.reasoning);
+    const quotedLine = cleanText(payload.winner_weakness);
+    const rubricScore = normalizeRubricScore(payload.rubric_score);
 
-        const key = `${name}|${vote}|${reasoning}|${quotedLine}`;
-        if (seen.has(key)) continue;
+    const key = `${name}|${vote}|${reasoning}|${quotedLine}`;
+    if (seen.has(key)) continue;
         seen.add(key);
 
         judges.push({
@@ -213,6 +234,7 @@ export const buildJudges = (debate: DebateData, events?: DebateEvent[]): Judge[]
             vote,
             reasoning,
             quotedLine,
+            rubricScore: rubricScore ?? undefined,
         });
     }
 

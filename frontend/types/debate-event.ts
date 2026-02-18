@@ -19,6 +19,7 @@ export interface DebateEvent {
         winner?: string;
         reasoning?: string;
         winner_weakness?: string;
+        rubric_score?: Record<string, number[]>;
     };
     // Legacy/Fallback fields
     turn_id?: string;
@@ -37,4 +38,5 @@ export interface DebateEvent {
     winner?: string;
     reasoning?: string;
     winner_weakness?: string;
+    rubric_score?: Record<string, number[]>;
 }
