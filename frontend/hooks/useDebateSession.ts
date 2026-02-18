@@ -1,21 +1,26 @@
-import { useEffect, useRef, useState } from "react";
-import { startDebate } from "@/actions/debate-api";
+import { useEffect, useState } from "react";
 import { DebateData } from "@/types/debate";
 import { DebateConfig } from "@/types/debate-selection";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useClientSessionId } from "@/hooks/useClientSessionId";
 import { useAuth } from "@/contexts/auth-context";
 
 export const useDebateSession = () => {
     const router = useRouter();
+    const params = useParams();
     const [config, setConfig] = useState<DebateData | null>(null);
-    const [debateId, setDebateId] = useState<string | null>(null);
-    const hasInitiated = useRef(false);
     const sessionId = useClientSessionId();
     const { user } = useAuth();
     const userId = user?.id ?? null;
+    const debateIdParam = params?.debate_id;
+    const debateId = Array.isArray(debateIdParam) ? debateIdParam[0] : debateIdParam ?? null;
 
     useEffect(() => {
+        if (!debateId) {
+            router.push("/");
+            return;
+        }
+
         const stored = sessionStorage.getItem("debate_config");
         if (!stored) {
             router.push("/");
@@ -36,24 +41,7 @@ export const useDebateSession = () => {
         };
 
         setConfig(debateData);
-
-        const init = async () => {
-            if (hasInitiated.current) return;
-            if (!sessionId) return;
-            hasInitiated.current = true;
-
-            const id = await startDebate(
-                debateData.topic,
-                debateData.debaters.left.name,
-                debateData.debaters.right.name,
-                sessionId,
-                userId
-            );
-            setDebateId(id);
-        };
-
-        init();
-    }, [router, sessionId, userId]);
+    }, [debateId, router]);
 
     return { config, debateId, sessionId, userId };
 }

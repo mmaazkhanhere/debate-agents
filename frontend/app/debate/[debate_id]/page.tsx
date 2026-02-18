@@ -1,4 +1,4 @@
-import DebateStage from './_components/debate-stage';
+import DebateStage from '../_components/debate-stage';
 
 const Home = () => {
     return (
