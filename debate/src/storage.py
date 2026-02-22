@@ -52,13 +52,26 @@ def init_db() -> None:
                 debater_1 TEXT NOT NULL,
                 debater_2 TEXT NOT NULL,
                 created_at INTEGER NOT NULL,
-                status TEXT NOT NULL
+                status TEXT NOT NULL,
+                completed_at INTEGER NULL,
+                error_message TEXT NULL
             )
             """
         )
         conn.execute("CREATE INDEX IF NOT EXISTS idx_debates_session_id ON debates(session_id)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_debates_user_id ON debates(user_id)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_debates_created_at ON debates(created_at)")
+        _migrate_debates_table(conn)
+
+
+def _migrate_debates_table(conn: sqlite3.Connection) -> None:
+    existing_columns = {
+        row["name"] for row in conn.execute("PRAGMA table_info(debates)").fetchall()
+    }
+    if "completed_at" not in existing_columns:
+        conn.execute("ALTER TABLE debates ADD COLUMN completed_at INTEGER NULL")
+    if "error_message" not in existing_columns:
+        conn.execute("ALTER TABLE debates ADD COLUMN error_message TEXT NULL")
 
 
 def upsert_session(session_id: str, user_id: str | None) -> None:
@@ -101,11 +114,24 @@ def create_debate(
                 debater_1,
                 debater_2,
                 created_at,
-                status
+                status,
+                completed_at,
+                error_message
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (debate_id, session_id, user_id, topic, debater_1, debater_2, now, "running"),
+            (
+                debate_id,
+                session_id,
+                user_id,
+                topic,
+                debater_1,
+                debater_2,
+                now,
+                "running",
+                None,
+                None,
+            ),
         )
 
 
@@ -116,6 +142,42 @@ def get_debate_owner(debate_id: str) -> sqlite3.Row | None:
             (debate_id,),
         ).fetchone()
         return row
+
+
+def update_debate_status(
+    debate_id: str,
+    status: str,
+    error_message: str | None = None,
+) -> None:
+    now = int(time.time())
+    with get_db() as conn:
+        if status == "completed":
+            conn.execute(
+                """
+                UPDATE debates
+                SET status = ?, completed_at = ?, error_message = NULL
+                WHERE debate_id = ?
+                """,
+                (status, now, debate_id),
+            )
+        elif status == "failed":
+            conn.execute(
+                """
+                UPDATE debates
+                SET status = ?, completed_at = ?, error_message = ?
+                WHERE debate_id = ?
+                """,
+                (status, now, error_message, debate_id),
+            )
+        else:
+            conn.execute(
+                """
+                UPDATE debates
+                SET status = ?
+                WHERE debate_id = ?
+                """,
+                (status, debate_id),
+            )
 
 
 def is_authorized(debate_id: str, session_id: str, user_id: str | None) -> bool:

@@ -27,8 +27,6 @@ generate_answer_debater_1:
       or consequence).
 
     STYLE CONSTRAINTS:
-    - Minimum length: 2 sentences.
-    - Maximum length: 3 sentences.
     - At least one sentence must be under 14 words.
     - Avoid generic or hedging language.
     - If the argument could be delivered by a neutral policy analyst,
@@ -72,8 +70,7 @@ generate_answer_debater_2:
     - Escalate the argument relative to prior turns.
 
     STYLE CONSTRAINTS:
-    - Minimum length: 2 sentences.
-    - Maximum length: 3 sentences.
+
     - At least one sentence must be under 14 words.
     - Avoid generic phrasing.
     - The contrast between personas must be unmistakable.

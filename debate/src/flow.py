@@ -4,7 +4,16 @@ import uuid
 import asyncio
 import os
 
-from .utils import append_turn, load_persona
+from .utils import (
+    append_turn,
+    load_persona,
+    DEBATE_CACHE_ENABLED,
+    DEBATE_CACHE_TTL_SECONDS,
+    set_cached_debate_id,
+    release_generation_lock,
+    delete_inflight_debate_id,
+)
+from .storage import update_debate_status
 from .models import DebateState
 
 from dotenv import load_dotenv
@@ -209,8 +218,46 @@ class DebateFlow(Flow[DebateState]):
             await asyncio.sleep(JUDGE_SLEEP_SEC)
         
 
-async def run_debate_flow(debate_id: str, topic: str, debater_1: str, debater_2: str):
+async def run_debate_flow(
+    debate_id: str,
+    topic: str,
+    debater_1: str,
+    debater_2: str,
+    cache_key: str | None = None,
+    inflight_key: str | None = None,
+    lock_key: str | None = None,
+    lock_token: str | None = None,
+):
     listener = DebateEventListener(debate_id)
     flow = DebateFlow()
-    inputs={"debate_id": debate_id, "topic": topic, "debater_1": debater_1, "debater_2": debater_2}
-    await flow.kickoff_async(inputs=inputs)
+    inputs = {
+        "debate_id": debate_id,
+        "topic": topic,
+        "debater_1": debater_1,
+        "debater_2": debater_2,
+    }
+    try:
+        await flow.kickoff_async(inputs=inputs)
+        update_debate_status(debate_id, "completed")
+        if DEBATE_CACHE_ENABLED and cache_key:
+            set_cached_debate_id(cache_key, debate_id, DEBATE_CACHE_TTL_SECONDS)
+            LOG.info("cache_write", extra={"debate_id": debate_id, "cache_key": cache_key})
+        publish(
+            debate_id,
+            "debate_completed",
+            {"agent": "system", "output": "debate completed"},
+        )
+    except Exception as exc:
+        update_debate_status(debate_id, "failed", error_message=str(exc))
+        LOG.exception("flow_failed", extra={"debate_id": debate_id})
+        publish(
+            debate_id,
+            "debate_failed",
+            {"agent": "system", "output": "debate failed"},
+        )
+        raise
+    finally:
+        if inflight_key:
+            delete_inflight_debate_id(inflight_key)
+        if lock_key and lock_token:
+            release_generation_lock(lock_key, lock_token)

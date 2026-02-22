@@ -17,6 +17,7 @@ dependencies = [
     "passlib>=1.7.4",
     "psycopg>=3.3.2",
     "pydantic[email]>=2.11.10",
+    "pytest>=9.0.2",
     "redis>=5.0.1",
     "tenacity>=9.1.2",
     "websockets>=16.0",
