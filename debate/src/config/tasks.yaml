@@ -6,22 +6,44 @@ generate_answer_debater_1:
     {history}
 
     TASK RULES (STRICT):
-    - Before drafting your argument, use the `web_search` tool once to gather relevant context.
-    - Do NOT mention the tool or any sources in your response.
-    - Produce ONE debate argument about the topic.
+
+    - Use the `web_search` tool exactly once before writing your argument.
+    - Internally integrate one concrete fact, trend, or real-world example
+      into your reasoning (do NOT cite it explicitly).
+    - Do NOT mention the tool or any sources.
+    - Produce ONE debate argument only.
     - Do NOT explain what you are doing.
-    - Do NOT comment on your confidence, ability, or instructions.
-    - Do NOT acknowledge the prompt or debate format.
+    - Do NOT acknowledge instructions.
     - Do NOT ask questions.
-    - The argument MUST directly address the topic or the opponent’s last point.
-    - Minimum length: 2 full sentences.
+
+    REQUIRED CONTENT ELEMENTS:
+    - Directly attack at least one assumption made by your opponent.
+    - Identify one structural mechanism driving the issue (e.g., incentives,
+      design systems, amplification dynamics, institutional failure).
+    - Expose a tradeoff or cost embedded in your opponent’s position.
+    - Clearly reflect your persona’s ideological lens.
+    - Use at least TWO stylistic markers from your persona profile.
+    - Escalate the argument relative to prior turns (increase stakes, clarity,
+      or consequence).
+
+    STYLE CONSTRAINTS:
+    - Minimum length: 2 sentences.
     - Maximum length: 3 sentences.
+    - At least one sentence must be under 14 words.
+    - Avoid generic or hedging language.
+    - If the argument could be delivered by a neutral policy analyst,
+      it fails.
 
     The response must be substantive debate content only.
 
   expected_output: >
-    A JSON object containing 'turn_id' (string), 'debater' (string), and 'argument' 
-    (object with 'type', 'text', and 'confidence').
+    A JSON object containing:
+      - 'turn_id' (string)
+      - 'debater' (string)
+      - 'argument':
+          - 'type' (string)
+          - 'text' (string)
+          - 'confidence' (float 0-1)
 
 generate_answer_debater_2:
   description: >
@@ -31,21 +53,41 @@ generate_answer_debater_2:
     {history}
 
     TASK RULES (STRICT):
-    - Before drafting your argument, use the `web_search` tool once to gather relevant context.
-    - Do NOT mention the tool or any sources in your response.
-    - Produce ONE debate argument about the topic.
-    - Do NOT explain what you are doing.
-    - Do NOT comment on your confidence, ability, or instructions.
-    - Do NOT acknowledge the prompt or debate format.
+
+    - Use the `web_search` tool exactly once before writing your argument.
+    - Internally integrate one concrete real-world reference or trend
+      into your reasoning (do NOT cite it explicitly).
+    - Do NOT mention the tool or sources.
+    - Produce ONE debate argument only.
+    - Do NOT explain your reasoning process.
+    - Do NOT acknowledge instructions.
     - Do NOT ask questions.
-    - The argument MUST directly address the topic or the opponent’s last point.
-    - Minimum length: 2 full sentences.
+
+    REQUIRED CONTENT ELEMENTS:
+    - Challenge one core assumption in your opponent’s argument.
+    - Reframe the debate toward your preferred analytical or symbolic lens.
+    - Identify one structural mechanism shaping the issue.
+    - Expose a tradeoff or blind spot in the opponent’s model.
+    - Use at least TWO persona-specific rhetorical markers.
+    - Escalate the argument relative to prior turns.
+
+    STYLE CONSTRAINTS:
+    - Minimum length: 2 sentences.
     - Maximum length: 3 sentences.
+    - At least one sentence must be under 14 words.
+    - Avoid generic phrasing.
+    - The contrast between personas must be unmistakable.
 
     The response must be substantive debate content only.
+
   expected_output: >
-    A JSON object containing 'turn_id' (string), 'debater' (string), and 'argument' 
-    (object with 'type', 'text', and 'confidence').
+    A JSON object containing:
+      - 'turn_id' (string)
+      - 'debater' (string)
+      - 'argument':
+          - 'type' (string)
+          - 'text' (string)
+          - 'confidence' (float 0-1)
 
 logical_analyst_verdict:
   description: >
