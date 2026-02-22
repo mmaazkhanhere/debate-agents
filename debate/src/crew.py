@@ -1,4 +1,5 @@
 
+from .tools.search_tool import WebSearchTool
 from .models import DebateTurn, LogicalAnalystVerdict, DebateStrategistVerdict, PersuasionVerdict
 from crewai import Agent, Crew, Process, Task, LLM, Process
 from crewai.project import CrewBase, agent, crew, task
@@ -22,7 +23,7 @@ class Debate():
     def debater_2(self) -> Agent:
         return Agent(
             config=self.agents_config['debater_2'],
-            llm=LLM(model="groq/openai/gpt-oss-20b")
+            llm=LLM(model="groq/qwen/qwen3-32b")
         )
 
     @agent
@@ -55,7 +56,7 @@ class Debate():
             config=self.tasks_config['generate_answer_debater_1'],
             output_pydantic=DebateTurn,
             agent=self.debater_1(),
-            tools=[],
+            tools=[WebSearchTool()],
         )
 
     @task
@@ -64,7 +65,7 @@ class Debate():
             config=self.tasks_config['generate_answer_debater_2'],
             output_pydantic=DebateTurn,
             agent=self.debater_2(),
-            tools=[],
+            tools=[WebSearchTool()],
         )
 
 

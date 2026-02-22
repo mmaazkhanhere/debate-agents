@@ -6,6 +6,8 @@ generate_answer_debater_1:
     {history}
 
     TASK RULES (STRICT):
+    - Before drafting your argument, use the `web_search` tool once to gather relevant context.
+    - Do NOT mention the tool or any sources in your response.
     - Produce ONE debate argument about the topic.
     - Do NOT explain what you are doing.
     - Do NOT comment on your confidence, ability, or instructions.
@@ -29,6 +31,8 @@ generate_answer_debater_2:
     {history}
 
     TASK RULES (STRICT):
+    - Before drafting your argument, use the `web_search` tool once to gather relevant context.
+    - Do NOT mention the tool or any sources in your response.
     - Produce ONE debate argument about the topic.
     - Do NOT explain what you are doing.
     - Do NOT comment on your confidence, ability, or instructions.
