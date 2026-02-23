@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, conint, conlist
-from typing import Literal
+from typing import Any, Literal
 
 
 # ---------- Shared constrained types ----------
@@ -67,6 +67,47 @@ class DebateState(BaseModel):
         description="Chronological log of all debate turns, used as conversational memory and grounding context."
     )
     winner: str = Field(default="", description="Name of the winning debater")
+
+    judge_verdicts: str = Field(
+        default="",
+        description="A comprehensive record of the judges' final evaluations, including their reasoning, scoring, and individual verdicts on the debate's outcome."
+    )
+
+
+
+# class DebaterSummary(BaseModel):
+#     debater: str = Field(description="Name of the debater.")
+#     viewpoint: str = Field(
+#         description="Concise 1-2 sentence summary of this debater's point of view."
+#     )
+
+
+# class JudgeRemark(BaseModel):
+#     judge: str = Field(description="Name of the judge.")
+#     remark: str = Field(description="Concise remark reflecting the judge's reasoning.")
+
+
+# class DebateSummary(BaseModel):
+#     overall_insight: str = Field(
+#         description="Concise insight that captures the overall debate."
+#     )
+#     debater_summaries: list[DebaterSummary] = Field(
+#         description="List of per-debater POV summaries."
+#     )
+#     judge_remarks: list[JudgeRemark] = Field(
+#         description="Concise remarks from judges."
+#     )
+#     winner: str = Field(
+#         description="Name of the winning debater or 'undetermined'."
+#     )
+#     confidence: str | None = Field(
+#         default=None,
+#         description="Optional confidence label, e.g., low, medium, high."
+#     )
+#     notes: str | None = Field(
+#         default=None,
+#         description="Optional notes about uncertainties or missing data."
+#     )
 
 # ================================
 # Logical Analyst Output

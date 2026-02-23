@@ -213,9 +213,49 @@ class DebateFlow(Flow[DebateState]):
         })
 
         LOG.info("Debate Winner: ", judge_response.pydantic)
-        self.state.winner = judge_response.pydantic
+        self.state.judge_verdicts = judge_response.pydantic
+        # self.state.winner = judge_response.pydantic
         if JUDGE_SLEEP_SEC > 0:
             await asyncio.sleep(JUDGE_SLEEP_SEC)
+
+    @listen("judge_debate")
+    async def generate_debate_summary(self):
+        LOG.info("Generating debate summary")
+        debate_turns = self.state.turns
+        judge_verdicts = self.state.judge_verdicts
+        winner = self.state.winner
+        
+        llm = LLM(model="groq/openai/gpt-oss-120b")
+
+        debate_summary = llm.call(f"""You are a debate analyst.
+        Review the following debate turns:
+        {debate_turns}
+
+        Judge remarks (if any):
+        {judge_verdicts}
+
+        Winner (if any):
+        {winner}
+
+        Create a concise debate summary with these parts:
+        1) Overall insight of the whole debate in 1 sentence.
+        2) Debater 1 point of view in 1-2 sentences.
+        3) Debater 2 point of view in 1-2 sentences.
+        4) Judge remarks in 1-2 sentences (use the provided remarks if present).
+        5) Winner in 1 short sentence (use the provided winner if present; otherwise say "undetermined").
+
+        Keep it engaging and do not use bullet points or lists.
+        """)
+
+        publish(
+            self.state.debate_id,
+            "debate_summary_done",
+            {
+                "agent": "None",
+                "topic": self.state.topic,
+                "output": debate_summary,
+            },
+        )
         
 
 async def run_debate_flow(
