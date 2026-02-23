@@ -28,7 +28,7 @@ const AnalyticsPage = () => {
     const [debates, setDebates] = useState<DebateListItem[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
-    const [expandedId, setExpandedId] = useState<string | null>(null);
+    const [activeSummaryDebate, setActiveSummaryDebate] = useState<DebateListItem | null>(null);
 
     useEffect(() => {
         if (!sessionId) return;
@@ -107,7 +107,7 @@ const AnalyticsPage = () => {
                     <div className="flex items-center justify-between">
                         <h2 className="text-lg font-semibold">Debate History</h2>
                         {loading && (
-                            <span className="text-xs text-slate-500">Loading…</span>
+                            <span className="text-xs text-slate-500">Loading...</span>
                         )}
                     </div>
 
@@ -150,18 +150,16 @@ const AnalyticsPage = () => {
                                                 </span>
                                             </td>
                                             <td className="px-4 py-3 text-slate-300 max-w-xs">
-                                                <div className={expandedId === debate.debate_id ? "" : "line-clamp-2"}>
-                                                    {debate.summary ?? "—"}
+                                                <div className="line-clamp-2">
+                                                    {debate.summary ?? "-"}
                                                 </div>
-                                                {debate.summary && debate.summary.length > 140 ? (
+                                                {debate.summary ? (
                                                     <button
                                                         type="button"
-                                                        onClick={() =>
-                                                            setExpandedId(expandedId === debate.debate_id ? null : debate.debate_id)
-                                                        }
+                                                        onClick={() => setActiveSummaryDebate(debate)}
                                                         className="mt-2 text-xs text-slate-400 underline-offset-2 hover:underline"
                                                     >
-                                                        {expandedId === debate.debate_id ? "Collapse" : "Expand"}
+                                                        Expand
                                                     </button>
                                                 ) : null}
                                             </td>
@@ -169,7 +167,34 @@ const AnalyticsPage = () => {
                                                 {debate.total_tokens.toLocaleString()}
                                             </td>
                                             <td className="px-4 py-3 text-slate-300">
-                                                {formatCost(debate.total_cost_usd)}
+                                                <div className="group relative inline-block">
+                                                    <span className="cursor-help">
+                                                        {formatCost(debate.total_cost_usd)}
+                                                    </span>
+                                                    {debate.cost_breakdown.length > 0 ? (
+                                                        <div className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 hidden w-80 -translate-x-1/2 rounded-lg border border-slate-700 bg-slate-900/95 p-3 text-xs text-slate-200 shadow-xl group-hover:block">
+                                                            <p className="mb-2 font-semibold text-slate-100">Cost Breakdown by Model</p>
+                                                            <div className="space-y-2">
+                                                                {debate.cost_breakdown.map((item) => (
+                                                                    <div
+                                                                        key={`${debate.debate_id}-${item.model}`}
+                                                                        className="rounded border border-slate-800 bg-slate-950/50 p-2"
+                                                                    >
+                                                                        <p className="truncate font-medium text-slate-100">
+                                                                            {item.model}
+                                                                        </p>
+                                                                        <p className="text-slate-400">
+                                                                            Tokens: {item.total_tokens.toLocaleString()} ({item.input_tokens.toLocaleString()} in / {item.output_tokens.toLocaleString()} out)
+                                                                        </p>
+                                                                        <p className="text-slate-300">
+                                                                            Cost: {formatCost(item.cost_usd)}
+                                                                        </p>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    ) : null}
+                                                </div>
                                             </td>
                                             <td className="px-4 py-3 text-slate-300">
                                                 {formatDuration(debate.duration_seconds)}
@@ -185,6 +210,41 @@ const AnalyticsPage = () => {
                     </div>
                 </section>
             </div>
+            {activeSummaryDebate && (
+                <div
+                    className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm"
+                    onClick={() => setActiveSummaryDebate(null)}
+                >
+                    <div
+                        className="w-full max-w-2xl rounded-2xl border border-slate-700 bg-slate-900 p-5 shadow-xl md:p-6"
+                        onClick={(event) => event.stopPropagation()}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="Debate summary details"
+                    >
+                        <div className="flex items-start justify-between gap-4">
+                            <div className="min-w-0">
+                                <h3 className="text-lg font-semibold text-slate-100">
+                                    {activeSummaryDebate.topic}
+                                </h3>
+                                <p className="mt-1 text-xs text-slate-400">
+                                    {activeSummaryDebate.debater_1} vs {activeSummaryDebate.debater_2}
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setActiveSummaryDebate(null)}
+                                className="rounded-md border border-slate-700 px-3 py-1.5 text-xs text-slate-300 transition hover:border-slate-500 hover:text-slate-100"
+                            >
+                                Close
+                            </button>
+                        </div>
+                        <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-slate-200">
+                            {activeSummaryDebate.summary ?? "-"}
+                        </p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

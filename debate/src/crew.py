@@ -4,6 +4,11 @@ from .models import DebateTurn, LogicalAnalystVerdict, DebateStrategistVerdict, 
 from crewai import Agent, Crew, Process, Task, LLM, Process
 from crewai.project import CrewBase, agent, crew, task
 
+DEBATER_1_MODEL = "groq/llama-3.1-8b-instant"
+DEBATER_2_MODEL = "groq/qwen/qwen3-32b"
+JUDGE_MODEL = "groq/llama-3.3-70b-versatile"
+PRESENTER_MODEL = "groq/openai/gpt-oss-120b"
+
 
 @CrewBase
 class Debate():
@@ -16,14 +21,14 @@ class Debate():
     def debater_1(self) -> Agent:
         return Agent(
             config=self.agents_config['debater_1'],
-            llm=LLM(model="groq/llama-3.1-8b-instant")
+            llm=LLM(model=DEBATER_1_MODEL)
         )
 
     @agent
     def debater_2(self) -> Agent:
         return Agent(
             config=self.agents_config['debater_2'],
-            llm=LLM(model="groq/qwen/qwen3-32b")
+            llm=LLM(model=DEBATER_2_MODEL)
         )
 
     @agent
@@ -31,7 +36,7 @@ class Debate():
         return Agent(
             config=self.agents_config['logical_analyst_judge'],
             verbose=True,
-            llm=LLM(model="groq/llama-3.3-70b-versatile")
+            llm=LLM(model=JUDGE_MODEL)
         )
 
     @agent
@@ -39,7 +44,7 @@ class Debate():
         return Agent(
             config=self.agents_config['debate_strategist_judge'],
             verbose=True,
-            llm=LLM(model="groq/llama-3.3-70b-versatile")
+            llm=LLM(model=JUDGE_MODEL)
         )
 
     @agent
@@ -47,7 +52,7 @@ class Debate():
         return Agent(
             config=self.agents_config['persuasion_judge'],
             verbose=True,
-            llm=LLM(model="groq/llama-3.3-70b-versatile")
+            llm=LLM(model=JUDGE_MODEL)
         )
 
     @task

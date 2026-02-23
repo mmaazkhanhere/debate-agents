@@ -416,3 +416,38 @@ def get_debate_analytics_totals(session_id: str, user_id: str | None) -> sqlite3
             """,
             (session_id,),
         ).fetchone()
+
+
+def get_cost_breakdown_for_debates(debate_ids: list[str]) -> dict[str, list[dict]]:
+    if not debate_ids:
+        return {}
+    placeholders = ",".join("?" for _ in debate_ids)
+    query = f"""
+        SELECT
+            debate_id,
+            model,
+            COALESCE(SUM(input_tokens), 0) AS input_tokens,
+            COALESCE(SUM(output_tokens), 0) AS output_tokens,
+            COALESCE(SUM(cost_usd), 0.0) AS cost_usd
+        FROM debate_usage_calls
+        WHERE debate_id IN ({placeholders})
+        GROUP BY debate_id, model
+        ORDER BY debate_id, cost_usd DESC
+    """
+    with get_db() as conn:
+        rows = conn.execute(query, tuple(debate_ids)).fetchall()
+
+    breakdown: dict[str, list[dict]] = {debate_id: [] for debate_id in debate_ids}
+    for row in rows:
+        input_tokens = int(row["input_tokens"])
+        output_tokens = int(row["output_tokens"])
+        breakdown[row["debate_id"]].append(
+            {
+                "model": row["model"],
+                "input_tokens": input_tokens,
+                "output_tokens": output_tokens,
+                "total_tokens": input_tokens + output_tokens,
+                "cost_usd": round(float(row["cost_usd"]), 6),
+            }
+        )
+    return breakdown

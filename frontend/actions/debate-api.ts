@@ -24,6 +24,13 @@ interface DebateListResponse {
         summary: string | null;
         total_tokens: number;
         total_cost_usd: number;
+        cost_breakdown: Array<{
+            model: string;
+            input_tokens: number;
+            output_tokens: number;
+            total_tokens: number;
+            cost_usd: number;
+        }>;
         duration_seconds: number;
     }>;
 }

@@ -31,6 +31,7 @@ from crewai.flow.flow import Flow, listen, start, router, or_
 from src.events import publish
 
 from .crew import Debate  # your factory that builds agents & tasks
+from .crew import DEBATER_1_MODEL, DEBATER_2_MODEL, JUDGE_MODEL, PRESENTER_MODEL
 from .events import DebateEventListener
 
 # -----------------------------------------------------------------------------
@@ -57,6 +58,109 @@ class DebateFlow(Flow[DebateState]):
     def __init__(self):
         super().__init__()
         self.debate = Debate()
+        self._debate_token_usage = {
+            "total_tokens": 0,
+            "prompt_tokens": 0,
+            "cached_prompt_tokens": 0,
+            "completion_tokens": 0,
+            "successful_requests": 0,
+        }
+        self._cost_by_model: dict[str, float] = {}
+
+    def _extract_usage_fields(self, usage: object) -> dict[str, int]:
+        if usage is None:
+            return {}
+        if isinstance(usage, dict):
+            src = usage
+        else:
+            src = {}
+            for key in (
+                "total_tokens",
+                "prompt_tokens",
+                "cached_prompt_tokens",
+                "completion_tokens",
+                "successful_requests",
+            ):
+                value = getattr(usage, key, None)
+                if value is not None:
+                    src[key] = value
+
+        prompt_tokens = int(
+            src.get("prompt_tokens")
+            or src.get("input_tokens")
+            or src.get("prompt_token_count")
+            or 0
+        )
+        completion_tokens = int(
+            src.get("completion_tokens")
+            or src.get("output_tokens")
+            or src.get("candidates_token_count")
+            or 0
+        )
+        cached_prompt_tokens = int(
+            src.get("cached_prompt_tokens")
+            or src.get("cached_tokens")
+            or 0
+        )
+        total_tokens = int(
+            src.get("total_tokens")
+            or src.get("total_token_count")
+            or (prompt_tokens + completion_tokens)
+        )
+        successful_requests = int(src.get("successful_requests") or 1)
+        return {
+            "total_tokens": total_tokens,
+            "prompt_tokens": prompt_tokens,
+            "cached_prompt_tokens": cached_prompt_tokens,
+            "completion_tokens": completion_tokens,
+            "successful_requests": successful_requests,
+        }
+
+    def _accumulate_usage(self, usage: object) -> dict[str, int]:
+        parsed = self._extract_usage_fields(usage)
+        if not parsed:
+            return {}
+        for key, value in parsed.items():
+            self._debate_token_usage[key] += value
+        return parsed
+
+    def _record_call_usage(self, model: str, usage: object) -> None:
+        parsed = self._accumulate_usage(usage)
+        if not parsed:
+            return
+        input_tokens = parsed["prompt_tokens"]
+        output_tokens = parsed["completion_tokens"]
+        cost_usd = compute_cost_usd(model, input_tokens, output_tokens)
+        self._cost_by_model[model] = self._cost_by_model.get(model, 0.0) + cost_usd
+        record_llm_call(
+            debate_id=self.state.debate_id,
+            model=model,
+            input_tokens=input_tokens,
+            output_tokens=output_tokens,
+            cost_usd=cost_usd,
+        )
+
+    def _record_usage_from_response(self, response: object, model: str) -> None:
+        usage = getattr(response, "token_usage", None)
+        self._record_call_usage(model, usage)
+
+    def _record_usage_from_llm(self, llm: LLM, model: str) -> None:
+        try:
+            self._record_call_usage(model, llm.get_token_usage_summary())
+        except Exception:
+            # If provider does not expose usage for direct LLM calls, skip.
+            return
+
+    def _debate_usage_as_text(self) -> str:
+        usage = self._debate_token_usage
+        return (
+            f"total_tokens={usage['total_tokens']} "
+            f"prompt_tokens={usage['prompt_tokens']} "
+            f"cached_prompt_tokens={usage['cached_prompt_tokens']} "
+            f"completion_tokens={usage['completion_tokens']} "
+            f"successful_requests={usage['successful_requests']}"
+        )
+
 
     def _history_as_text(self) -> str:
         """
@@ -75,41 +179,17 @@ class DebateFlow(Flow[DebateState]):
 
         return "\n\n".join(lines)
 
-    def _record_usage_from_response(self, response) -> None:
-        token_usage = _extract_token_usage_from_response(response)
-        if not token_usage:
-            return
-        input_tokens = _safe_int(token_usage.get("input_tokens") or token_usage.get("prompt_tokens"))
-        output_tokens = _safe_int(token_usage.get("output_tokens") or token_usage.get("completion_tokens"))
-        total_tokens = _safe_int(token_usage.get("total_tokens"))
-        if input_tokens == 0 and output_tokens == 0 and total_tokens > 0:
-            input_tokens = total_tokens
-        if input_tokens == 0 and output_tokens == 0:
-            return
-        model = _extract_model_from_response(response)
-        cost_usd = compute_cost_usd(model, input_tokens, output_tokens)
-        record_llm_call(
-            self.state.debate_id,
-            model,
-            input_tokens,
-            output_tokens,
-            cost_usd,
-        )
-        update_debate_metrics(
-            self.state.debate_id,
-            tokens_delta=input_tokens + output_tokens,
-            cost_delta=cost_usd,
-        )
 
     @start()
     async def presenter_introduction(self):
         LOG.info(f"Introducing the debate topic: {self.state.topic}")
         topic: str = self.state.topic
-        llm = LLM(model="groq/openai/gpt-oss-120b")
+        llm = LLM(model=PRESENTER_MODEL)
         debate_introduction = llm.call(f"""You are Piers Morgan. Introduce the topic: {topic} and debators 
         {self.state.debater_1} and {self.state.debater_2}. Pass some comments about the topics. Ensure it 
         is engaging and interesting for the audience. Keep introduction to 3 sentences.
         """)
+        self._record_usage_from_llm(llm, PRESENTER_MODEL)
         LOG.info(f"Debate Introduction: {debate_introduction}")
         self.state.presenter_introduction = debate_introduction
 
@@ -150,7 +230,7 @@ class DebateFlow(Flow[DebateState]):
             "history": self._history_as_text()
 
         })
-        self._record_usage_from_response(debater_1_response)
+        self._record_usage_from_response(debater_1_response, DEBATER_1_MODEL)
 
         turn = debater_1_response.pydantic 
         turn.debater = self.state.debater_1 
@@ -183,7 +263,7 @@ class DebateFlow(Flow[DebateState]):
             "history": self._history_as_text()
 
         })
-        self._record_usage_from_response(debate_2_response)
+        self._record_usage_from_response(debate_2_response, DEBATER_2_MODEL)
 
         turn = debate_2_response.pydantic  
         turn.debater = self.state.debater_2 
@@ -212,7 +292,7 @@ class DebateFlow(Flow[DebateState]):
     @listen("conclude_debate")
     async def presenter_conclusion(self):
         LOG.info("Presenter Concluding the debate")
-        llm = LLM(model="groq/openai/gpt-oss-120b")
+        llm = LLM(model=PRESENTER_MODEL)
         
         debate_conclusion = llm.call(f"""You are Piers Morgan. Conclude the debate on the topic: {self.state.topic} 
         between {self.state.debater_1} and {self.state.debater_2}. 
@@ -223,6 +303,7 @@ class DebateFlow(Flow[DebateState]):
         Keep it engaging and limited to 2 sentences. End with something like lets see
         what the judges think about the winner
         """)
+        self._record_usage_from_llm(llm, PRESENTER_MODEL)
 
         publish(
             self.state.debate_id,
@@ -246,7 +327,22 @@ class DebateFlow(Flow[DebateState]):
             "debater_2": self.state.debater_2,
             "history": self._history_as_text()
         })
-        self._record_usage_from_response(judge_response)
+        self._record_usage_from_response(judge_response, JUDGE_MODEL)
+        usage_text = self._debate_usage_as_text()
+        update_debate_metrics(
+            self.state.debate_id,
+            tokens_delta=self._debate_token_usage["total_tokens"],
+            cost_delta=round(sum(self._cost_by_model.values()), 6),
+        )
+        publish(
+            self.state.debate_id,
+            "debate_token_usage_done",
+            {
+                "agent": "system",
+                "output": usage_text,
+            },
+        )
+        LOG.info("Debate usage (intro to judgement): %s", usage_text)
 
         LOG.info("Debate Winner: ", judge_response.pydantic)
         self.state.judge_verdicts = judge_response.pydantic
@@ -341,37 +437,3 @@ async def run_debate_flow(
         if lock_key and lock_token:
             release_generation_lock(lock_key, lock_token)
 
-
-def _extract_token_usage_from_response(response) -> dict | None:
-    for attr in ("token_usage", "usage", "usage_metrics", "tokens"):
-        value = getattr(response, attr, None)
-        if isinstance(value, dict):
-            return value
-    if isinstance(response, dict):
-        for key in ("token_usage", "usage", "usage_metrics", "tokens"):
-            value = response.get(key)
-            if isinstance(value, dict):
-                return value
-    return None
-
-
-def _extract_model_from_response(response) -> str:
-    for attr in ("model", "model_name"):
-        value = getattr(response, attr, None)
-        if isinstance(value, str) and value.strip():
-            return value.strip()
-    llm = getattr(response, "llm", None)
-    if isinstance(llm, str) and llm.strip():
-        return llm.strip()
-    if hasattr(llm, "model"):
-        value = getattr(llm, "model", None)
-        if isinstance(value, str) and value.strip():
-            return value.strip()
-    return "unknown"
-
-
-def _safe_int(value) -> int:
-    try:
-        return int(value)
-    except (TypeError, ValueError):
-        return 0

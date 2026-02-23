@@ -30,6 +30,7 @@ from src.storage import (
     cleanup_old_debates,
     list_debates_with_metrics,
     get_debate_analytics_totals,
+    get_cost_breakdown_for_debates,
 )
 from pydantic import BaseModel
 
@@ -326,6 +327,8 @@ def list_debates(
         raise HTTPException(status_code=400, detail="session_id is required")
 
     rows = list_debates_with_metrics(session_id, user_id)
+    debate_ids = [row["debate_id"] for row in rows]
+    cost_breakdown_by_debate = get_cost_breakdown_for_debates(debate_ids)
     debates = [
         {
             "debate_id": row["debate_id"],
@@ -339,6 +342,7 @@ def list_debates(
             "summary": row["summary"],
             "total_tokens": row["total_tokens"],
             "total_cost_usd": row["total_cost_usd"],
+            "cost_breakdown": cost_breakdown_by_debate.get(row["debate_id"], []),
             "duration_seconds": row["duration_seconds"],
         }
         for row in rows
@@ -380,6 +384,8 @@ def debates_overview(
         raise HTTPException(status_code=400, detail="session_id is required")
 
     rows = list_debates_with_metrics(session_id, user_id)
+    debate_ids = [row["debate_id"] for row in rows]
+    cost_breakdown_by_debate = get_cost_breakdown_for_debates(debate_ids)
     debates = [
         {
             "debate_id": row["debate_id"],
@@ -393,6 +399,7 @@ def debates_overview(
             "summary": row["summary"],
             "total_tokens": row["total_tokens"],
             "total_cost_usd": row["total_cost_usd"],
+            "cost_breakdown": cost_breakdown_by_debate.get(row["debate_id"], []),
             "duration_seconds": row["duration_seconds"],
         }
         for row in rows

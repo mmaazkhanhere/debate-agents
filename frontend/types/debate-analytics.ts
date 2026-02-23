@@ -5,6 +5,14 @@ export type DebateMetricsSummary = {
     total_duration_seconds: number;
 };
 
+export type DebateCostBreakdownItem = {
+    model: string;
+    input_tokens: number;
+    output_tokens: number;
+    total_tokens: number;
+    cost_usd: number;
+};
+
 export type DebateListItem = {
     debate_id: string;
     topic: string;
@@ -17,5 +25,6 @@ export type DebateListItem = {
     summary: string | null;
     total_tokens: number;
     total_cost_usd: number;
+    cost_breakdown: DebateCostBreakdownItem[];
     duration_seconds: number;
 };
