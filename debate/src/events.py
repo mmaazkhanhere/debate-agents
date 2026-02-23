@@ -1,6 +1,6 @@
 import json
 import redis
-from crewai.events import BaseEventListener, AgentExecutionCompletedEvent, LLMCallCompletedEvent
+from crewai.events import BaseEventListener, AgentExecutionCompletedEvent
 
 redis_client = redis.Redis(host="localhost", port=6379, decode_responses=True)
 

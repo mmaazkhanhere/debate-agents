@@ -27,6 +27,12 @@ crewai install
 - Modify `src/debate/crew.py` to add your own logic, tools and specific args
 - Modify `src/debate/main.py` to add custom inputs for your agents and tasks
 
+#### Analytics Settings
+
+- Token usage is captured from `LLMCallCompletedEvent.token_usage` (or common aliases like `usage`, `usage_metrics`).
+- Cost is computed using `PRICING_JSON` (USD per 1M tokens). See `debate/.env.example`.
+- Debate duration is derived from `debates.created_at` and `debates.completed_at` timestamps.
+
 ## Running the Project
 
 To kickstart your crew of AI agents and begin task execution, run this from the root folder of your project:

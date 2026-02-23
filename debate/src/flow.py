@@ -13,7 +13,14 @@ from .utils import (
     release_generation_lock,
     delete_inflight_debate_id,
 )
-from .storage import update_debate_status
+from .storage import (
+    update_debate_status,
+    finalize_debate_duration,
+    update_debate_summary,
+    record_llm_call,
+    update_debate_metrics,
+)
+from .pricing import compute_cost_usd
 from .models import DebateState
 
 from dotenv import load_dotenv
@@ -68,6 +75,32 @@ class DebateFlow(Flow[DebateState]):
 
         return "\n\n".join(lines)
 
+    def _record_usage_from_response(self, response) -> None:
+        token_usage = _extract_token_usage_from_response(response)
+        if not token_usage:
+            return
+        input_tokens = _safe_int(token_usage.get("input_tokens") or token_usage.get("prompt_tokens"))
+        output_tokens = _safe_int(token_usage.get("output_tokens") or token_usage.get("completion_tokens"))
+        total_tokens = _safe_int(token_usage.get("total_tokens"))
+        if input_tokens == 0 and output_tokens == 0 and total_tokens > 0:
+            input_tokens = total_tokens
+        if input_tokens == 0 and output_tokens == 0:
+            return
+        model = _extract_model_from_response(response)
+        cost_usd = compute_cost_usd(model, input_tokens, output_tokens)
+        record_llm_call(
+            self.state.debate_id,
+            model,
+            input_tokens,
+            output_tokens,
+            cost_usd,
+        )
+        update_debate_metrics(
+            self.state.debate_id,
+            tokens_delta=input_tokens + output_tokens,
+            cost_delta=cost_usd,
+        )
+
     @start()
     async def presenter_introduction(self):
         LOG.info(f"Introducing the debate topic: {self.state.topic}")
@@ -117,6 +150,7 @@ class DebateFlow(Flow[DebateState]):
             "history": self._history_as_text()
 
         })
+        self._record_usage_from_response(debater_1_response)
 
         turn = debater_1_response.pydantic 
         turn.debater = self.state.debater_1 
@@ -149,6 +183,7 @@ class DebateFlow(Flow[DebateState]):
             "history": self._history_as_text()
 
         })
+        self._record_usage_from_response(debate_2_response)
 
         turn = debate_2_response.pydantic  
         turn.debater = self.state.debater_2 
@@ -211,6 +246,7 @@ class DebateFlow(Flow[DebateState]):
             "debater_2": self.state.debater_2,
             "history": self._history_as_text()
         })
+        self._record_usage_from_response(judge_response)
 
         LOG.info("Debate Winner: ", judge_response.pydantic)
         self.state.judge_verdicts = judge_response.pydantic
@@ -256,6 +292,7 @@ class DebateFlow(Flow[DebateState]):
                 "output": debate_summary,
             },
         )
+        update_debate_summary(self.state.debate_id, debate_summary)
         
 
 async def run_debate_flow(
@@ -279,6 +316,7 @@ async def run_debate_flow(
     try:
         await flow.kickoff_async(inputs=inputs)
         update_debate_status(debate_id, "completed")
+        finalize_debate_duration(debate_id)
         if DEBATE_CACHE_ENABLED and cache_key:
             set_cached_debate_id(cache_key, debate_id, DEBATE_CACHE_TTL_SECONDS)
             LOG.info("cache_write", extra={"debate_id": debate_id, "cache_key": cache_key})
@@ -289,6 +327,7 @@ async def run_debate_flow(
         )
     except Exception as exc:
         update_debate_status(debate_id, "failed", error_message=str(exc))
+        finalize_debate_duration(debate_id)
         LOG.exception("flow_failed", extra={"debate_id": debate_id})
         publish(
             debate_id,
@@ -301,3 +340,38 @@ async def run_debate_flow(
             delete_inflight_debate_id(inflight_key)
         if lock_key and lock_token:
             release_generation_lock(lock_key, lock_token)
+
+
+def _extract_token_usage_from_response(response) -> dict | None:
+    for attr in ("token_usage", "usage", "usage_metrics", "tokens"):
+        value = getattr(response, attr, None)
+        if isinstance(value, dict):
+            return value
+    if isinstance(response, dict):
+        for key in ("token_usage", "usage", "usage_metrics", "tokens"):
+            value = response.get(key)
+            if isinstance(value, dict):
+                return value
+    return None
+
+
+def _extract_model_from_response(response) -> str:
+    for attr in ("model", "model_name"):
+        value = getattr(response, attr, None)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    llm = getattr(response, "llm", None)
+    if isinstance(llm, str) and llm.strip():
+        return llm.strip()
+    if hasattr(llm, "model"):
+        value = getattr(llm, "model", None)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return "unknown"
+
+
+def _safe_int(value) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return 0

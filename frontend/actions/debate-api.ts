@@ -11,6 +11,35 @@ interface StartDebateResponse {
     debate_id: string;
 }
 
+interface DebateListResponse {
+    debates: Array<{
+        debate_id: string;
+        topic: string;
+        debater_1: string;
+        debater_2: string;
+        status: string;
+        created_at: number;
+        completed_at: number | null;
+        error_message: string | null;
+        summary: string | null;
+        total_tokens: number;
+        total_cost_usd: number;
+        duration_seconds: number;
+    }>;
+}
+
+interface DebateAnalyticsResponse {
+    debate_count: number;
+    total_tokens: number;
+    total_cost_usd: number;
+    total_duration_seconds: number;
+}
+
+interface DebateOverviewResponse {
+    analytics: DebateAnalyticsResponse;
+    debates: DebateListResponse["debates"];
+}
+
 /**
  * Initiates a new debate session with the backend.
  * 
@@ -75,4 +104,58 @@ export function buildDebateEventsUrlWithIdentity(
         params.set("user_id", userId);
     }
     return `${API_BASE_URL}/debate/${debateId}/events?${params.toString()}`;
+}
+
+export async function listDebates(
+    sessionId: string,
+    userId?: string | null
+): Promise<DebateListResponse> {
+    if (!sessionId || sessionId.trim().length === 0) {
+        throw new Error("sessionId is required to list debates");
+    }
+    const params = new URLSearchParams({ session_id: sessionId });
+    if (userId) {
+        params.set("user_id", userId);
+    }
+    const response = await fetch(`${API_BASE_URL}/debates?${params.toString()}`);
+    if (!response.ok) {
+        throw new Error(`Failed to list debates: ${response.statusText}`);
+    }
+    return response.json();
+}
+
+export async function getDebateAnalytics(
+    sessionId: string,
+    userId?: string | null
+): Promise<DebateAnalyticsResponse> {
+    if (!sessionId || sessionId.trim().length === 0) {
+        throw new Error("sessionId is required to get analytics");
+    }
+    const params = new URLSearchParams({ session_id: sessionId });
+    if (userId) {
+        params.set("user_id", userId);
+    }
+    const response = await fetch(`${API_BASE_URL}/debates/analytics?${params.toString()}`);
+    if (!response.ok) {
+        throw new Error(`Failed to fetch analytics: ${response.statusText}`);
+    }
+    return response.json();
+}
+
+export async function getDebateOverview(
+    sessionId: string,
+    userId?: string | null
+): Promise<DebateOverviewResponse> {
+    if (!sessionId || sessionId.trim().length === 0) {
+        throw new Error("sessionId is required to get analytics overview");
+    }
+    const params = new URLSearchParams({ session_id: sessionId });
+    if (userId) {
+        params.set("user_id", userId);
+    }
+    const response = await fetch(`${API_BASE_URL}/debates/overview?${params.toString()}`);
+    if (!response.ok) {
+        throw new Error(`Failed to fetch analytics overview: ${response.statusText}`);
+    }
+    return response.json();
 }

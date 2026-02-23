@@ -61,6 +61,33 @@ def init_db() -> None:
         conn.execute("CREATE INDEX IF NOT EXISTS idx_debates_session_id ON debates(session_id)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_debates_user_id ON debates(user_id)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_debates_created_at ON debates(created_at)")
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS debate_usage_calls (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                debate_id TEXT NOT NULL,
+                model TEXT NOT NULL,
+                input_tokens INTEGER NOT NULL,
+                output_tokens INTEGER NOT NULL,
+                cost_usd REAL NOT NULL,
+                created_at INTEGER NOT NULL
+            )
+            """
+        )
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_usage_calls_debate_id ON debate_usage_calls(debate_id)"
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS debate_metrics (
+                debate_id TEXT PRIMARY KEY,
+                total_tokens INTEGER NOT NULL,
+                total_cost_usd REAL NOT NULL,
+                duration_seconds INTEGER NULL,
+                updated_at INTEGER NOT NULL
+            )
+            """
+        )
         _migrate_debates_table(conn)
 
 
@@ -72,6 +99,8 @@ def _migrate_debates_table(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE debates ADD COLUMN completed_at INTEGER NULL")
     if "error_message" not in existing_columns:
         conn.execute("ALTER TABLE debates ADD COLUMN error_message TEXT NULL")
+    if "summary" not in existing_columns:
+        conn.execute("ALTER TABLE debates ADD COLUMN summary TEXT NULL")
 
 
 def upsert_session(session_id: str, user_id: str | None) -> None:
@@ -180,6 +209,18 @@ def update_debate_status(
             )
 
 
+def update_debate_summary(debate_id: str, summary: str) -> None:
+    with get_db() as conn:
+        conn.execute(
+            """
+            UPDATE debates
+            SET summary = ?
+            WHERE debate_id = ?
+            """,
+            (summary, debate_id),
+        )
+
+
 def is_authorized(debate_id: str, session_id: str, user_id: str | None) -> bool:
     owner = get_debate_owner(debate_id)
     if not owner:
@@ -207,3 +248,171 @@ def cleanup_old_debates(max_age_seconds: int = DEBATE_RETENTION_SECONDS) -> int:
             (threshold,),
         )
         return cur.rowcount
+
+
+def record_llm_call(
+    debate_id: str,
+    model: str,
+    input_tokens: int,
+    output_tokens: int,
+    cost_usd: float,
+) -> None:
+    now = int(time.time())
+    with get_db() as conn:
+        conn.execute(
+            """
+            INSERT INTO debate_usage_calls (
+                debate_id,
+                model,
+                input_tokens,
+                output_tokens,
+                cost_usd,
+                created_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (debate_id, model, input_tokens, output_tokens, cost_usd, now),
+        )
+
+
+def update_debate_metrics(
+    debate_id: str,
+    tokens_delta: int,
+    cost_delta: float,
+    duration_seconds: int | None = None,
+) -> None:
+    now = int(time.time())
+    with get_db() as conn:
+        conn.execute(
+            """
+            INSERT INTO debate_metrics (
+                debate_id,
+                total_tokens,
+                total_cost_usd,
+                duration_seconds,
+                updated_at
+            )
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(debate_id) DO UPDATE SET
+                total_tokens = total_tokens + excluded.total_tokens,
+                total_cost_usd = total_cost_usd + excluded.total_cost_usd,
+                duration_seconds = COALESCE(excluded.duration_seconds, duration_seconds),
+                updated_at = excluded.updated_at
+            """,
+            (
+                debate_id,
+                max(0, tokens_delta),
+                max(0.0, cost_delta),
+                duration_seconds,
+                now,
+            ),
+        )
+
+
+def finalize_debate_duration(debate_id: str) -> None:
+    with get_db() as conn:
+        row = conn.execute(
+            "SELECT created_at, completed_at FROM debates WHERE debate_id = ?",
+            (debate_id,),
+        ).fetchone()
+        if not row:
+            return
+        if row["created_at"] is None or row["completed_at"] is None:
+            return
+        duration_seconds = max(0, int(row["completed_at"] - row["created_at"]))
+        conn.execute(
+            """
+            INSERT INTO debate_metrics (
+                debate_id,
+                total_tokens,
+                total_cost_usd,
+                duration_seconds,
+                updated_at
+            )
+            VALUES (?, 0, 0.0, ?, ?)
+            ON CONFLICT(debate_id) DO UPDATE SET
+                duration_seconds = excluded.duration_seconds,
+                updated_at = excluded.updated_at
+            """,
+            (debate_id, duration_seconds, int(time.time())),
+        )
+
+
+def list_debates_with_metrics(session_id: str, user_id: str | None) -> list[sqlite3.Row]:
+    with get_db() as conn:
+        if user_id:
+            return conn.execute(
+                """
+                SELECT
+                    d.debate_id,
+                    d.topic,
+                    d.debater_1,
+                    d.debater_2,
+                    d.status,
+                    d.created_at,
+                    d.completed_at,
+                    d.error_message,
+                    d.summary,
+                    COALESCE(m.total_tokens, 0) AS total_tokens,
+                    COALESCE(m.total_cost_usd, 0.0) AS total_cost_usd,
+                    COALESCE(m.duration_seconds, 0) AS duration_seconds
+                FROM debates d
+                LEFT JOIN debate_metrics m ON m.debate_id = d.debate_id
+                WHERE d.user_id = ?
+                ORDER BY d.created_at DESC
+                """,
+                (user_id,),
+            ).fetchall()
+        return conn.execute(
+            """
+            SELECT
+                d.debate_id,
+                d.topic,
+                d.debater_1,
+                d.debater_2,
+                d.status,
+                d.created_at,
+                d.completed_at,
+                d.error_message,
+                d.summary,
+                COALESCE(m.total_tokens, 0) AS total_tokens,
+                COALESCE(m.total_cost_usd, 0.0) AS total_cost_usd,
+                COALESCE(m.duration_seconds, 0) AS duration_seconds
+            FROM debates d
+            LEFT JOIN debate_metrics m ON m.debate_id = d.debate_id
+            WHERE d.session_id = ? AND d.user_id IS NULL
+            ORDER BY d.created_at DESC
+            """,
+            (session_id,),
+        ).fetchall()
+
+
+def get_debate_analytics_totals(session_id: str, user_id: str | None) -> sqlite3.Row | None:
+    with get_db() as conn:
+        if user_id:
+            return conn.execute(
+                """
+                SELECT
+                    COUNT(*) AS debate_count,
+                    COALESCE(SUM(COALESCE(m.total_tokens, 0)), 0) AS total_tokens,
+                    COALESCE(SUM(COALESCE(m.total_cost_usd, 0.0)), 0.0) AS total_cost_usd,
+                    COALESCE(SUM(COALESCE(m.duration_seconds, 0)), 0) AS total_duration_seconds
+                FROM debates d
+                LEFT JOIN debate_metrics m ON m.debate_id = d.debate_id
+                WHERE d.user_id = ?
+                """,
+                (user_id,),
+            ).fetchone()
+        return conn.execute(
+            """
+            SELECT
+                COUNT(*) AS debate_count,
+                COALESCE(SUM(COALESCE(m.total_tokens, 0)), 0) AS total_tokens,
+                COALESCE(SUM(COALESCE(m.total_cost_usd, 0.0)), 0.0) AS total_cost_usd,
+                COALESCE(SUM(COALESCE(m.duration_seconds, 0)), 0) AS total_duration_seconds
+            FROM debates d
+            LEFT JOIN debate_metrics m ON m.debate_id = d.debate_id
+            WHERE d.session_id = ? AND d.user_id IS NULL
+            """,
+            (session_id,),
+        ).fetchone()

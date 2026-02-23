@@ -28,6 +28,8 @@ from src.storage import (
     get_debate_owner,
     cleanup_expired_sessions,
     cleanup_old_debates,
+    list_debates_with_metrics,
+    get_debate_analytics_totals,
 )
 from pydantic import BaseModel
 
@@ -313,3 +315,103 @@ async def debate_events(
             await asyncio.sleep(0)
 
     return EventSourceResponse(generator())
+
+
+@app.get("/debates")
+def list_debates(
+    session_id: str = Query(...),
+    user_id: str | None = Query(default=None),
+):
+    if not session_id or not session_id.strip():
+        raise HTTPException(status_code=400, detail="session_id is required")
+
+    rows = list_debates_with_metrics(session_id, user_id)
+    debates = [
+        {
+            "debate_id": row["debate_id"],
+            "topic": row["topic"],
+            "debater_1": row["debater_1"],
+            "debater_2": row["debater_2"],
+            "status": row["status"],
+            "created_at": row["created_at"],
+            "completed_at": row["completed_at"],
+            "error_message": row["error_message"],
+            "summary": row["summary"],
+            "total_tokens": row["total_tokens"],
+            "total_cost_usd": row["total_cost_usd"],
+            "duration_seconds": row["duration_seconds"],
+        }
+        for row in rows
+    ]
+    return {"debates": debates}
+
+
+@app.get("/debates/analytics")
+def debates_analytics(
+    session_id: str = Query(...),
+    user_id: str | None = Query(default=None),
+):
+    if not session_id or not session_id.strip():
+        raise HTTPException(status_code=400, detail="session_id is required")
+
+    row = get_debate_analytics_totals(session_id, user_id)
+    if not row:
+        return {
+            "debate_count": 0,
+            "total_tokens": 0,
+            "total_cost_usd": 0.0,
+            "total_duration_seconds": 0,
+        }
+
+    return {
+        "debate_count": row["debate_count"],
+        "total_tokens": row["total_tokens"],
+        "total_cost_usd": row["total_cost_usd"],
+        "total_duration_seconds": row["total_duration_seconds"],
+    }
+
+
+@app.get("/debates/overview")
+def debates_overview(
+    session_id: str = Query(...),
+    user_id: str | None = Query(default=None),
+):
+    if not session_id or not session_id.strip():
+        raise HTTPException(status_code=400, detail="session_id is required")
+
+    rows = list_debates_with_metrics(session_id, user_id)
+    debates = [
+        {
+            "debate_id": row["debate_id"],
+            "topic": row["topic"],
+            "debater_1": row["debater_1"],
+            "debater_2": row["debater_2"],
+            "status": row["status"],
+            "created_at": row["created_at"],
+            "completed_at": row["completed_at"],
+            "error_message": row["error_message"],
+            "summary": row["summary"],
+            "total_tokens": row["total_tokens"],
+            "total_cost_usd": row["total_cost_usd"],
+            "duration_seconds": row["duration_seconds"],
+        }
+        for row in rows
+    ]
+
+    totals = get_debate_analytics_totals(session_id, user_id)
+    if not totals:
+        analytics = {
+            "debate_count": 0,
+            "total_tokens": 0,
+            "total_cost_usd": 0.0,
+            "total_duration_seconds": 0,
+        }
+    else:
+        analytics = {
+            "debate_count": totals["debate_count"],
+            "total_tokens": totals["total_tokens"],
+            "total_cost_usd": totals["total_cost_usd"],
+            "total_duration_seconds": totals["total_duration_seconds"],
+        }
+
+    return {"analytics": analytics, "debates": debates}
