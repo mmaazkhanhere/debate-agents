@@ -1,13 +1,16 @@
 
 from .tools.search_tool import WebSearchTool
 from .models import DebateTurn, LogicalAnalystVerdict, DebateStrategistVerdict, PersuasionVerdict
-from crewai import Agent, Crew, Process, Task, LLM, Process
+from crewai import Agent, Crew, Task, LLM
 from crewai.project import CrewBase, agent, crew, task
 
-DEBATER_1_MODEL = "groq/llama-3.1-8b-instant"
-DEBATER_2_MODEL = "groq/qwen/qwen3-32b"
-JUDGE_MODEL = "groq/llama-3.3-70b-versatile"
-PRESENTER_MODEL = "groq/openai/gpt-oss-120b"
+from app.core.config import settings
+
+DEBATER_1_MODEL = settings.debater_1_model
+DEBATER_2_MODEL = settings.debater_2_model
+JUDGE_MODEL = settings.judge_model
+PRESENTER_MODEL = settings.presenter_model
+SUMMARY_MODEL = settings.summary_model
 
 
 @CrewBase

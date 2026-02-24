@@ -6,8 +6,8 @@ import redis as redis_lib
 from fastapi.testclient import TestClient
 
 import api as api_module
+import app.cache as cache
 import src.storage as storage
-import src.utils as utils
 
 
 @pytest.fixture()
@@ -23,8 +23,8 @@ def test_db_path(monkeypatch):
 @pytest.fixture()
 def redis_client(monkeypatch):
     client = redis_lib.Redis(
-        host=utils.REDIS_HOST,
-        port=utils.REDIS_PORT,
+        host=cache.REDIS_HOST,
+        port=cache.REDIS_PORT,
         db=15,
         decode_responses=True,
     )
@@ -33,7 +33,7 @@ def redis_client(monkeypatch):
     except Exception:
         pytest.skip("redis not available")
     client.flushdb()
-    monkeypatch.setattr(utils, "redis_client", client)
+    monkeypatch.setattr(cache, "redis_client", client)
     monkeypatch.setattr(api_module, "redis_client", client)
     return client
 
@@ -62,7 +62,7 @@ def no_flow(monkeypatch):
 def client(test_db_path, redis_client, monkeypatch):
     monkeypatch.setattr(api_module, "DEBATE_CACHE_ENABLED", True)
     monkeypatch.setattr(api_module, "DEBATE_LOCK_TTL_SECONDS", 2)
-    monkeypatch.setattr(utils, "DEBATE_CACHE_TTL_SECONDS", 2)
+    monkeypatch.setattr(cache, "DEBATE_CACHE_TTL_SECONDS", 2)
     return TestClient(api_module.app)
 
 
@@ -93,8 +93,8 @@ def test_missing_session_id_returns_400(client):
 @pytest.mark.usefixtures("no_flow")
 def test_cache_hit_returns_cached_and_no_new_debate(client):
     base_count = _count_debates()
-    cache_key = utils.build_cache_key("Topic", "A", "B", "u1", "s1")
-    utils.set_cached_debate_id(cache_key, "debate-111", ttl_seconds=60)
+    cache_key = cache.build_cache_key("Topic", "A", "B", "u1", "s1")
+    cache.set_cached_debate_id(cache_key, "debate-111", ttl_seconds=60)
 
     resp = _post_debate(client, "Topic", "A", "B", "s1", "u1")
     assert resp.status_code == 200
@@ -113,17 +113,17 @@ def test_cache_miss_creates_debate_and_sets_inflight(client, redis_client):
     assert data["cached"] is False
     assert _count_debates() == base_count + 1
 
-    cache_key = utils.build_cache_key("Topic", "A", "B", "u1", "s1")
-    inflight_key = utils.build_inflight_key(cache_key)
-    assert utils.get_inflight_debate_id(inflight_key) == data["debate_id"]
+    cache_key = cache.build_cache_key("Topic", "A", "B", "u1", "s1")
+    inflight_key = cache.build_inflight_key(cache_key)
+    assert cache.get_inflight_debate_id(inflight_key) == data["debate_id"]
 
 
 @pytest.mark.usefixtures("no_flow")
 def test_lock_busy_with_inflight_returns_inflight(client, redis_client):
     base_count = _count_debates()
-    cache_key = utils.build_cache_key("Topic", "A", "B", "u1", "s1")
-    lock_key = utils.build_lock_key(cache_key)
-    inflight_key = utils.build_inflight_key(cache_key)
+    cache_key = cache.build_cache_key("Topic", "A", "B", "u1", "s1")
+    lock_key = cache.build_lock_key(cache_key)
+    inflight_key = cache.build_inflight_key(cache_key)
 
     redis_client.set(lock_key, "token", ex=30)
     redis_client.set(inflight_key, "debate-222", ex=30)
@@ -140,8 +140,8 @@ def test_lock_busy_with_inflight_returns_inflight(client, redis_client):
 @pytest.mark.usefixtures("no_flow")
 def test_lock_busy_without_inflight_returns_409(client, redis_client):
     base_count = _count_debates()
-    cache_key = utils.build_cache_key("Topic", "A", "B", "u1", "s1")
-    lock_key = utils.build_lock_key(cache_key)
+    cache_key = cache.build_cache_key("Topic", "A", "B", "u1", "s1")
+    lock_key = cache.build_lock_key(cache_key)
     redis_client.set(lock_key, "token", ex=30)
 
     resp = _post_debate(client, "Topic", "A", "B", "s1", "u1")
@@ -151,8 +151,8 @@ def test_lock_busy_without_inflight_returns_409(client, redis_client):
 
 @pytest.mark.usefixtures("no_flow")
 def test_cache_scope_isolated_by_user(client):
-    cache_key = utils.build_cache_key("Topic", "A", "B", "u1", "s1")
-    utils.set_cached_debate_id(cache_key, "debate-333", ttl_seconds=60)
+    cache_key = cache.build_cache_key("Topic", "A", "B", "u1", "s1")
+    cache.set_cached_debate_id(cache_key, "debate-333", ttl_seconds=60)
 
     resp = _post_debate(client, "Topic", "A", "B", "s1", "u2")
     assert resp.status_code == 200
@@ -163,8 +163,8 @@ def test_cache_scope_isolated_by_user(client):
 
 @pytest.mark.usefixtures("no_flow")
 def test_cache_scope_isolated_by_session_when_no_user(client):
-    cache_key = utils.build_cache_key("Topic", "A", "B", None, "s1")
-    utils.set_cached_debate_id(cache_key, "debate-444", ttl_seconds=60)
+    cache_key = cache.build_cache_key("Topic", "A", "B", None, "s1")
+    cache.set_cached_debate_id(cache_key, "debate-444", ttl_seconds=60)
 
     resp = _post_debate(client, "Topic", "A", "B", "s2", None)
     assert resp.status_code == 200
@@ -175,8 +175,8 @@ def test_cache_scope_isolated_by_session_when_no_user(client):
 
 @pytest.mark.usefixtures("no_flow")
 def test_normalization_hits_cache(client):
-    cache_key = utils.build_cache_key("  Foo  ", "Elon  Musk", "Greta  ", "u1", "s1")
-    utils.set_cached_debate_id(cache_key, "debate-555", ttl_seconds=60)
+    cache_key = cache.build_cache_key("  Foo  ", "Elon  Musk", "Greta  ", "u1", "s1")
+    cache.set_cached_debate_id(cache_key, "debate-555", ttl_seconds=60)
 
     resp = _post_debate(client, "foo", "elon musk", "  greta", "s1", "u1")
     assert resp.status_code == 200
@@ -187,8 +187,8 @@ def test_normalization_hits_cache(client):
 
 @pytest.mark.usefixtures("no_flow")
 def test_debater_order_matters(client):
-    cache_key = utils.build_cache_key("Topic", "A", "B", "u1", "s1")
-    utils.set_cached_debate_id(cache_key, "debate-666", ttl_seconds=60)
+    cache_key = cache.build_cache_key("Topic", "A", "B", "u1", "s1")
+    cache.set_cached_debate_id(cache_key, "debate-666", ttl_seconds=60)
 
     resp = _post_debate(client, "Topic", "B", "A", "s1", "u1")
     assert resp.status_code == 200
@@ -212,8 +212,8 @@ def test_cache_disabled_always_new(test_db_path, redis_client, monkeypatch):
 
 @pytest.mark.usefixtures("no_flow")
 def test_cache_ttl_expires(client):
-    cache_key = utils.build_cache_key("Topic", "A", "B", "u1", "s1")
-    utils.set_cached_debate_id(cache_key, "debate-777", ttl_seconds=1)
+    cache_key = cache.build_cache_key("Topic", "A", "B", "u1", "s1")
+    cache.set_cached_debate_id(cache_key, "debate-777", ttl_seconds=1)
 
     resp1 = _post_debate(client, "Topic", "A", "B", "s1", "u1")
     assert resp1.status_code == 200

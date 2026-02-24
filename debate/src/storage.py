@@ -3,12 +3,15 @@ from contextlib import contextmanager
 from pathlib import Path
 
 from app.core.config import settings
+from app.helpers import debate_helpers
 from app.db.session import get_sqlite_database_path, reconfigure_database
 from app.services import debate_service
 
 DB_PATH = get_sqlite_database_path() or (Path.cwd() / "data" / "debate.db")
 SESSION_TTL_SECONDS = settings.session_ttl_seconds
 DEBATE_RETENTION_SECONDS = settings.debate_retention_seconds
+SQLITE_CONNECT_TIMEOUT_SECONDS = settings.sqlite_connect_timeout_seconds
+SQLITE_BUSY_TIMEOUT_MS = settings.sqlite_busy_timeout_ms
 
 
 def _refresh_db_path_from_engine() -> None:
@@ -21,11 +24,15 @@ def _refresh_db_path_from_engine() -> None:
 def _connect() -> sqlite3.Connection:
     _refresh_db_path_from_engine()
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(DB_PATH, timeout=5, check_same_thread=False)
+    conn = sqlite3.connect(
+        DB_PATH,
+        timeout=SQLITE_CONNECT_TIMEOUT_SECONDS,
+        check_same_thread=False,
+    )
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL;")
     conn.execute("PRAGMA synchronous=NORMAL;")
-    conn.execute("PRAGMA busy_timeout=5000;")
+    conn.execute(f"PRAGMA busy_timeout={SQLITE_BUSY_TIMEOUT_MS};")
     conn.execute("PRAGMA foreign_keys=ON;")
     return conn
 
@@ -81,15 +88,15 @@ def update_debate_summary(debate_id: str, summary: str) -> None:
 
 
 def is_authorized(debate_id: str, session_id: str, user_id: str | None) -> bool:
-    return debate_service.is_authorized(debate_id, session_id, user_id)
+    return debate_helpers.is_authorized(debate_id, session_id, user_id)
 
 
 def cleanup_expired_sessions() -> int:
-    return debate_service.cleanup_expired_sessions()
+    return debate_helpers.cleanup_expired_sessions()
 
 
 def cleanup_old_debates(max_age_seconds: int = DEBATE_RETENTION_SECONDS) -> int:
-    return debate_service.cleanup_old_debates(max_age_seconds=max_age_seconds)
+    return debate_helpers.cleanup_old_debates(max_age_seconds=max_age_seconds)
 
 
 def record_llm_call(
@@ -99,7 +106,7 @@ def record_llm_call(
     output_tokens: int,
     cost_usd: float,
 ) -> None:
-    debate_service.record_llm_call(
+    debate_helpers.record_llm_call(
         debate_id=debate_id,
         model=model,
         input_tokens=input_tokens,

@@ -2,17 +2,15 @@ import logging
 import warnings
 import uuid
 import asyncio
-import os
 
-from .utils import (
-    append_turn,
-    load_persona,
+from app.cache import (
     DEBATE_CACHE_ENABLED,
     DEBATE_CACHE_TTL_SECONDS,
-    set_cached_debate_id,
-    release_generation_lock,
     delete_inflight_debate_id,
+    release_generation_lock,
+    set_cached_debate_id,
 )
+from .utils import append_turn, load_persona
 from .storage import (
     update_debate_status,
     finalize_debate_duration,
@@ -22,8 +20,8 @@ from .storage import (
 )
 from .pricing import compute_cost_usd
 from .models import DebateState
+from app.core.config import settings
 
-from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 
 from crewai import Crew, LLM
@@ -31,14 +29,13 @@ from crewai.flow.flow import Flow, listen, start, router, or_
 from src.events import publish
 
 from .crew import Debate  # your factory that builds agents & tasks
-from .crew import DEBATER_1_MODEL, DEBATER_2_MODEL, JUDGE_MODEL, PRESENTER_MODEL
+from .crew import DEBATER_1_MODEL, DEBATER_2_MODEL, JUDGE_MODEL, PRESENTER_MODEL, SUMMARY_MODEL
 from .events import DebateEventListener
 
 # -----------------------------------------------------------------------------
 # Environment / warnings / logging
 # -----------------------------------------------------------------------------
 
-load_dotenv()
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 
 LOG = logging.getLogger("debate_flow")
@@ -47,10 +44,10 @@ logging.basicConfig(
     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
 )
 
-INTRO_SLEEP_SEC = float(os.getenv("INTRO_SLEEP_SEC", "10"))
-TURN_SLEEP_SEC = float(os.getenv("TURN_SLEEP_SEC", "18"))
-CONCLUDE_SLEEP_SEC = float(os.getenv("CONCLUDE_SLEEP_SEC", "0"))
-JUDGE_SLEEP_SEC = float(os.getenv("JUDGE_SLEEP_SEC", "0"))
+INTRO_SLEEP_SEC = settings.intro_sleep_sec
+TURN_SLEEP_SEC = settings.turn_sleep_sec
+CONCLUDE_SLEEP_SEC = settings.conclude_sleep_sec
+JUDGE_SLEEP_SEC = settings.judge_sleep_sec
 
 
 class DebateFlow(Flow[DebateState]):
@@ -357,7 +354,7 @@ class DebateFlow(Flow[DebateState]):
         judge_verdicts = self.state.judge_verdicts
         winner = self.state.winner
         
-        llm = LLM(model="groq/openai/gpt-oss-120b")
+        llm = LLM(model=SUMMARY_MODEL)
 
         debate_summary = llm.call(f"""You are a debate analyst.
         Review the following debate turns:
