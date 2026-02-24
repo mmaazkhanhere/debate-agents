@@ -770,8 +770,10 @@ dependencies = [
     { name = "passlib" },
     { name = "psycopg" },
     { name = "pydantic", extra = ["email"] },
+    { name = "pydantic-settings" },
     { name = "pytest" },
     { name = "redis" },
+    { name = "sqlalchemy" },
     { name = "tenacity" },
     { name = "websockets" },
 ]
@@ -790,8 +792,10 @@ requires-dist = [
     { name = "passlib", specifier = ">=1.7.4" },
     { name = "psycopg", specifier = ">=3.3.2" },
     { name = "pydantic", extras = ["email"], specifier = ">=2.11.10" },
+    { name = "pydantic-settings", specifier = ">=2.10.1" },
     { name = "pytest", specifier = ">=9.0.2" },
     { name = "redis", specifier = ">=5.0.1" },
+    { name = "sqlalchemy", specifier = ">=2.0.44" },
     { name = "tenacity", specifier = ">=9.1.2" },
     { name = "websockets", specifier = ">=16.0" },
 ]

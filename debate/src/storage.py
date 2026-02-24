@@ -1,14 +1,25 @@
 import sqlite3
-import time
 from contextlib import contextmanager
 from pathlib import Path
 
-DB_PATH = Path(__file__).resolve().parents[1] / "data" / "debate.db"
-SESSION_TTL_SECONDS = 24 * 60 * 60
-DEBATE_RETENTION_SECONDS = 7 * 24 * 60 * 60
+from app.core.config import settings
+from app.db.session import get_sqlite_database_path, reconfigure_database
+from app.services import debate_service
+
+DB_PATH = get_sqlite_database_path() or (Path.cwd() / "data" / "debate.db")
+SESSION_TTL_SECONDS = settings.session_ttl_seconds
+DEBATE_RETENTION_SECONDS = settings.debate_retention_seconds
+
+
+def _refresh_db_path_from_engine() -> None:
+    global DB_PATH
+    resolved = get_sqlite_database_path()
+    if resolved is not None:
+        DB_PATH = resolved
 
 
 def _connect() -> sqlite3.Connection:
+    _refresh_db_path_from_engine()
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(DB_PATH, timeout=5, check_same_thread=False)
     conn.row_factory = sqlite3.Row
@@ -30,97 +41,16 @@ def get_db():
 
 
 def init_db() -> None:
-    with get_db() as conn:
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS sessions (
-                session_id TEXT PRIMARY KEY,
-                user_id TEXT NULL,
-                created_at INTEGER NOT NULL,
-                expires_at INTEGER NOT NULL,
-                last_seen_at INTEGER NOT NULL
-            )
-            """
-        )
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS debates (
-                debate_id TEXT PRIMARY KEY,
-                session_id TEXT NOT NULL,
-                user_id TEXT NULL,
-                topic TEXT NOT NULL,
-                debater_1 TEXT NOT NULL,
-                debater_2 TEXT NOT NULL,
-                created_at INTEGER NOT NULL,
-                status TEXT NOT NULL,
-                completed_at INTEGER NULL,
-                error_message TEXT NULL
-            )
-            """
-        )
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_debates_session_id ON debates(session_id)")
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_debates_user_id ON debates(user_id)")
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_debates_created_at ON debates(created_at)")
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS debate_usage_calls (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                debate_id TEXT NOT NULL,
-                model TEXT NOT NULL,
-                input_tokens INTEGER NOT NULL,
-                output_tokens INTEGER NOT NULL,
-                cost_usd REAL NOT NULL,
-                created_at INTEGER NOT NULL
-            )
-            """
-        )
-        conn.execute(
-            "CREATE INDEX IF NOT EXISTS idx_usage_calls_debate_id ON debate_usage_calls(debate_id)"
-        )
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS debate_metrics (
-                debate_id TEXT PRIMARY KEY,
-                total_tokens INTEGER NOT NULL,
-                total_cost_usd REAL NOT NULL,
-                duration_seconds INTEGER NULL,
-                updated_at INTEGER NOT NULL
-            )
-            """
-        )
-        _migrate_debates_table(conn)
-
-
-def _migrate_debates_table(conn: sqlite3.Connection) -> None:
-    existing_columns = {
-        row["name"] for row in conn.execute("PRAGMA table_info(debates)").fetchall()
-    }
-    if "completed_at" not in existing_columns:
-        conn.execute("ALTER TABLE debates ADD COLUMN completed_at INTEGER NULL")
-    if "error_message" not in existing_columns:
-        conn.execute("ALTER TABLE debates ADD COLUMN error_message TEXT NULL")
-    if "summary" not in existing_columns:
-        conn.execute("ALTER TABLE debates ADD COLUMN summary TEXT NULL")
+    # Keep compatibility with tests that monkeypatch DB_PATH before init_db().
+    db_path = Path(DB_PATH)
+    if not db_path.is_absolute():
+        db_path = (Path.cwd() / db_path).resolve()
+    reconfigure_database(f"sqlite:///{db_path.as_posix()}")
+    debate_service.init_db()
 
 
 def upsert_session(session_id: str, user_id: str | None) -> None:
-    now = int(time.time())
-    expires_at = now + SESSION_TTL_SECONDS
-    with get_db() as conn:
-        conn.execute(
-            """
-            INSERT INTO sessions (session_id, user_id, created_at, expires_at, last_seen_at)
-            VALUES (?, ?, ?, ?, ?)
-            ON CONFLICT(session_id) DO UPDATE SET
-                user_id = CASE
-                    WHEN sessions.user_id IS NULL AND excluded.user_id IS NOT NULL
-                    THEN excluded.user_id
-                    ELSE sessions.user_id
-                END,
-                last_seen_at = excluded.last_seen_at
-            """,
-            (session_id, user_id, now, expires_at, now),
-        )
+    debate_service.upsert_session(session_id, user_id)
 
 
 def create_debate(
@@ -131,46 +61,11 @@ def create_debate(
     debater_1: str,
     debater_2: str,
 ) -> None:
-    now = int(time.time())
-    with get_db() as conn:
-        conn.execute(
-            """
-            INSERT INTO debates (
-                debate_id,
-                session_id,
-                user_id,
-                topic,
-                debater_1,
-                debater_2,
-                created_at,
-                status,
-                completed_at,
-                error_message
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                debate_id,
-                session_id,
-                user_id,
-                topic,
-                debater_1,
-                debater_2,
-                now,
-                "running",
-                None,
-                None,
-            ),
-        )
+    debate_service.create_debate(debate_id, session_id, user_id, topic, debater_1, debater_2)
 
 
-def get_debate_owner(debate_id: str) -> sqlite3.Row | None:
-    with get_db() as conn:
-        row = conn.execute(
-            "SELECT debate_id, session_id, user_id FROM debates WHERE debate_id = ?",
-            (debate_id,),
-        ).fetchone()
-        return row
+def get_debate_owner(debate_id: str):
+    return debate_service.get_debate_owner(debate_id)
 
 
 def update_debate_status(
@@ -178,76 +73,23 @@ def update_debate_status(
     status: str,
     error_message: str | None = None,
 ) -> None:
-    now = int(time.time())
-    with get_db() as conn:
-        if status == "completed":
-            conn.execute(
-                """
-                UPDATE debates
-                SET status = ?, completed_at = ?, error_message = NULL
-                WHERE debate_id = ?
-                """,
-                (status, now, debate_id),
-            )
-        elif status == "failed":
-            conn.execute(
-                """
-                UPDATE debates
-                SET status = ?, completed_at = ?, error_message = ?
-                WHERE debate_id = ?
-                """,
-                (status, now, error_message, debate_id),
-            )
-        else:
-            conn.execute(
-                """
-                UPDATE debates
-                SET status = ?
-                WHERE debate_id = ?
-                """,
-                (status, debate_id),
-            )
+    debate_service.update_debate_status(debate_id, status, error_message)
 
 
 def update_debate_summary(debate_id: str, summary: str) -> None:
-    with get_db() as conn:
-        conn.execute(
-            """
-            UPDATE debates
-            SET summary = ?
-            WHERE debate_id = ?
-            """,
-            (summary, debate_id),
-        )
+    debate_service.update_debate_summary(debate_id, summary)
 
 
 def is_authorized(debate_id: str, session_id: str, user_id: str | None) -> bool:
-    owner = get_debate_owner(debate_id)
-    if not owner:
-        return False
-    if owner["user_id"]:
-        return user_id is not None and owner["user_id"] == user_id
-    return owner["session_id"] == session_id
+    return debate_service.is_authorized(debate_id, session_id, user_id)
 
 
 def cleanup_expired_sessions() -> int:
-    now = int(time.time())
-    with get_db() as conn:
-        cur = conn.execute(
-            "DELETE FROM sessions WHERE expires_at < ?",
-            (now,),
-        )
-        return cur.rowcount
+    return debate_service.cleanup_expired_sessions()
 
 
 def cleanup_old_debates(max_age_seconds: int = DEBATE_RETENTION_SECONDS) -> int:
-    threshold = int(time.time()) - max_age_seconds
-    with get_db() as conn:
-        cur = conn.execute(
-            "DELETE FROM debates WHERE created_at < ?",
-            (threshold,),
-        )
-        return cur.rowcount
+    return debate_service.cleanup_old_debates(max_age_seconds=max_age_seconds)
 
 
 def record_llm_call(
@@ -257,22 +99,13 @@ def record_llm_call(
     output_tokens: int,
     cost_usd: float,
 ) -> None:
-    now = int(time.time())
-    with get_db() as conn:
-        conn.execute(
-            """
-            INSERT INTO debate_usage_calls (
-                debate_id,
-                model,
-                input_tokens,
-                output_tokens,
-                cost_usd,
-                created_at
-            )
-            VALUES (?, ?, ?, ?, ?, ?)
-            """,
-            (debate_id, model, input_tokens, output_tokens, cost_usd, now),
-        )
+    debate_service.record_llm_call(
+        debate_id=debate_id,
+        model=model,
+        input_tokens=input_tokens,
+        output_tokens=output_tokens,
+        cost_usd=cost_usd,
+    )
 
 
 def update_debate_metrics(
@@ -281,173 +114,25 @@ def update_debate_metrics(
     cost_delta: float,
     duration_seconds: int | None = None,
 ) -> None:
-    now = int(time.time())
-    with get_db() as conn:
-        conn.execute(
-            """
-            INSERT INTO debate_metrics (
-                debate_id,
-                total_tokens,
-                total_cost_usd,
-                duration_seconds,
-                updated_at
-            )
-            VALUES (?, ?, ?, ?, ?)
-            ON CONFLICT(debate_id) DO UPDATE SET
-                total_tokens = total_tokens + excluded.total_tokens,
-                total_cost_usd = total_cost_usd + excluded.total_cost_usd,
-                duration_seconds = COALESCE(excluded.duration_seconds, duration_seconds),
-                updated_at = excluded.updated_at
-            """,
-            (
-                debate_id,
-                max(0, tokens_delta),
-                max(0.0, cost_delta),
-                duration_seconds,
-                now,
-            ),
-        )
+    debate_service.update_debate_metrics(
+        debate_id=debate_id,
+        tokens_delta=tokens_delta,
+        cost_delta=cost_delta,
+        duration_seconds=duration_seconds,
+    )
 
 
 def finalize_debate_duration(debate_id: str) -> None:
-    with get_db() as conn:
-        row = conn.execute(
-            "SELECT created_at, completed_at FROM debates WHERE debate_id = ?",
-            (debate_id,),
-        ).fetchone()
-        if not row:
-            return
-        if row["created_at"] is None or row["completed_at"] is None:
-            return
-        duration_seconds = max(0, int(row["completed_at"] - row["created_at"]))
-        conn.execute(
-            """
-            INSERT INTO debate_metrics (
-                debate_id,
-                total_tokens,
-                total_cost_usd,
-                duration_seconds,
-                updated_at
-            )
-            VALUES (?, 0, 0.0, ?, ?)
-            ON CONFLICT(debate_id) DO UPDATE SET
-                duration_seconds = excluded.duration_seconds,
-                updated_at = excluded.updated_at
-            """,
-            (debate_id, duration_seconds, int(time.time())),
-        )
+    debate_service.finalize_debate_duration(debate_id)
 
 
-def list_debates_with_metrics(session_id: str, user_id: str | None) -> list[sqlite3.Row]:
-    with get_db() as conn:
-        if user_id:
-            return conn.execute(
-                """
-                SELECT
-                    d.debate_id,
-                    d.topic,
-                    d.debater_1,
-                    d.debater_2,
-                    d.status,
-                    d.created_at,
-                    d.completed_at,
-                    d.error_message,
-                    d.summary,
-                    COALESCE(m.total_tokens, 0) AS total_tokens,
-                    COALESCE(m.total_cost_usd, 0.0) AS total_cost_usd,
-                    COALESCE(m.duration_seconds, 0) AS duration_seconds
-                FROM debates d
-                LEFT JOIN debate_metrics m ON m.debate_id = d.debate_id
-                WHERE d.user_id = ?
-                ORDER BY d.created_at DESC
-                """,
-                (user_id,),
-            ).fetchall()
-        return conn.execute(
-            """
-            SELECT
-                d.debate_id,
-                d.topic,
-                d.debater_1,
-                d.debater_2,
-                d.status,
-                d.created_at,
-                d.completed_at,
-                d.error_message,
-                d.summary,
-                COALESCE(m.total_tokens, 0) AS total_tokens,
-                COALESCE(m.total_cost_usd, 0.0) AS total_cost_usd,
-                COALESCE(m.duration_seconds, 0) AS duration_seconds
-            FROM debates d
-            LEFT JOIN debate_metrics m ON m.debate_id = d.debate_id
-            WHERE d.session_id = ? AND d.user_id IS NULL
-            ORDER BY d.created_at DESC
-            """,
-            (session_id,),
-        ).fetchall()
+def list_debates_with_metrics(session_id: str, user_id: str | None):
+    return debate_service.list_debates_with_metrics(session_id, user_id)
 
 
-def get_debate_analytics_totals(session_id: str, user_id: str | None) -> sqlite3.Row | None:
-    with get_db() as conn:
-        if user_id:
-            return conn.execute(
-                """
-                SELECT
-                    COUNT(*) AS debate_count,
-                    COALESCE(SUM(COALESCE(m.total_tokens, 0)), 0) AS total_tokens,
-                    COALESCE(SUM(COALESCE(m.total_cost_usd, 0.0)), 0.0) AS total_cost_usd,
-                    COALESCE(SUM(COALESCE(m.duration_seconds, 0)), 0) AS total_duration_seconds
-                FROM debates d
-                LEFT JOIN debate_metrics m ON m.debate_id = d.debate_id
-                WHERE d.user_id = ?
-                """,
-                (user_id,),
-            ).fetchone()
-        return conn.execute(
-            """
-            SELECT
-                COUNT(*) AS debate_count,
-                COALESCE(SUM(COALESCE(m.total_tokens, 0)), 0) AS total_tokens,
-                COALESCE(SUM(COALESCE(m.total_cost_usd, 0.0)), 0.0) AS total_cost_usd,
-                COALESCE(SUM(COALESCE(m.duration_seconds, 0)), 0) AS total_duration_seconds
-            FROM debates d
-            LEFT JOIN debate_metrics m ON m.debate_id = d.debate_id
-            WHERE d.session_id = ? AND d.user_id IS NULL
-            """,
-            (session_id,),
-        ).fetchone()
+def get_debate_analytics_totals(session_id: str, user_id: str | None):
+    return debate_service.get_debate_analytics_totals(session_id, user_id)
 
 
 def get_cost_breakdown_for_debates(debate_ids: list[str]) -> dict[str, list[dict]]:
-    if not debate_ids:
-        return {}
-    placeholders = ",".join("?" for _ in debate_ids)
-    query = f"""
-        SELECT
-            debate_id,
-            model,
-            COALESCE(SUM(input_tokens), 0) AS input_tokens,
-            COALESCE(SUM(output_tokens), 0) AS output_tokens,
-            COALESCE(SUM(cost_usd), 0.0) AS cost_usd
-        FROM debate_usage_calls
-        WHERE debate_id IN ({placeholders})
-        GROUP BY debate_id, model
-        ORDER BY debate_id, cost_usd DESC
-    """
-    with get_db() as conn:
-        rows = conn.execute(query, tuple(debate_ids)).fetchall()
-
-    breakdown: dict[str, list[dict]] = {debate_id: [] for debate_id in debate_ids}
-    for row in rows:
-        input_tokens = int(row["input_tokens"])
-        output_tokens = int(row["output_tokens"])
-        breakdown[row["debate_id"]].append(
-            {
-                "model": row["model"],
-                "input_tokens": input_tokens,
-                "output_tokens": output_tokens,
-                "total_tokens": input_tokens + output_tokens,
-                "cost_usd": round(float(row["cost_usd"]), 6),
-            }
-        )
-    return breakdown
+    return debate_service.get_cost_breakdown_for_debates(debate_ids)
