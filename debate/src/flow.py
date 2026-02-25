@@ -132,7 +132,7 @@ class DebateFlow(Flow[DebateState]):
         logger.info(f"Turn: {turn_text}") 
         
         self.state.turns.append(turn) 
-        append_turn(turn)
+        append_turn(turn, self.state.debate_id)
 
         if TURN_DELAY_SECONDS > 0:
             await asyncio.sleep(TURN_DELAY_SECONDS)
@@ -171,7 +171,7 @@ class DebateFlow(Flow[DebateState]):
         logger.info(f"Turn: {turn_text}") 
         
         self.state.turns.append(turn)
-        append_turn(turn)
+        append_turn(turn, self.state.debate_id)
 
         if TURN_DELAY_SECONDS > 0:
             await asyncio.sleep(TURN_DELAY_SECONDS)

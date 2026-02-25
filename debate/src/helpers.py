@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Iterable
 
 OUTPUT_FILE = Path("debate_round.json")
+OUTPUT_DIR = Path("data") / "debate_turns"
 
 def history_as_text(turns: Iterable[object]) -> str:
     """
@@ -35,12 +36,16 @@ def history_as_text(turns: Iterable[object]) -> str:
     return "\n\n".join(lines)
 
 
-def append_turn(turn: DebateTurn) -> None:
+def append_turn(turn: DebateTurn, debate_id: str | None = None) -> None:
     data = []
+    output_path = OUTPUT_FILE
+    if debate_id:
+        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+        output_path = OUTPUT_DIR / f"{debate_id}.json"
 
-    if OUTPUT_FILE.exists():
+    if output_path.exists():
         try:
-            content = OUTPUT_FILE.read_text(encoding="utf-8").strip()
+            content = output_path.read_text(encoding="utf-8").strip()
             if content:
                 data = json.loads(content)
                 if not isinstance(data, list):
@@ -57,9 +62,9 @@ def append_turn(turn: DebateTurn) -> None:
 
     data.append(turn_dict)
 
-    temp_file = OUTPUT_FILE.with_suffix(".tmp")
+    temp_file = output_path.with_suffix(".tmp")
     temp_file.write_text(json.dumps(data, indent=2), encoding="utf-8")
-    temp_file.replace(OUTPUT_FILE)
+    temp_file.replace(output_path)
 
 
 def load_persona(debater_name: str) -> str:

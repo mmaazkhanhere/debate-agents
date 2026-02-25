@@ -1,8 +1,7 @@
 import json
-import redis
 from crewai.events import BaseEventListener, AgentExecutionCompletedEvent
 
-redis_client = redis.Redis(host="localhost", port=6379, decode_responses=True)
+from app.cache import redis_client
 
 def publish(debate_id: str, event: str, data: dict):
     redis_client.xadd(

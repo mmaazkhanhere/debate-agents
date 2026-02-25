@@ -65,6 +65,14 @@ class Settings(BaseSettings):
         description="Redis host for caching and event streams.",
     )
     redis_port: int = Field(default=6379, ge=1, le=65535)
+    celery_broker_url: str | None = Field(
+        default=None,
+        description="Optional Celery broker URL; defaults to Redis host/port.",
+    )
+    celery_result_backend: str | None = Field(
+        default=None,
+        description="Optional Celery result backend URL; defaults to broker URL.",
+    )
 
     # Redis Cache Settings
     enable_debate_cache: bool = Field(

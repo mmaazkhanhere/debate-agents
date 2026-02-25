@@ -17,9 +17,11 @@ from app.cache import (
     build_cache_key,
     build_inflight_key,
     build_lock_key,
+    delete_inflight_debate_id,
     get_cached_debate_id,
     get_inflight_debate_id,
     redis_client as _DEFAULT_REDIS_CLIENT,
+    release_generation_lock,
     set_inflight_debate_id,
 )
 
@@ -69,14 +71,37 @@ def _get_redis_client():
     return redis_client
 
 
-def _get_flow_runner():
+def _get_task_dispatcher():
     api_module = _maybe_get_api_module()
-    if api_module is not None and hasattr(api_module, "run_debate_flow"):
-        return getattr(api_module, "run_debate_flow")
+    if api_module is not None and hasattr(api_module, "enqueue_debate_task"):
+        return getattr(api_module, "enqueue_debate_task")
 
-    from src.flow import run_debate_flow
+    return enqueue_debate_task
 
-    return run_debate_flow
+
+def enqueue_debate_task(
+    debate_id: str,
+    topic: str,
+    debater_1: str,
+    debater_2: str,
+    cache_key: str | None = None,
+    inflight_key: str | None = None,
+    lock_key: str | None = None,
+    lock_token: str | None = None,
+) -> str:
+    from app.tasks.debate_tasks import run_debate_task
+
+    result = run_debate_task.delay(
+        debate_id,
+        topic,
+        debater_1,
+        debater_2,
+        cache_key=cache_key,
+        inflight_key=inflight_key,
+        lock_key=lock_key,
+        lock_token=lock_token,
+    )
+    return result.id
 
 
 async def start_debate(req: DebateRequest) -> dict:
@@ -214,9 +239,9 @@ async def start_debate(req: DebateRequest) -> dict:
         },
     )
 
-    flow_runner = _get_flow_runner()
-    asyncio.create_task(
-        flow_runner(
+    task_dispatcher = _get_task_dispatcher()
+    try:
+        task_dispatcher(
             debate_id,
             req.topic,
             req.debater_1,
@@ -226,7 +251,13 @@ async def start_debate(req: DebateRequest) -> dict:
             lock_key=lock_key if cache_enabled else None,
             lock_token=lock_token if cache_enabled else None,
         )
-    )
+    except Exception as exc:
+        if cache_enabled and inflight_key:
+            delete_inflight_debate_id(inflight_key)
+        if cache_enabled and lock_key and lock_token:
+            release_generation_lock(lock_key, lock_token)
+        debate_service.update_debate_status(debate_id, "failed", error_message=str(exc))
+        raise HTTPException(status_code=503, detail="failed to queue debate") from exc
 
     return {"debate_id": debate_id, "cached": False}
 

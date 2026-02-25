@@ -3,6 +3,7 @@ import asyncio
 from app.main import app
 from app import debate_orchestration
 from src.flow import run_debate_flow
+from app.debate_orchestration import enqueue_debate_task
 
 # Backward-compatible module attributes used by existing tests/integrations.
 DEBATE_CACHE_ENABLED = debate_orchestration.DEBATE_CACHE_ENABLED
@@ -13,6 +14,7 @@ __all__ = [
     "app",
     "asyncio",
     "run_debate_flow",
+    "enqueue_debate_task",
     "DEBATE_CACHE_ENABLED",
     "DEBATE_LOCK_TTL_SECONDS",
     "redis_client",
