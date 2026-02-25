@@ -11,49 +11,149 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    app_name: str = "Debate API"
-    cors_origins: list[str] = Field(
+    api_title: str = Field(
+        default="Debate API",
+        description="FastAPI application title shown in docs and OpenAPI.",
+    )
+    cors_allowed_origins: list[str] = Field(
         default_factory=lambda: [
             "http://localhost:8000",
             "http://localhost:3000",
             "http://localhost:5173",
-        ]
+        ],
+        description="CORS allowlist for browser clients.",
     )
 
-    database_url: str | None = None
-    sqlite_db_path: Path = Path("data") / "debate.db"
-    sql_echo: bool = False
+    database_url_override: str | None = Field(
+        default=None,
+        description="Optional full database URL; if unset, SQLite is used.",
+    )
 
-    session_ttl_seconds: int = 24 * 60 * 60
-    debate_retention_seconds: int = 7 * 24 * 60 * 60
+    # SQLite Settings
+    sqlite_database_path: Path = Field(
+        default=Path("data") / "debate.db",
+        description="SQLite file path used when no database_url_override is set.",
+    )
+    sqlalchemy_echo_sql: bool = Field(
+        default=False,
+        description="If true, SQLAlchemy logs executed SQL statements.",
+    )
 
-    redis_host: str = "localhost"
+    sqlite_connection_timeout_seconds: float = Field(
+        default=5.0,
+        ge=0.0,
+        description="SQLite connection timeout.",
+    )
+    sqlite_busy_timeout_ms: int = Field(
+        default=5000,
+        ge=0,
+        description="SQLite busy timeout (ms).",
+    )
+
+    session_expiration_seconds: int = Field(
+        default=24 * 60 * 60,
+        description="How long a user session remains valid.",
+    )
+    debate_retention_window_seconds: int = Field(
+        default=7 * 24 * 60 * 60,
+        description="How long debate records are kept before cleanup.",
+    )
+
+    # Redis Settings
+    redis_hostname: str = Field(
+        default="localhost",
+        description="Redis host for caching and event streams.",
+    )
     redis_port: int = Field(default=6379, ge=1, le=65535)
-    debate_cache_enabled: bool = True
-    debate_cache_ttl_seconds: int = Field(default=1800, ge=1)
-    debate_lock_ttl_seconds: int = Field(default=240, ge=1)
 
-    cache_lock_check_attempts: int = Field(default=2, ge=1)
-    cache_lock_check_sleep_seconds: float = Field(default=0.3, ge=0.0)
-    stream_idle_sleep_seconds: float = Field(default=0.0, ge=0.0)
-    redis_stream_read_count: int = Field(default=1, ge=1)
-    redis_stream_block_ms: int = Field(default=10000, ge=1)
+    # Redis Cache Settings
+    enable_debate_cache: bool = Field(
+        default=True,
+        description="Toggle debate generation cache.",
+    )
+    debate_cache_entry_ttl_seconds: int = Field(
+        default=1800,
+        ge=1,
+        description="TTL for cached debate entries.",
+    )
+    debate_generation_lock_ttl_seconds: int = Field(
+        default=240,
+        ge=1,
+        description="TTL for debate generation lock keys.",
+    )
 
-    sqlite_connect_timeout_seconds: float = Field(default=5.0, ge=0.0)
-    sqlite_busy_timeout_ms: int = Field(default=5000, ge=0)
+    cache_lock_poll_attempts: int = Field(
+        default=2,
+        ge=1,
+        description="How many times to poll for cache lock release.",
+    )
+    cache_lock_poll_interval_seconds: float = Field(
+        default=0.3,
+        ge=0.0,
+        description="Delay between cache lock polling attempts.",
+    )
+    stream_idle_poll_interval_seconds: float = Field(
+        default=0.0,
+        ge=0.0,
+        description="Sleep interval when SSE stream is idle.",
+    )
+    redis_stream_read_batch_size: int = Field(
+        default=1,
+        ge=1,
+        description="Max Redis stream entries read per poll.",
+    )
+    redis_stream_block_timeout_ms: int = Field(
+        default=10000,
+        ge=1,
+        description="Redis stream blocking read timeout (ms).",
+    )
 
-    debater_1_model: str = "groq/llama-3.1-8b-instant"
-    debater_2_model: str = "groq/qwen/qwen3-32b"
-    judge_model: str = "groq/llama-3.3-70b-versatile"
-    presenter_model: str = "groq/openai/gpt-oss-120b"
-    summary_model: str = "groq/openai/gpt-oss-120b"
 
-    intro_sleep_sec: float = Field(default=10.0, ge=0.0)
-    turn_sleep_sec: float = Field(default=18.0, ge=0.0)
-    conclude_sleep_sec: float = Field(default=0.0, ge=0.0)
-    judge_sleep_sec: float = Field(default=0.0, ge=0.0)
+    # LLM Models Settings 
+    debater_one_llm_model: str = Field(
+        default="groq/llama-3.1-8b-instant",
+        description="Model for debater one.",
+    )
+    debater_two_llm_model: str = Field(
+        default="groq/qwen/qwen3-32b",
+        description="Model for debater two.",
+    )
+    judge_llm_model: str = Field(
+        default="groq/llama-3.3-70b-versatile",
+        description="Model for the judge.",
+    )
+    presenter_llm_model: str = Field(
+        default="groq/openai/gpt-oss-120b",
+        description="Model for the presenter.",
+    )
+    summary_llm_model: str = Field(
+        default="groq/openai/gpt-oss-120b",
+        description="Model for summaries.",
+    )
 
-    @field_validator("cors_origins", mode="before")
+    # Delay settings in the debate to avoid rate limits
+    intro_delay_seconds: float = Field(
+        default=10.0,
+        ge=0.0,
+        description="Delay before the intro phase.",
+    )
+    turn_delay_seconds: float = Field(
+        default=18.0,
+        ge=0.0,
+        description="Delay between debate turns.",
+    )
+    conclusion_delay_seconds: float = Field(
+        default=0.0,
+        ge=0.0,
+        description="Delay before the conclusion phase.",
+    )
+    judge_delay_seconds: float = Field(
+        default=0.0,
+        ge=0.0,
+        description="Delay before judge output.",
+    )
+
+    @field_validator("cors_allowed_origins", mode="before")
     @classmethod
     def _parse_cors_origins(cls, value: object) -> object:
         if isinstance(value, str):
@@ -62,9 +162,9 @@ class Settings(BaseSettings):
 
     @property
     def sqlalchemy_database_url(self) -> str:
-        if self.database_url and self.database_url.strip():
-            return self.database_url
-        db_path = self.sqlite_db_path
+        if self.database_url_override and self.database_url_override.strip():
+            return self.database_url_override
+        db_path = self.sqlite_database_path
         if not db_path.is_absolute():
             db_path = (Path.cwd() / db_path).resolve()
         return f"sqlite:///{db_path.as_posix()}"

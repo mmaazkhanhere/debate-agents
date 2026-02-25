@@ -15,7 +15,7 @@ def init_db() -> None:
 
 def upsert_session(session_id: str, user_id: str | None) -> None:
     now = int(time.time())
-    expires_at = now + settings.session_ttl_seconds
+    expires_at = now + settings.session_expiration_seconds
 
     with session_scope() as db:
         existing = db.get(SessionRecord, session_id)

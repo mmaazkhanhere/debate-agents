@@ -41,10 +41,10 @@ from .events import DebateEventListener
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 
-INTRO_SLEEP_SEC = settings.intro_sleep_sec
-TURN_SLEEP_SEC = settings.turn_sleep_sec
-CONCLUDE_SLEEP_SEC = settings.conclude_sleep_sec
-JUDGE_SLEEP_SEC = settings.judge_sleep_sec
+INTRO_DELAY_SECONDS = settings.intro_delay_seconds
+TURN_DELAY_SECONDS = settings.turn_delay_seconds
+CONCLUSION_DELAY_SECONDS = settings.conclusion_delay_seconds
+JUDGE_DELAY_SECONDS = settings.judge_delay_seconds
 
 
 class DebateFlow(Flow[DebateState]):
@@ -94,8 +94,8 @@ class DebateFlow(Flow[DebateState]):
         self.state.debater_1_persona = load_persona(self.state.debater_1)
         self.state.debater_2_persona = load_persona(self.state.debater_2)
 
-        if INTRO_SLEEP_SEC > 0:
-            await asyncio.sleep(INTRO_SLEEP_SEC)
+        if INTRO_DELAY_SECONDS > 0:
+            await asyncio.sleep(INTRO_DELAY_SECONDS)
 
 
     @listen(or_(presenter_introduction, "next_round"))
@@ -134,8 +134,8 @@ class DebateFlow(Flow[DebateState]):
         self.state.turns.append(turn) 
         append_turn(turn)
 
-        if TURN_SLEEP_SEC > 0:
-            await asyncio.sleep(TURN_SLEEP_SEC)
+        if TURN_DELAY_SECONDS > 0:
+            await asyncio.sleep(TURN_DELAY_SECONDS)
 
 
 
@@ -173,8 +173,8 @@ class DebateFlow(Flow[DebateState]):
         self.state.turns.append(turn)
         append_turn(turn)
 
-        if TURN_SLEEP_SEC > 0:
-            await asyncio.sleep(TURN_SLEEP_SEC)
+        if TURN_DELAY_SECONDS > 0:
+            await asyncio.sleep(TURN_DELAY_SECONDS)
 
 
     @router(debater_2_answer)
@@ -217,8 +217,8 @@ class DebateFlow(Flow[DebateState]):
                 "output": debate_conclusion,
             },
         )
-        if CONCLUDE_SLEEP_SEC > 0:
-            await asyncio.sleep(CONCLUDE_SLEEP_SEC)
+        if CONCLUSION_DELAY_SECONDS > 0:
+            await asyncio.sleep(CONCLUSION_DELAY_SECONDS)
 
 
     @listen("presenter_conclusion")
@@ -256,8 +256,8 @@ class DebateFlow(Flow[DebateState]):
         logger.info("Debate Winner: ", judge_response.pydantic)
         self.state.judge_verdicts = judge_response.pydantic
         # self.state.winner = judge_response.pydantic
-        if JUDGE_SLEEP_SEC > 0:
-            await asyncio.sleep(JUDGE_SLEEP_SEC)
+        if JUDGE_DELAY_SECONDS > 0:
+            await asyncio.sleep(JUDGE_DELAY_SECONDS)
 
     @listen("judge_debate")
     async def generate_debate_summary(self):

@@ -26,7 +26,11 @@ def cleanup_expired_sessions() -> int:
 
 
 def cleanup_old_debates(max_age_seconds: int | None = None) -> int:
-    age = max_age_seconds if max_age_seconds is not None else settings.debate_retention_seconds
+    age = (
+        max_age_seconds
+        if max_age_seconds is not None
+        else settings.debate_retention_window_seconds
+    )
     threshold = int(time.time()) - age
     with session_scope() as db:
         result = db.execute(delete(DebateRecord).where(DebateRecord.created_at < threshold))

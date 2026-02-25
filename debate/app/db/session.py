@@ -17,7 +17,7 @@ def _build_engine(database_url: str):
         connect_args["check_same_thread"] = False
     return create_engine(
         database_url,
-        echo=settings.sql_echo,
+        echo=settings.sqlalchemy_echo_sql,
         pool_pre_ping=True,
         connect_args=connect_args,
     )
@@ -68,4 +68,3 @@ def get_db() -> Generator[Session, None, None]:
         yield db
     finally:
         db.close()
-

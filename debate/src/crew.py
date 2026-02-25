@@ -6,11 +6,11 @@ from crewai.project import CrewBase, agent, crew, task
 
 from app.core.config import settings
 
-DEBATER_1_MODEL = settings.debater_1_model
-DEBATER_2_MODEL = settings.debater_2_model
-JUDGE_MODEL = settings.judge_model
-PRESENTER_MODEL = settings.presenter_model
-SUMMARY_MODEL = settings.summary_model
+DEBATER_1_MODEL = settings.debater_one_llm_model
+DEBATER_2_MODEL = settings.debater_two_llm_model
+JUDGE_MODEL = settings.judge_llm_model
+PRESENTER_MODEL = settings.presenter_llm_model
+SUMMARY_MODEL = settings.summary_llm_model
 
 
 @CrewBase

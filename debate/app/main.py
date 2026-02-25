@@ -10,12 +10,12 @@ from app.core.config import settings
 from app.services.debate_service import init_db
 
 
-app = FastAPI(title=settings.app_name)
+app = FastAPI(title=settings.api_title)
 init_db()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,
+    allow_origins=settings.cors_allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -33,5 +33,4 @@ async def add_process_time_header(request: Request, call_next):
 
 app.include_router(health_router)
 app.include_router(debates_router)
-
 

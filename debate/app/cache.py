@@ -5,12 +5,12 @@ import redis
 
 from app.core.config import settings
 
-REDIS_HOST = settings.redis_host
+REDIS_HOST = settings.redis_hostname
 REDIS_PORT = settings.redis_port
 
-DEBATE_CACHE_ENABLED = settings.debate_cache_enabled
-DEBATE_CACHE_TTL_SECONDS = settings.debate_cache_ttl_seconds
-DEBATE_LOCK_TTL_SECONDS = settings.debate_lock_ttl_seconds
+DEBATE_CACHE_ENABLED = settings.enable_debate_cache
+DEBATE_CACHE_TTL_SECONDS = settings.debate_cache_entry_ttl_seconds
+DEBATE_LOCK_TTL_SECONDS = settings.debate_generation_lock_ttl_seconds
 
 redis_client = redis.Redis(
     host=REDIS_HOST,

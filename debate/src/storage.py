@@ -8,9 +8,9 @@ from app.db.session import get_sqlite_database_path, reconfigure_database
 from app.services import debate_service
 
 DB_PATH = get_sqlite_database_path() or (Path.cwd() / "data" / "debate.db")
-SESSION_TTL_SECONDS = settings.session_ttl_seconds
-DEBATE_RETENTION_SECONDS = settings.debate_retention_seconds
-SQLITE_CONNECT_TIMEOUT_SECONDS = settings.sqlite_connect_timeout_seconds
+SESSION_TTL_SECONDS = settings.session_expiration_seconds
+DEBATE_RETENTION_SECONDS = settings.debate_retention_window_seconds
+SQLITE_CONNECT_TIMEOUT_SECONDS = settings.sqlite_connection_timeout_seconds
 SQLITE_BUSY_TIMEOUT_MS = settings.sqlite_busy_timeout_ms
 
 

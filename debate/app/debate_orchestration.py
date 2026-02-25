@@ -29,11 +29,11 @@ LOG = logging.getLogger("debate_api")
 DEBATE_CACHE_ENABLED = _DEFAULT_DEBATE_CACHE_ENABLED
 DEBATE_LOCK_TTL_SECONDS = _DEFAULT_DEBATE_LOCK_TTL_SECONDS
 redis_client = _DEFAULT_REDIS_CLIENT
-LOCK_CHECK_ATTEMPTS = settings.cache_lock_check_attempts
-LOCK_CHECK_SLEEP_SECONDS = settings.cache_lock_check_sleep_seconds
-STREAM_IDLE_SLEEP_SECONDS = settings.stream_idle_sleep_seconds
-REDIS_STREAM_READ_COUNT = settings.redis_stream_read_count
-REDIS_STREAM_BLOCK_MS = settings.redis_stream_block_ms
+LOCK_CHECK_ATTEMPTS = settings.cache_lock_poll_attempts
+LOCK_CHECK_SLEEP_SECONDS = settings.cache_lock_poll_interval_seconds
+STREAM_IDLE_SLEEP_SECONDS = settings.stream_idle_poll_interval_seconds
+REDIS_STREAM_READ_COUNT = settings.redis_stream_read_batch_size
+REDIS_STREAM_BLOCK_MS = settings.redis_stream_block_timeout_ms
 
 
 def _maybe_get_api_module():
