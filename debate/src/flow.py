@@ -24,6 +24,7 @@ from .prompts import (
     presenter_conclusion_prompt,
     debate_summary_prompt,
 )
+from .retry_utils import call_with_retry
 from .schemas import DebateState
 from app.core.config import settings
 
@@ -45,6 +46,9 @@ INTRO_DELAY_SECONDS = settings.intro_delay_seconds
 TURN_DELAY_SECONDS = settings.turn_delay_seconds
 CONCLUSION_DELAY_SECONDS = settings.conclusion_delay_seconds
 JUDGE_DELAY_SECONDS = settings.judge_delay_seconds
+DEBATE_RETRY_MAX_ATTEMPTS = settings.debate_retry_max_attempts
+DEBATE_RETRY_INITIAL_WAIT_SECONDS = settings.debate_retry_initial_wait_seconds
+DEBATE_RETRY_MAX_WAIT_SECONDS = settings.debate_retry_max_wait_seconds
 
 
 class DebateFlow(Flow[DebateState]):
@@ -66,8 +70,14 @@ class DebateFlow(Flow[DebateState]):
         logger.info(f"Introducing the debate topic: {self.state.topic}")
         topic: str = self.state.topic
         llm = LLM(model=PRESENTER_MODEL)
-        debate_introduction = llm.call(
-            presenter_introduction_prompt(topic, self.state.debater_1, self.state.debater_2)
+        debate_introduction = call_with_retry(
+            operation=lambda: llm.call(
+                presenter_introduction_prompt(topic, self.state.debater_1, self.state.debater_2)
+            ),
+            operation_name="presenter_introduction",
+            max_attempts=DEBATE_RETRY_MAX_ATTEMPTS,
+            initial_wait_seconds=DEBATE_RETRY_INITIAL_WAIT_SECONDS,
+            max_wait_seconds=DEBATE_RETRY_MAX_WAIT_SECONDS,
         )
         record_usage_from_llm(
             llm=llm,
@@ -106,16 +116,20 @@ class DebateFlow(Flow[DebateState]):
         p1 = self.state.debater_1_persona if self.state.current_round == 1 else ""
         p2 = self.state.debater_2_persona if self.state.current_round == 1 else ""
 
-
-        debater_1_response = self.debate.debater_1_crew().kickoff(inputs={
-            "topic": self.state.topic, 
-            "debater_1": self.state.debater_1, 
-            "debater_2": self.state.debater_2,
-            "debater_1_persona": p1,
-            "debater_2_persona": p2,
-            "history": history_as_text(self.state.turns)
-
-        })
+        debater_1_response = call_with_retry(
+            operation=lambda: self.debate.debater_1_crew().kickoff(inputs={
+                "topic": self.state.topic,
+                "debater_1": self.state.debater_1,
+                "debater_2": self.state.debater_2,
+                "debater_1_persona": p1,
+                "debater_2_persona": p2,
+                "history": history_as_text(self.state.turns)
+            }),
+            operation_name="debater_1_turn",
+            max_attempts=DEBATE_RETRY_MAX_ATTEMPTS,
+            initial_wait_seconds=DEBATE_RETRY_INITIAL_WAIT_SECONDS,
+            max_wait_seconds=DEBATE_RETRY_MAX_WAIT_SECONDS,
+        )
         record_usage_from_response(
             response=debater_1_response,
             model=DEBATER_1_MODEL,
@@ -146,15 +160,20 @@ class DebateFlow(Flow[DebateState]):
         p1 = self.state.debater_1_persona if self.state.current_round == 1 else ""
         p2 = self.state.debater_2_persona if self.state.current_round == 1 else ""
 
-        debate_2_response = self.debate.debater_2_crew().kickoff(inputs={
-            "topic": self.state.topic, 
-            "debater_1": self.state.debater_1, 
-            "debater_2": self.state.debater_2,
-            "debater_1_persona": p1,
-            "debater_2_persona": p2,
-            "history": history_as_text(self.state.turns)
-
-        })
+        debate_2_response = call_with_retry(
+            operation=lambda: self.debate.debater_2_crew().kickoff(inputs={
+                "topic": self.state.topic,
+                "debater_1": self.state.debater_1,
+                "debater_2": self.state.debater_2,
+                "debater_1_persona": p1,
+                "debater_2_persona": p2,
+                "history": history_as_text(self.state.turns)
+            }),
+            operation_name="debater_2_turn",
+            max_attempts=DEBATE_RETRY_MAX_ATTEMPTS,
+            initial_wait_seconds=DEBATE_RETRY_INITIAL_WAIT_SECONDS,
+            max_wait_seconds=DEBATE_RETRY_MAX_WAIT_SECONDS,
+        )
         record_usage_from_response(
             response=debate_2_response,
             model=DEBATER_2_MODEL,
@@ -192,13 +211,19 @@ class DebateFlow(Flow[DebateState]):
         logger.info("Presenter Concluding the debate")
         llm = LLM(model=PRESENTER_MODEL)
         
-        debate_conclusion = llm.call(
-            presenter_conclusion_prompt(
-                self.state.topic,
-                self.state.debater_1,
-                self.state.debater_2,
-                self.state.turns,
-            )
+        debate_conclusion = call_with_retry(
+            operation=lambda: llm.call(
+                presenter_conclusion_prompt(
+                    self.state.topic,
+                    self.state.debater_1,
+                    self.state.debater_2,
+                    self.state.turns,
+                )
+            ),
+            operation_name="presenter_conclusion",
+            max_attempts=DEBATE_RETRY_MAX_ATTEMPTS,
+            initial_wait_seconds=DEBATE_RETRY_INITIAL_WAIT_SECONDS,
+            max_wait_seconds=DEBATE_RETRY_MAX_WAIT_SECONDS,
         )
         record_usage_from_llm(
             llm=llm,
@@ -224,12 +249,18 @@ class DebateFlow(Flow[DebateState]):
     @listen("presenter_conclusion")
     async def judge_debate(self):
         logger.info("Judging the debate")
-        judge_response = self.debate.judge_crew().kickoff(inputs={
-            "topic": self.state.topic, 
-            "debater_1": self.state.debater_1, 
-            "debater_2": self.state.debater_2,
-            "history": history_as_text(self.state.turns)
-        })
+        judge_response = call_with_retry(
+            operation=lambda: self.debate.judge_crew().kickoff(inputs={
+                "topic": self.state.topic,
+                "debater_1": self.state.debater_1,
+                "debater_2": self.state.debater_2,
+                "history": history_as_text(self.state.turns)
+            }),
+            operation_name="judge_debate",
+            max_attempts=DEBATE_RETRY_MAX_ATTEMPTS,
+            initial_wait_seconds=DEBATE_RETRY_INITIAL_WAIT_SECONDS,
+            max_wait_seconds=DEBATE_RETRY_MAX_WAIT_SECONDS,
+        )
         record_usage_from_response(
             response=judge_response,
             model=JUDGE_MODEL,
@@ -253,7 +284,7 @@ class DebateFlow(Flow[DebateState]):
         )
         logger.info("Debate usage (intro to judgement): %s", usage_text)
 
-        logger.info("Debate Winner: ", judge_response.pydantic)
+        logger.info("Debate Winner: %s", judge_response.pydantic)
         self.state.judge_verdicts = judge_response.pydantic
         # self.state.winner = judge_response.pydantic
         if JUDGE_DELAY_SECONDS > 0:
@@ -268,8 +299,14 @@ class DebateFlow(Flow[DebateState]):
         
         llm = LLM(model=SUMMARY_MODEL)
 
-        debate_summary = llm.call(
-            debate_summary_prompt(debate_turns, judge_verdicts, winner)
+        debate_summary = call_with_retry(
+            operation=lambda: llm.call(
+                debate_summary_prompt(debate_turns, judge_verdicts, winner)
+            ),
+            operation_name="debate_summary",
+            max_attempts=DEBATE_RETRY_MAX_ATTEMPTS,
+            initial_wait_seconds=DEBATE_RETRY_INITIAL_WAIT_SECONDS,
+            max_wait_seconds=DEBATE_RETRY_MAX_WAIT_SECONDS,
         )
 
         publish(

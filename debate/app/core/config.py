@@ -160,6 +160,21 @@ class Settings(BaseSettings):
         ge=0.0,
         description="Delay before judge output.",
     )
+    debate_retry_max_attempts: int = Field(
+        default=4,
+        ge=1,
+        description="Max attempts for transient/rate-limit failures in debate generation.",
+    )
+    debate_retry_initial_wait_seconds: float = Field(
+        default=1.0,
+        ge=0.0,
+        description="Initial backoff delay for debate retries.",
+    )
+    debate_retry_max_wait_seconds: float = Field(
+        default=20.0,
+        ge=0.0,
+        description="Maximum backoff delay for debate retries.",
+    )
 
     @field_validator("cors_allowed_origins", mode="before")
     @classmethod
