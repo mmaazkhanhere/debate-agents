@@ -1,31 +1,41 @@
+﻿
+from .schemas import DebateTurn
 import json
-
-from .models import DebateTurn
-
 from pathlib import Path
 
-from app.cache import (
-    REDIS_HOST,
-    REDIS_PORT,
-    DEBATE_CACHE_ENABLED,
-    DEBATE_CACHE_TTL_SECONDS,
-    DEBATE_LOCK_TTL_SECONDS,
-    acquire_generation_lock,
-    build_cache_key,
-    build_inflight_key,
-    build_lock_key,
-    delete_inflight_debate_id,
-    get_cached_debate_id,
-    get_inflight_debate_id,
-    redis_client,
-    release_generation_lock,
-    set_cached_debate_id,
-    set_inflight_debate_id,
-)
+from typing import Iterable
 
 OUTPUT_FILE = Path("debate_round.json")
 
-def append_turn(turn: DebateTurn):
+def history_as_text(turns: Iterable[object]) -> str:
+    """
+    Convert structured debate turns into an LLM-safe text history.
+    """
+    turns_list = list(turns)
+    if not turns_list:
+        return "No prior debate history."
+
+    lines: list[str] = []
+    for i, turn in enumerate(turns_list, start=1):
+        argument = getattr(turn, "argument", None)
+        argument_type = getattr(argument, "type", "unknown")
+        argument_confidence = getattr(argument, "confidence", "unknown")
+        argument_text = getattr(argument, "text", "")
+        debater = getattr(turn, "debater", "unknown")
+        lines.append(
+            "Round {i} -- {debater} ({arg_type}, confidence {confidence}/100):\n{arg_text}".format(
+                i=i,
+                debater=debater,
+                arg_type=argument_type,
+                confidence=argument_confidence,
+                arg_text=argument_text,
+            )
+        )
+
+    return "\n\n".join(lines)
+
+
+def append_turn(turn: DebateTurn) -> None:
     data = []
 
     if OUTPUT_FILE.exists():
@@ -52,17 +62,16 @@ def append_turn(turn: DebateTurn):
     temp_file.replace(OUTPUT_FILE)
 
 
-
 def load_persona(debater_name: str) -> str:
     """Load persona YAML from the knowledge folder."""
     # Convert name to file format: "Elon Musk" -> "elon_musk"
     filename = debater_name.lower().replace(" ", "_")
-    
+
     # Try common extensions
     for ext in [".yaml", ".yml", ".txt"]:
         path = Path("knowledge") / f"{filename}{ext}"
         if path.exists():
             return path.read_text(encoding="utf-8")
-    
+
     # Fallback if not found
     return f"Persona profile for {debater_name}"

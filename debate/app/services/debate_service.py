@@ -1,9 +1,12 @@
 import time
 
 from sqlalchemy import func, select
+
 from app.db.base import init_db as init_database
 from app.db.models import DebateMetric, DebateRecord, DebateUsageCall, SessionRecord
 from app.db.session import session_scope
+
+from app.core.config import settings
 
 
 def init_db() -> None:

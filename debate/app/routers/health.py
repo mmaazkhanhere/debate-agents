@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.use_cases import debate_orchestration
+from app import debate_orchestration
 
 router = APIRouter()
 

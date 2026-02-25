@@ -1,7 +1,7 @@
 import asyncio
 
 from app.main import app
-from app.use_cases import debate_orchestration
+from app import debate_orchestration
 from src.flow import run_debate_flow
 
 # Backward-compatible module attributes used by existing tests/integrations.

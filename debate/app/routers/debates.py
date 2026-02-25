@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Query
 from sse_starlette.sse import EventSourceResponse
 
+from app import debate_orchestration
+from app import debate_queries
 from app.schemas.debate import DebateRequest
-from app.use_cases import debate_orchestration, debate_queries
+
 
 router = APIRouter()
 

@@ -1,6 +1,6 @@
 
 from .tools.search_tool import WebSearchTool
-from .models import DebateTurn, LogicalAnalystVerdict, DebateStrategistVerdict, PersuasionVerdict
+from .schemas import DebateTurn, LogicalAnalystVerdict, DebateStrategistVerdict, PersuasionVerdict
 from crewai import Agent, Crew, Task, LLM
 from crewai.project import CrewBase, agent, crew, task
 
