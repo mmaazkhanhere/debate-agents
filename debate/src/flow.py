@@ -49,6 +49,7 @@ JUDGE_DELAY_SECONDS = settings.judge_delay_seconds
 DEBATE_RETRY_MAX_ATTEMPTS = settings.debate_retry_max_attempts
 DEBATE_RETRY_INITIAL_WAIT_SECONDS = settings.debate_retry_initial_wait_seconds
 DEBATE_RETRY_MAX_WAIT_SECONDS = settings.debate_retry_max_wait_seconds
+DEBATE_MAX_ROUNDS = settings.debate_max_rounds
 
 
 class DebateFlow(Flow[DebateState]):
@@ -338,6 +339,7 @@ async def run_debate_flow(
         "topic": topic,
         "debater_1": debater_1,
         "debater_2": debater_2,
+        "total_rounds": DEBATE_MAX_ROUNDS,
     }
     try:
         await flow.kickoff_async(inputs=inputs)

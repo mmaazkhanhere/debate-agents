@@ -182,6 +182,11 @@ class Settings(BaseSettings):
         ge=0.0,
         description="Delay before judge output.",
     )
+    debate_max_rounds: int = Field(
+        default=3,
+        ge=1,
+        description="Maximum number of rounds to run for each debate.",
+    )
     debate_retry_max_attempts: int = Field(
         default=4,
         ge=1,

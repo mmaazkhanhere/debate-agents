@@ -1,17 +1,17 @@
-/**
- * Debate API Actions
- * 
- * Clean, simple functions for interacting with the debate backend API.
- * These functions are pure, testable, and have no side effects.
- */
+const API_BASE_URL = process.env.NEXT_PUBLIC_DEBATE_API_BASE_URL?.trim();
 
-const API_BASE_URL = "http://localhost:8000";
+function getApiBaseUrl(): string {
+    if (!API_BASE_URL) {
+        throw new Error("NEXT_PUBLIC_DEBATE_API_BASE_URL is not set");
+    }
+    return API_BASE_URL.replace(/\/+$/, "");
+}
 
-interface StartDebateResponse {
+type StartDebateResponse = {
     debate_id: string;
 }
 
-interface DebateListResponse {
+type DebateListResponse = {
     debates: Array<{
         debate_id: string;
         topic: string;
@@ -35,14 +35,14 @@ interface DebateListResponse {
     }>;
 }
 
-interface DebateAnalyticsResponse {
+type DebateAnalyticsResponse = {
     debate_count: number;
     total_tokens: number;
     total_cost_usd: number;
     total_duration_seconds: number;
 }
 
-interface DebateOverviewResponse {
+type DebateOverviewResponse = {
     analytics: DebateAnalyticsResponse;
     debates: DebateListResponse["debates"];
 }
@@ -66,7 +66,7 @@ export async function startDebate(
     if (!sessionId || sessionId.trim().length === 0) {
         throw new Error("sessionId is required to start a debate");
     }
-    const response = await fetch(`${API_BASE_URL}/debate`, {
+    const response = await fetch(`${getApiBaseUrl()}/debate`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -95,7 +95,7 @@ export async function startDebate(
  * @returns The complete SSE endpoint URL
  */
 export function buildDebateEventsUrl(debateId: string): string {
-    return `${API_BASE_URL}/debate/${debateId}/events`;
+    return `${getApiBaseUrl()}/debate/${debateId}/events`;
 }
 
 export function buildDebateEventsUrlWithIdentity(
@@ -110,7 +110,7 @@ export function buildDebateEventsUrlWithIdentity(
     if (userId) {
         params.set("user_id", userId);
     }
-    return `${API_BASE_URL}/debate/${debateId}/events?${params.toString()}`;
+    return `${getApiBaseUrl()}/debate/${debateId}/events?${params.toString()}`;
 }
 
 export async function listDebates(
@@ -124,7 +124,7 @@ export async function listDebates(
     if (userId) {
         params.set("user_id", userId);
     }
-    const response = await fetch(`${API_BASE_URL}/debates?${params.toString()}`);
+    const response = await fetch(`${getApiBaseUrl()}/debates?${params.toString()}`);
     if (!response.ok) {
         throw new Error(`Failed to list debates: ${response.statusText}`);
     }
@@ -142,7 +142,7 @@ export async function getDebateAnalytics(
     if (userId) {
         params.set("user_id", userId);
     }
-    const response = await fetch(`${API_BASE_URL}/debates/analytics?${params.toString()}`);
+    const response = await fetch(`${getApiBaseUrl()}/debates/analytics?${params.toString()}`);
     if (!response.ok) {
         throw new Error(`Failed to fetch analytics: ${response.statusText}`);
     }
@@ -160,7 +160,7 @@ export async function getDebateOverview(
     if (userId) {
         params.set("user_id", userId);
     }
-    const response = await fetch(`${API_BASE_URL}/debates/overview?${params.toString()}`);
+    const response = await fetch(`${getApiBaseUrl()}/debates/overview?${params.toString()}`);
     if (!response.ok) {
         throw new Error(`Failed to fetch analytics overview: ${response.statusText}`);
     }
