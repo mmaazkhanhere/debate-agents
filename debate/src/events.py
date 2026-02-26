@@ -1,10 +1,10 @@
 import json
 from crewai.events import BaseEventListener, AgentExecutionCompletedEvent
 
-from app.cache import redis_client
+from app.cache import events_redis_client
 
 def publish(debate_id: str, event: str, data: dict):
-    redis_client.xadd(
+    events_redis_client.xadd(
         f"debate:{debate_id}",
         {
             "event": event,

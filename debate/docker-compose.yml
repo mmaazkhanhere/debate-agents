@@ -1,0 +1,82 @@
+name: debate-backend
+
+x-backend-common: &backend-common
+  image: debate-backend:local
+  build:
+    context: .
+    dockerfile: Dockerfile
+  env_file:
+    - .env
+  environment:
+    REDIS_HOSTNAME: redis-cache
+    REDIS_PORT: 6379
+    REDIS_CACHE_HOSTNAME: redis-cache
+    REDIS_CACHE_PORT: 6379
+    REDIS_EVENTS_HOSTNAME: redis-events
+    REDIS_EVENTS_PORT: 6379
+    CELERY_BROKER_URL: redis://redis-cache:6379/0
+    CELERY_RESULT_BACKEND: redis://redis-cache:6379/0
+    SQLITE_DATABASE_PATH: /app/data/debate.db
+    WAIT_FOR_REDIS: "1"
+    WAIT_FOR_REDIS_TIMEOUT_SECONDS: "90"
+    PYTHONUNBUFFERED: "1"
+  depends_on:
+    redis-cache:
+      condition: service_healthy
+    redis-events:
+      condition: service_healthy
+  volumes:
+    - sqlite_data:/app/data
+  restart: unless-stopped
+
+services:
+  redis-cache:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_cache_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+
+  redis-events:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_events_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+
+  backend:
+    <<: *backend-common
+    command: ["uv", "run", "--no-sync", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import socket,sys; s=socket.socket(); s.settimeout(3); rc=s.connect_ex(('127.0.0.1',8000)); s.close(); sys.exit(0 if rc==0 else 1)\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  celery-worker:
+    <<: *backend-common
+    command: ["uv", "run", "--no-sync", "celery", "-A", "app.celery_app:celery_app", "worker", "--loglevel=info"]
+
+  celery-beat:
+    <<: *backend-common
+    command: ["uv", "run", "--no-sync", "celery", "-A", "app.celery_app:celery_app", "beat", "--loglevel=info", "--schedule=/app/.celerybeat/celerybeat-schedule"]
+
+volumes:
+  sqlite_data:
+  redis_cache_data:
+  redis_events_data:

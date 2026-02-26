@@ -1,60 +1,269 @@
-# Debate Crew
+# Debate Backend
 
-Welcome to the Debate Crew project, powered by [crewAI](https://crewai.com). This template is designed to help you set up a multi-agent AI system with ease, leveraging the powerful and flexible framework provided by crewAI. Our goal is to enable your agents to collaborate effectively on complex tasks, maximizing their collective intelligence and capabilities.
+Production-style FastAPI backend for AI debate orchestration, fully containerized with Docker Compose.
 
-## Installation
-
-Ensure you have Python >=3.10 <3.14 installed on your system. This project uses [UV](https://docs.astral.sh/uv/) for dependency management and package handling, offering a seamless setup and execution experience.
-
-First, if you haven't already, install uv:
-
-```bash
-pip install uv
-```
-
-Next, navigate to your project directory and install the dependencies:
-
-(Optional) Lock the dependencies and install them by using the CLI command:
-```bash
-crewai install
-```
-### Customizing
-
-**Add your `OPENAI_API_KEY` into the `.env` file**
-
-- Modify `src/debate/config/agents.yaml` to define your agents
-- Modify `src/debate/config/tasks.yaml` to define your tasks
-- Modify `src/debate/crew.py` to add your own logic, tools and specific args
-- Modify `src/debate/main.py` to add custom inputs for your agents and tasks
-
-#### Analytics Settings
-
-- Token usage is captured from `LLMCallCompletedEvent.token_usage` (or common aliases like `usage`, `usage_metrics`).
-- Cost is computed using `PRICING_JSON` (USD per 1M tokens). See `debate/.env.example`.
-- Debate duration is derived from `debates.created_at` and `debates.completed_at` timestamps.
-
-## Running the Project
-
-To kickstart your crew of AI agents and begin task execution, run this from the root folder of your project:
+This repository is designed so a new developer can:
+1. Clone the repo
+2. Create a `.env`
+3. Run one command
 
 ```bash
-$ crewai run
+docker compose up --build
 ```
 
-This command initializes the debate Crew, assembling the agents and assigning them tasks as defined in your configuration.
+The full stack (FastAPI + Celery worker + Celery beat + separate Redis services + SQLite persistence) starts with no additional manual setup.
 
-This example, unmodified, will run the create a `report.md` file with the output of a research on LLMs in the root folder.
+## Table of Contents
 
-## Understanding Your Crew
+- Overview
+- Architecture
+- Tech Stack
+- Prerequisites
+- Quick Start
+- Environment Variables
+- Running the Stack
+- API Endpoints
+- Project Structure
+- Operational Commands
+- Persistence and Data
+- Health Checks and Startup Order
+- Troubleshooting
+- Security Notes
+- Production Notes
 
-The debate Crew is composed of multiple AI agents, each with unique roles, goals, and tools. These agents collaborate on a series of tasks, defined in `config/tasks.yaml`, leveraging their collective skills to achieve complex objectives. The `config/agents.yaml` file outlines the capabilities and configurations of each agent in your crew.
+## Overview
 
-## Support
+The backend provides:
+- Debate creation and orchestration
+- Streaming debate events over SSE
+- Caching and concurrency locks for debate generation
+- Async execution via Celery
+- SQLite-backed persistence for local development
 
-For support, questions, or feedback regarding the Debate Crew or crewAI.
-- Visit our [documentation](https://docs.crewai.com)
-- Reach out to us through our [GitHub repository](https://github.com/joaomdmoura/crewai)
-- [Join our Discord](https://discord.com/invite/X4JWnZnxPb)
-- [Chat with our docs](https://chatg.pt/DWjSBZn)
+## Architecture
 
-Let's create wonders together with the power and simplicity of crewAI.
+Services started by Docker Compose:
+- `backend`: FastAPI application (`app.main:app`) on port `8000`
+- `celery-worker`: executes queued debate jobs
+- `celery-beat`: scheduler process (ready for periodic tasks)
+- `redis-cache`: cache + lock store + Celery broker/result backend
+- `redis-events`: Redis stream transport for debate event publishing and SSE reads
+
+High-level flow:
+1. Client `POST /debate`
+2. FastAPI validates request, checks cache/locks in `redis-cache`, writes DB record, queues Celery task
+3. Celery worker runs debate flow and publishes events to `redis-events`
+4. Client consumes `GET /debate/{debate_id}/events` (SSE) from `redis-events`
+5. Final metrics/status persist in SQLite
+
+## Tech Stack
+
+- Python 3.11
+- FastAPI
+- Celery
+- Redis 7 (two isolated instances by role)
+- SQLAlchemy + SQLite
+- Docker + Docker Compose
+- `uv` for dependency and runtime execution inside containers
+
+## Prerequisites
+
+- Docker Desktop (or Docker Engine + Compose plugin)
+- Git
+
+Verify:
+
+```bash
+docker --version
+docker compose version
+```
+
+## Quick Start
+
+1. Clone and enter repository.
+2. Create env file:
+
+```bash
+cp .env.example .env
+```
+
+3. Fill required secrets in `.env` (at least your LLM provider key, for example `GROQ_API_KEY` if your flows use Groq models).
+4. Start all services:
+
+```bash
+docker compose up --build
+```
+
+5. Open API:
+- Swagger UI: `http://localhost:8000/docs`
+- Health: `http://localhost:8000/health`
+
+## Environment Variables
+
+Core container/runtime variables:
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `REDIS_CACHE_HOSTNAME` | `redis-cache` | Redis host for API/debate cache and Celery broker/backend |
+| `REDIS_CACHE_PORT` | `6379` | Redis cache port |
+| `REDIS_EVENTS_HOSTNAME` | `redis-events` | Redis host for event stream publish/read |
+| `REDIS_EVENTS_PORT` | `6379` | Redis events port |
+| `CELERY_BROKER_URL` | `redis://redis-cache:6379/0` | Celery broker |
+| `CELERY_RESULT_BACKEND` | `redis://redis-cache:6379/0` | Celery result backend |
+| `SQLITE_DATABASE_PATH` | `/app/data/debate.db` | SQLite file path in container |
+| `OPENAI_API_KEY` / `GROQ_API_KEY` | unset | Provider API key(s) |
+
+App tuning variables are listed in `.env.example` (cache TTL, retries, stream timeouts, model names, delays, pricing map).
+
+## Running the Stack
+
+Foreground:
+
+```bash
+docker compose up --build
+```
+
+Detached:
+
+```bash
+docker compose up --build -d
+```
+
+Stop:
+
+```bash
+docker compose down
+```
+
+Stop and remove volumes:
+
+```bash
+docker compose down -v
+```
+
+## API Endpoints
+
+Main endpoints:
+- `GET /health`
+- `GET /redis-test`
+- `POST /debate`
+- `GET /debate/{debate_id}/events?session_id=...&user_id=...`
+- `GET /debates?session_id=...&user_id=...`
+- `GET /debates/analytics?session_id=...&user_id=...`
+- `GET /debates/overview?session_id=...&user_id=...`
+
+Example create debate:
+
+```bash
+curl -X POST "http://localhost:8000/debate" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "topic": "Is remote work better for innovation?",
+    "debater_1": "elon_musk",
+    "debater_2": "greta",
+    "session_id": "session-123",
+    "user_id": "user-123"
+  }'
+```
+
+Example stream events (SSE):
+
+```bash
+curl -N "http://localhost:8000/debate/<debate_id>/events?session_id=session-123&user_id=user-123"
+```
+
+## Project Structure
+
+```text
+app/
+  main.py                  # FastAPI app
+  routers/                 # HTTP routes
+  debate_orchestration.py  # API-level orchestration + queueing + SSE reads
+  tasks/                   # Celery tasks
+  celery_app.py            # Celery app config
+  db/                      # SQLAlchemy models/session/init
+  core/config.py           # Environment-driven settings
+src/
+  flow.py                  # Debate flow
+  events.py                # Event publishing into Redis streams
+docker-compose.yml         # Multi-service stack
+Dockerfile                 # Shared backend image for API/worker/beat
+docker/entrypoint.sh       # Redis dependency wait logic
+```
+
+## Operational Commands
+
+View logs:
+
+```bash
+docker compose logs -f backend celery-worker celery-beat redis-cache redis-events
+```
+
+Open shell in backend container:
+
+```bash
+docker compose exec backend bash
+```
+
+Restart one service:
+
+```bash
+docker compose restart backend
+```
+
+## Persistence and Data
+
+Named volumes:
+- `sqlite_data` -> `/app/data` (SQLite database persistence)
+- `redis_cache_data` -> `/data` in `redis-cache`
+- `redis_events_data` -> `/data` in `redis-events`
+
+Data survives container restarts.  
+Use `docker compose down -v` only when intentionally resetting state.
+
+## Health Checks and Startup Order
+
+- `redis-cache` and `redis-events` expose Redis `PING` health checks.
+- `backend`, `celery-worker`, and `celery-beat` wait for both Redis services via:
+  - Compose `depends_on` with `condition: service_healthy`
+  - `docker/entrypoint.sh` readiness checks
+- Backend health check uses a TCP port probe, not repeated `/health` HTTP calls, to avoid noisy access logs.
+
+## Troubleshooting
+
+Common issues:
+
+1. Docker daemon not running
+- Symptom: errors about Docker engine/pipe not found
+- Fix: start Docker Desktop and retry
+
+2. Port already in use
+- Symptom: `bind: address already in use` on `8000`
+- Fix: free port or map another host port in `docker-compose.yml`
+
+3. Missing env vars or bad API key
+- Symptom: debate tasks fail during model calls
+- Fix: verify `.env` values and restart stack
+
+4. Want fresh local state
+- Run:
+```bash
+docker compose down -v
+docker compose up --build
+```
+
+## Security Notes
+
+- Never commit `.env` or real API keys.
+- Rotate leaked keys immediately.
+- For production, move secrets to a managed secret store.
+- Restrict CORS origins from defaults before public deployment.
+
+## Production Notes
+
+This setup is optimized for local reproducibility. For production hardening:
+- Move from SQLite to PostgreSQL
+- Add reverse proxy and TLS termination
+- Use managed Redis or Redis with persistence/backup policy
+- Configure structured logging and metrics
+- Pin image tags and establish CI build/test/deploy pipeline

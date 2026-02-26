@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app import debate_orchestration
+from app.cache import events_redis_client, redis_client
 
 router = APIRouter()
 
@@ -12,6 +12,13 @@ def get_health():
 
 @router.get("/redis-test")
 def redis_test():
-    redis = debate_orchestration._get_redis_client()
-    redis.set("ping", "pong")
-    return {"value": redis.get("ping")}
+    cache_key = "ping:cache"
+    events_key = "ping:events"
+
+    redis_client.set(cache_key, "pong")
+    events_redis_client.set(events_key, "pong")
+
+    return {
+        "cache_redis": redis_client.get(cache_key),
+        "events_redis": events_redis_client.get(events_key),
+    }

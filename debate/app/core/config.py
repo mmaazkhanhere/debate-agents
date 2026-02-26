@@ -59,12 +59,34 @@ class Settings(BaseSettings):
         description="How long debate records are kept before cleanup.",
     )
 
-    # Redis Settings
+    # Shared Redis fallback (legacy)
     redis_hostname: str = Field(
         default="localhost",
-        description="Redis host for caching and event streams.",
+        description="Legacy Redis host fallback used when service-specific hosts are unset.",
     )
     redis_port: int = Field(default=6379, ge=1, le=65535)
+
+    # Redis service-specific settings
+    redis_cache_hostname: str | None = Field(
+        default=None,
+        description="Redis host for FastAPI/debate cache and lock keys.",
+    )
+    redis_cache_port: int | None = Field(
+        default=None,
+        ge=1,
+        le=65535,
+        description="Redis port for FastAPI/debate cache and lock keys.",
+    )
+    redis_events_hostname: str | None = Field(
+        default=None,
+        description="Redis host for debate event streams.",
+    )
+    redis_events_port: int | None = Field(
+        default=None,
+        ge=1,
+        le=65535,
+        description="Redis port for debate event streams.",
+    )
     celery_broker_url: str | None = Field(
         default=None,
         description="Optional Celery broker URL; defaults to Redis host/port.",
@@ -182,6 +204,28 @@ class Settings(BaseSettings):
         if isinstance(value, str):
             return [item.strip() for item in value.split(",") if item.strip()]
         return value
+
+    @property
+    def redis_cache_host(self) -> str:
+        host = self.redis_cache_hostname
+        if host and host.strip():
+            return host.strip()
+        return self.redis_hostname
+
+    @property
+    def redis_cache_port_value(self) -> int:
+        return int(self.redis_cache_port or self.redis_port)
+
+    @property
+    def redis_events_host(self) -> str:
+        host = self.redis_events_hostname
+        if host and host.strip():
+            return host.strip()
+        return self.redis_hostname
+
+    @property
+    def redis_events_port_value(self) -> int:
+        return int(self.redis_events_port or self.redis_port)
 
     @property
     def sqlalchemy_database_url(self) -> str:

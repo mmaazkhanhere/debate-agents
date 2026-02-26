@@ -5,8 +5,10 @@ import redis
 
 from app.core.config import settings
 
-REDIS_HOST = settings.redis_hostname
-REDIS_PORT = settings.redis_port
+REDIS_HOST = settings.redis_cache_host
+REDIS_PORT = settings.redis_cache_port_value
+EVENTS_REDIS_HOST = settings.redis_events_host
+EVENTS_REDIS_PORT = settings.redis_events_port_value
 
 DEBATE_CACHE_ENABLED = settings.enable_debate_cache
 DEBATE_CACHE_TTL_SECONDS = settings.debate_cache_entry_ttl_seconds
@@ -15,6 +17,11 @@ DEBATE_LOCK_TTL_SECONDS = settings.debate_generation_lock_ttl_seconds
 redis_client = redis.Redis(
     host=REDIS_HOST,
     port=REDIS_PORT,
+    decode_responses=True,
+)
+events_redis_client = redis.Redis(
+    host=EVENTS_REDIS_HOST,
+    port=EVENTS_REDIS_PORT,
     decode_responses=True,
 )
 

@@ -20,7 +20,7 @@ from app.cache import (
     delete_inflight_debate_id,
     get_cached_debate_id,
     get_inflight_debate_id,
-    redis_client as _DEFAULT_REDIS_CLIENT,
+    events_redis_client as _DEFAULT_EVENTS_REDIS_CLIENT,
     release_generation_lock,
     set_inflight_debate_id,
 )
@@ -30,7 +30,7 @@ LOG = logging.getLogger("debate_api")
 # Compatibility globals retained for monkeypatching in tests.
 DEBATE_CACHE_ENABLED = _DEFAULT_DEBATE_CACHE_ENABLED
 DEBATE_LOCK_TTL_SECONDS = _DEFAULT_DEBATE_LOCK_TTL_SECONDS
-redis_client = _DEFAULT_REDIS_CLIENT
+redis_client = _DEFAULT_EVENTS_REDIS_CLIENT
 LOCK_CHECK_ATTEMPTS = settings.cache_lock_poll_attempts
 LOCK_CHECK_SLEEP_SECONDS = settings.cache_lock_poll_interval_seconds
 STREAM_IDLE_SLEEP_SECONDS = settings.stream_idle_poll_interval_seconds

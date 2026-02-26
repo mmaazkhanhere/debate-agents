@@ -6,7 +6,7 @@ from app.core.config import settings
 def _build_redis_url() -> str:
     if settings.celery_broker_url and settings.celery_broker_url.strip():
         return settings.celery_broker_url
-    return f"redis://{settings.redis_hostname}:{settings.redis_port}/0"
+    return f"redis://{settings.redis_cache_host}:{settings.redis_cache_port_value}/0"
 
 
 def _build_result_backend_url(broker_url: str) -> str:
