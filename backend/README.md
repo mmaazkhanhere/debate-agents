@@ -1,68 +1,123 @@
-# Debate Backend
+# Debate Arena Backend
 
-Production-style FastAPI backend for AI debate orchestration, fully containerized with Docker Compose.
+This is FastAPI backend powering the Debate Arena, which orchestrates multi-agent debates, streaming events, caching, persistence, and scoring.
+
+This backend handles:
+
+- Multi-agent debate orchestration
+- Mandatory live web grounding (DuckDuckGo via CrewAI tools)
+- Sequential turn-based debate rounds
+- Structured 3-judge panel scoring
+- Real-time streaming via Server-Sent Events (SSE)
+- Async execution using Celery
+- Redis-backed caching, locks, and event streams
+- SQLite-backed persistence for local development
+
+## Quick Start
 
 This repository is designed so a new developer can:
 1. Clone the repo
-2. Create a `.env`
-3. Run one command
+2. Go to backend folder
+3. Create a `.env`
+4. Fill the required API keys in .env.example
+5. Run one command to start the backend
 
 ```bash
 docker compose up --build
 ```
 
-The full stack (FastAPI + Celery worker + Celery beat + Redis + SQLite persistence + frontend) starts with no additional manual setup.
+You can access:
+- Swagger UI via `http://localhost:8000/docs`
+- Health check using `http://localhost:8000/health`
 
-## Table of Contents
+This setup ensures new developers can clone, configure, and run immediately.
 
-- Overview
-- Architecture
-- Tech Stack
-- Prerequisites
-- Quick Start
-- Environment Variables
-- Running the Stack
-- API Endpoints
-- Project Structure
-- Operational Commands
-- Persistence and Data
-- Health Checks and Startup Order
-- Troubleshooting
-- Security Notes
-- Production Notes
+## Purpose and Scope
+The backend is responsible for:
 
-## Overview
+- Accepting debate creation requests
+- Validating inputs and managing session/user context
+- Enforcing concurrency locks and caching
+- Orchestrating CrewAI multi-agent flows
+- Streaming debate events in real-time
+- Persisting final results and analytics
 
-The backend provides:
-- Debate creation and orchestration
-- Streaming debate events over SSE
-- Caching and concurrency locks for debate generation
-- Async execution via Celery
-- SQLite-backed persistence for local development
+Debates are:
 
-## Architecture
+- Sequential turn-based
+- Fixed number of rounds
+- Time-limited
+- Using the same model temperature per agent
+- Grounded via mandatory DuckDuckGo search
 
-Services started by Docker Compose (from the repository root):
-- `backend`: FastAPI application (`app.main:app`) on port `8000`
-- `celery-worker`: executes queued debate jobs
-- `celery-beat`: scheduler process (ready for periodic tasks)
-- `redis`: cache + lock store + Celery broker/result backend + event transport
-- `frontend`: Next.js app on port `3000`
+## Architecture Overview
 
-High-level flow:
-1. Client `POST /debate`
+Docker Compose starts the following services:
+
+| Service         | Purpose                               |
+| --------------- | ------------------------------------- |
+| `backend`       | FastAPI application                   |
+| `celery-worker` | Executes debate tasks                 |
+| `celery-beat`   | Scheduler (ready for periodic tasks)  |
+| `redis`         | Broker, cache, locks, event transport |
+| `frontend`      | Next.js UI on port `3000`             |
+
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User
+    participant FE as Next.js Frontend
+    participant API as FastAPI Backend
+    participant Worker as Celery Worker
+    participant Redis as Redis (Broker + Streams)
+    participant LLM as Groq LLM API
+    participant Web as Web Search (DuckDuckGo)
+    participant DB as SQLite
+
+    User->>FE: Select debaters + topic
+    FE->>API: POST /debate
+    API->>DB: Create debate record
+    API->>Redis: Enqueue debate task
+    API-->>FE: Return debate_id
+
+    FE->>API: Subscribe to SSE stream
+    API->>Redis: Listen to debate stream
+
+    Redis-->>Worker: Deliver task
+    Worker->>Web: Fetch grounded context
+    Worker->>LLM: Generate debate turns
+    Worker->>Redis: Publish turn events
+
+    Redis-->>API: Stream events
+    API-->>FE: SSE updates (live debate)
+
+    Worker->>LLM: Judge debate (3 agents)
+    Worker->>DB: Save final results
+    Worker->>Redis: Publish completion event
+
+    API-->>FE: Stream final scores
+```
+***High-Level Flow***
+
+1. Client sends POST /debate
 2. FastAPI validates request, checks cache/locks in `redis`, writes DB record, queues Celery task
-3. Celery worker runs debate flow and publishes events to `redis`
+3. Celery worker runs CrewAI debate flow
+4. Agents perform web-grounded reasoning
+5. Events are published to Redis streams
 4. Client consumes `GET /debate/{debate_id}/events` (SSE) from `redis`
 5. Final metrics/status persist in SQLite
 
-## Tech Stack
 
+
+## Tech Stack
 - Python 3.11
 - FastAPI
+- CrewAI
+- LangChain Community
 - Celery
 - Redis 7
-- SQLAlchemy + SQLite
+- SQLAlchemy
 - Docker + Docker Compose
 - `uv` for dependency and runtime execution inside containers
 
@@ -78,29 +133,9 @@ docker --version
 docker compose version
 ```
 
-## Quick Start
-
-1. Clone and enter repository.
-2. Create env file:
-
-```bash
-cp .env.example .env
-```
-
-3. Fill required secrets in `.env` (at least your LLM provider key, for example `GROQ_API_KEY` if your flows use Groq models).
-4. Start all services (from the repository root):
-
-```bash
-docker compose up --build
-```
-
-5. Open API:
-- Swagger UI: `http://localhost:8000/docs`
-- Health: `http://localhost:8000/health`
-
 ## Environment Variables
 
-Core container/runtime variables:
+Core container/runtime variables that can be copied from `.env.example`:
 
 | Variable | Default | Purpose |
 |---|---|---|
@@ -111,33 +146,8 @@ Core container/runtime variables:
 | `SQLITE_DATABASE_PATH` | `/app/data/debate.db` | SQLite file path in container |
 | `OPENAI_API_KEY` / `GROQ_API_KEY` | unset | Provider API key(s) |
 
-App tuning variables are listed in `.env.example` (cache TTL, retries, stream timeouts, model names, delays, pricing map).
-
-## Running the Stack
-
-Foreground (from the repository root):
-
-```bash
-docker compose up --build
-```
-
-Detached (from the repository root):
-
-```bash
-docker compose up --build -d
-```
-
-Stop (from the repository root):
-
-```bash
-docker compose down
-```
-
-Stop and remove volumes (from the repository root):
-
-```bash
-docker compose down -v
-```
+App tuning variables are listed in `.env.example` (cache TTL, retries, stream timeouts, model names, delays, pricing map). 
+⚠️Ensure never to commit real API keys
 
 ## API Endpoints
 
@@ -174,57 +184,51 @@ curl -N "http://localhost:8000/debate/<debate_id>/events?session_id=session-123&
 
 ```text
 app/
-  main.py                  # FastAPI app
-  routers/                 # HTTP routes
-  debate_orchestration.py  # API-level orchestration + queueing + SSE reads
-  tasks/                   # Celery tasks
-  celery_app.py            # Celery app config
-  db/                      # SQLAlchemy models/session/init
-  core/config.py           # Environment-driven settings
+  main.py
+  routers/
+  debate_orchestration.py
+  tasks/
+  celery_app.py
+  db/
+  core/config.py
+
 src/
-  flow.py                  # Debate flow
-  events.py                # Event publishing into Redis streams
-../docker-compose.yml      # Multi-service stack (root)
-Dockerfile                 # Shared backend image for API/worker/beat
-docker/entrypoint.sh       # Redis dependency wait logic
+  flow.py
+  events.py
+
+docker-compose.yml
+Dockerfile
+docker/entrypoint.sh
 ```
 
 ## Operational Commands
-
-View logs (from the repository root):
-
+### View Logs
 ```bash
 docker compose logs -f backend celery-worker celery-beat redis
 ```
 
-Open shell in backend container:
-
+### Shell Into Backend
 ```bash
 docker compose exec backend bash
 ```
 
-Restart one service:
-
+### Restart Backend
 ```bash
 docker compose restart backend
 ```
 
-## Persistence and Data
+### Restart Backend
+```bash
+docker compose down -v
+docker compose up --build
+```
 
+## Persistence
 Named volumes:
-- `sqlite_data` -> `/app/data` (SQLite database persistence)
-- `redis_data` -> `/data` in `redis`
+- `sqlite_data → /app/data`
+- `redis_data → /data`
 
-Data survives container restarts.  
-Use `docker compose down -v` only when intentionally resetting state.
-
-## Health Checks and Startup Order
-
-- `redis` exposes Redis `PING` health checks.
-- `backend`, `celery-worker`, and `celery-beat` wait for Redis via:
-  - Compose `depends_on` with `condition: service_healthy`
-  - `docker/entrypoint.sh` readiness checks
-- Backend health check uses a TCP port probe, not repeated `/health` HTTP calls, to avoid noisy access logs.
+Data survives restarts unless volumes are removed.
 
 ## Troubleshooting
 
@@ -249,18 +253,22 @@ docker compose down -v
 docker compose up --build
 ```
 
-## Security Notes
 
-- Never commit `.env` or real API keys.
-- Rotate leaked keys immediately.
-- For production, move secrets to a managed secret store.
-- Restrict CORS origins from defaults before public deployment.
+## Security Consideration
+- Do not commit .env
+- Rotate exposed keys immediately
+- Restrict CORS in production
+- Move secrets to managed secret store for production
 
-## Production Notes
+## Disclaimer
+This backend powers AI-generated debates using simulated personas.
 
-This setup is optimized for local reproducibility. For production hardening:
-- Move from SQLite to PostgreSQL
-- Add reverse proxy and TLS termination
-- Use managed Redis or Redis with persistence/backup policy
-- Configure structured logging and metrics
-- Pin image tags and establish CI build/test/deploy pipeline
+Outputs are AI-generated and may:
+- Contain inaccuracies
+- Reflect biases
+- Misrepresent real individuals
+
+The system is intended for educational and demonstration purposes only.
+It is not affiliated with or endorsed by any real individual referenced by debate personas.
+
+
