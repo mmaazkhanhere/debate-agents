@@ -1,11 +1,11 @@
-import { useCallback, useMemo, useState } from 'react';
-import type { DebaterOption, SelectedTopic, Step } from '@/types/debate-selection';
+import { useCallback, useMemo, useState } from "react";
+import type { DebaterProfile, DebateTopicSelection, DebateSetupStep } from "@/types/debate-selection";
 
 export function useDebateState() {
-    const [currentSelectionStep, setCurrentSelectionStep] = useState<Step>('debater1');
-    const [firstDebater, setFirstDebater] = useState<DebaterOption | null>(null);
-    const [secondDebater, setSecondDebater] = useState<DebaterOption | null>(null);
-    const [selectedTopic, setSelectedTopic] = useState<SelectedTopic | null>(null);
+    const [currentSelectionStep, setCurrentSelectionStep] = useState<DebateSetupStep>("debater1");
+    const [firstDebater, setFirstDebater] = useState<DebaterProfile | null>(null);
+    const [secondDebater, setSecondDebater] = useState<DebaterProfile | null>(null);
+    const [selectedTopic, setSelectedTopic] = useState<DebateTopicSelection | null>(null);
 
     /**
      * Derived state
@@ -21,22 +21,22 @@ export function useDebateState() {
     /**
      * Transitions
      */
-    const chooseFirstDebater = useCallback((debater: DebaterOption) => {
+    const chooseFirstDebater = useCallback((debater: DebaterProfile) => {
         setFirstDebater(debater);
         setSecondDebater(null);
         setSelectedTopic(null);
-        setCurrentSelectionStep('debater2');
+        setCurrentSelectionStep("debater2");
     }, []);
 
-    const chooseSecondDebater = useCallback((debater: DebaterOption) => {
+    const chooseSecondDebater = useCallback((debater: DebaterProfile) => {
         if (!firstDebater) return;
 
         setSecondDebater(debater);
         setSelectedTopic(null);
-        setCurrentSelectionStep('topic');
+        setCurrentSelectionStep("topic");
     }, [firstDebater]);
 
-    const chooseTopic = useCallback((topic: SelectedTopic) => {
+    const chooseTopic = useCallback((topic: DebateTopicSelection) => {
         if (!firstDebater || !secondDebater) return;
 
         setSelectedTopic(topic);

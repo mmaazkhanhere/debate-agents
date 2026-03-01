@@ -1,7 +1,8 @@
 import { useEffect } from "react";
+import type { StateValue } from "xstate";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
 
-export function useDebateAudio(phase: string, enabled: boolean) {
+export function useDebateAudio(phase: StateValue, enabled: boolean) {
     const { playSound, setEnabled } = useSoundEffects();
 
     useEffect(() => {
@@ -9,6 +10,7 @@ export function useDebateAudio(phase: string, enabled: boolean) {
     }, [enabled, setEnabled]);
 
     useEffect(() => {
+        if (typeof phase !== "string") return;
         if (phase === "intro") playSound("intro");
         if (phase === "playing") playSound("argument");
         if (phase === "winnerAnnouncement") playSound("victory");

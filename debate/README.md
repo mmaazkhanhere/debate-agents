@@ -11,7 +11,7 @@ This repository is designed so a new developer can:
 docker compose up --build
 ```
 
-The full stack (FastAPI + Celery worker + Celery beat + separate Redis services + SQLite persistence) starts with no additional manual setup.
+The full stack (FastAPI + Celery worker + Celery beat + Redis + SQLite persistence + frontend) starts with no additional manual setup.
 
 ## Table of Contents
 
@@ -42,18 +42,18 @@ The backend provides:
 
 ## Architecture
 
-Services started by Docker Compose:
+Services started by Docker Compose (from the repository root):
 - `backend`: FastAPI application (`app.main:app`) on port `8000`
 - `celery-worker`: executes queued debate jobs
 - `celery-beat`: scheduler process (ready for periodic tasks)
-- `redis-cache`: cache + lock store + Celery broker/result backend
-- `redis-events`: Redis stream transport for debate event publishing and SSE reads
+- `redis`: cache + lock store + Celery broker/result backend + event transport
+- `frontend`: Next.js app on port `3000`
 
 High-level flow:
 1. Client `POST /debate`
-2. FastAPI validates request, checks cache/locks in `redis-cache`, writes DB record, queues Celery task
-3. Celery worker runs debate flow and publishes events to `redis-events`
-4. Client consumes `GET /debate/{debate_id}/events` (SSE) from `redis-events`
+2. FastAPI validates request, checks cache/locks in `redis`, writes DB record, queues Celery task
+3. Celery worker runs debate flow and publishes events to `redis`
+4. Client consumes `GET /debate/{debate_id}/events` (SSE) from `redis`
 5. Final metrics/status persist in SQLite
 
 ## Tech Stack
@@ -61,7 +61,7 @@ High-level flow:
 - Python 3.11
 - FastAPI
 - Celery
-- Redis 7 (two isolated instances by role)
+- Redis 7
 - SQLAlchemy + SQLite
 - Docker + Docker Compose
 - `uv` for dependency and runtime execution inside containers
@@ -88,7 +88,7 @@ cp .env.example .env
 ```
 
 3. Fill required secrets in `.env` (at least your LLM provider key, for example `GROQ_API_KEY` if your flows use Groq models).
-4. Start all services:
+4. Start all services (from the repository root):
 
 ```bash
 docker compose up --build
@@ -104,12 +104,10 @@ Core container/runtime variables:
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `REDIS_CACHE_HOSTNAME` | `redis-cache` | Redis host for API/debate cache and Celery broker/backend |
-| `REDIS_CACHE_PORT` | `6379` | Redis cache port |
-| `REDIS_EVENTS_HOSTNAME` | `redis-events` | Redis host for event stream publish/read |
-| `REDIS_EVENTS_PORT` | `6379` | Redis events port |
-| `CELERY_BROKER_URL` | `redis://redis-cache:6379/0` | Celery broker |
-| `CELERY_RESULT_BACKEND` | `redis://redis-cache:6379/0` | Celery result backend |
+| `REDIS_HOSTNAME` | `redis` | Redis host for cache, locks, broker/backend, and event transport |
+| `REDIS_PORT` | `6379` | Redis port |
+| `CELERY_BROKER_URL` | `redis://redis:6379/0` | Celery broker |
+| `CELERY_RESULT_BACKEND` | `redis://redis:6379/0` | Celery result backend |
 | `SQLITE_DATABASE_PATH` | `/app/data/debate.db` | SQLite file path in container |
 | `OPENAI_API_KEY` / `GROQ_API_KEY` | unset | Provider API key(s) |
 
@@ -117,25 +115,25 @@ App tuning variables are listed in `.env.example` (cache TTL, retries, stream ti
 
 ## Running the Stack
 
-Foreground:
+Foreground (from the repository root):
 
 ```bash
 docker compose up --build
 ```
 
-Detached:
+Detached (from the repository root):
 
 ```bash
 docker compose up --build -d
 ```
 
-Stop:
+Stop (from the repository root):
 
 ```bash
 docker compose down
 ```
 
-Stop and remove volumes:
+Stop and remove volumes (from the repository root):
 
 ```bash
 docker compose down -v
@@ -186,17 +184,17 @@ app/
 src/
   flow.py                  # Debate flow
   events.py                # Event publishing into Redis streams
-docker-compose.yml         # Multi-service stack
+../docker-compose.yml      # Multi-service stack (root)
 Dockerfile                 # Shared backend image for API/worker/beat
 docker/entrypoint.sh       # Redis dependency wait logic
 ```
 
 ## Operational Commands
 
-View logs:
+View logs (from the repository root):
 
 ```bash
-docker compose logs -f backend celery-worker celery-beat redis-cache redis-events
+docker compose logs -f backend celery-worker celery-beat redis
 ```
 
 Open shell in backend container:
@@ -215,16 +213,15 @@ docker compose restart backend
 
 Named volumes:
 - `sqlite_data` -> `/app/data` (SQLite database persistence)
-- `redis_cache_data` -> `/data` in `redis-cache`
-- `redis_events_data` -> `/data` in `redis-events`
+- `redis_data` -> `/data` in `redis`
 
 Data survives container restarts.  
 Use `docker compose down -v` only when intentionally resetting state.
 
 ## Health Checks and Startup Order
 
-- `redis-cache` and `redis-events` expose Redis `PING` health checks.
-- `backend`, `celery-worker`, and `celery-beat` wait for both Redis services via:
+- `redis` exposes Redis `PING` health checks.
+- `backend`, `celery-worker`, and `celery-beat` wait for Redis via:
   - Compose `depends_on` with `condition: service_healthy`
   - `docker/entrypoint.sh` readiness checks
 - Backend health check uses a TCP port probe, not repeated `/health` HTTP calls, to avoid noisy access logs.

@@ -1,53 +1,39 @@
-name: debate-backend
+name: debate-agents
 
 x-backend-common: &backend-common
-  image: debate-backend:local
   build:
-    context: .
+    context: ./debate
     dockerfile: Dockerfile
   env_file:
-    - .env
+    - ./debate/.env
   environment:
-    REDIS_HOSTNAME: redis-cache
+    REDIS_HOSTNAME: redis
     REDIS_PORT: 6379
-    REDIS_CACHE_HOSTNAME: redis-cache
+    REDIS_CACHE_HOSTNAME: redis
     REDIS_CACHE_PORT: 6379
-    REDIS_EVENTS_HOSTNAME: redis-events
+    REDIS_EVENTS_HOSTNAME: redis
     REDIS_EVENTS_PORT: 6379
-    CELERY_BROKER_URL: redis://redis-cache:6379/0
-    CELERY_RESULT_BACKEND: redis://redis-cache:6379/0
+    CELERY_BROKER_URL: redis://redis:6379/0
+    CELERY_RESULT_BACKEND: redis://redis:6379/0
     SQLITE_DATABASE_PATH: /app/data/debate.db
     WAIT_FOR_REDIS: "1"
     WAIT_FOR_REDIS_TIMEOUT_SECONDS: "90"
     PYTHONUNBUFFERED: "1"
   depends_on:
-    redis-cache:
-      condition: service_healthy
-    redis-events:
+    redis:
       condition: service_healthy
   volumes:
+    - ./debate:/app
     - sqlite_data:/app/data
+    - celery_beat_state:/app/.celerybeat
   restart: unless-stopped
 
 services:
-  redis-cache:
+  redis:
     image: redis:7-alpine
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
-      - redis_cache_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-      start_period: 5s
-    restart: unless-stopped
-
-  redis-events:
-    image: redis:7-alpine
-    command: ["redis-server", "--appendonly", "yes"]
-    volumes:
-      - redis_events_data:/data
+      - redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -58,7 +44,7 @@ services:
 
   backend:
     <<: *backend-common
-    command: ["uv", "run", "--no-sync", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    command: ["uv", "run", "--no-sync", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     ports:
       - "8000:8000"
     healthcheck:
@@ -76,7 +62,31 @@ services:
     <<: *backend-common
     command: ["uv", "run", "--no-sync", "celery", "-A", "app.celery_app:celery_app", "beat", "--loglevel=info", "--schedule=/app/.celerybeat/celerybeat-schedule"]
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: dev
+    env_file:
+      - ./frontend/.env.local
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
+    command: sh -c "npm install --include=optional && npm run dev -- -H 0.0.0.0 -p 3000"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+      - frontend_next:/app/.next
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   sqlite_data:
-  redis_cache_data:
-  redis_events_data:
+  celery_beat_state:
+  redis_data:
+  frontend_node_modules:
+  frontend_next:

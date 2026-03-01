@@ -2,7 +2,7 @@ import { DebateArgument, DebateData } from "@/types/debate";
 import { ConfidenceBySide, PlayedCard, Side } from "./types";
 
 export const createPlayedCard = (
-    argument: DebateArgument,
+    argument: DebateArgument & { debaterId: Side },
     debate: DebateData,
     roundIndex: number,
     confidence: ConfidenceBySide

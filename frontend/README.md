@@ -64,7 +64,8 @@ constants/              # Debater/topic constants
 types/                  # Shared TypeScript domain types
 public/                 # Static assets
 Dockerfile              # Multi-stage image for dev/build/run
-docker-compose.yml      # One-command dev and prod services
+../docker-compose.yml   # Root compose orchestrating full stack
+../docker-compose.prod.yml # Root compose for production stack
 ```
 
 ## Prerequisites
@@ -74,16 +75,16 @@ docker-compose.yml      # One-command dev and prod services
 
 ## Environment Variables
 
-Create `.env` from the example template:
+Create `.env.local` from the example template:
 
 ```bash
-cp .env.example .env
+cp .env.example .env.local
 ```
 
 Windows PowerShell equivalent:
 
 ```powershell
-Copy-Item .env.example .env
+Copy-Item .env.example .env.local
 ```
 
 Required variables:
@@ -102,10 +103,10 @@ Notes:
 ### 1. Set environment values
 
 ```bash
-cp .env.example .env
+cp .env.example .env.local
 ```
 
-Update `.env` with the correct backend URL.
+Update `.env.local` with the correct backend URL.
 
 ### 2. Run in development mode (hot reload)
 
@@ -113,7 +114,7 @@ Update `.env` with the correct backend URL.
 docker compose up --build
 ```
 
-This starts service `frontend` and runs `next dev` with source mounted into the container.
+Run this from the repository root. It starts the full stack and runs `next dev` with source mounted into the container.
 
 App URL: `http://localhost:3000`
 
@@ -140,10 +141,10 @@ App URL: `http://localhost:3000`
 
 ## Production Runbook
 
-Run production flow with build + start using Compose profile `prod`:
+Run production flow with the root production compose file:
 
 ```bash
-docker compose --profile prod up --build frontend-prod
+docker compose -f docker-compose.prod.yml up --build
 ```
 
 This uses the production image path:
@@ -153,18 +154,14 @@ This uses the production image path:
 
 ## Docker Service Reference
 
-Defined in `docker-compose.yml`:
+Defined in the root `docker-compose.yml` (dev) and `docker-compose.prod.yml` (prod):
 
 - `frontend`:
   - Default service for local development
   - Mounts source code into `/app`
   - Runs `next dev` with hot reload
   - Exposes `3000:3000`
-- `frontend-prod`:
-  - Enabled via `--profile prod`
-  - Uses multi-stage production image (`builder` + `runner`)
-  - Runs `next start`
-  - Exposes `3000:3000`
+- Production uses the same service name via `docker-compose.prod.yml`
 
 ## Application Routes
 
@@ -212,7 +209,7 @@ From `package.json`:
 ## Troubleshooting
 
 - Frontend shows API base URL error:
-  - Ensure `.env` exists and `NEXT_PUBLIC_DEBATE_API_BASE_URL` is set.
+  - Ensure `.env.local` exists and `NEXT_PUBLIC_DEBATE_API_BASE_URL` is set.
   - Rebuild/restart container after env changes.
 - No live debate updates:
   - Verify backend SSE endpoint is reachable from browser.

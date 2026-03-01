@@ -2,14 +2,16 @@ import { assign } from "xstate";
 import { createPlayedCard, addCardIfMissing } from "../cards";
 import { DebateMachineContext, DebateMachineEvent } from "./debate.machine.types";
 
-export const nextRound = assign<DebateMachineContext, DebateMachineEvent>({
+const assignDebate = assign<DebateMachineContext, DebateMachineEvent, any, any, any>;
+
+export const nextRound = assignDebate({
     roundIndex: ({ context }: { context: DebateMachineContext }) => context.roundIndex + 1,
 });
 
-export const applyConfidence = assign<DebateMachineContext, DebateMachineEvent>({
+export const applyConfidence = assignDebate({
     confidence: ({ context }: { context: DebateMachineContext }) => {
         const arg = context.argumentsList[context.roundIndex];
-        if (!arg) return context.confidence;
+        if (!arg?.debaterId) return context.confidence;
 
         return {
             ...context.confidence,
@@ -18,25 +20,35 @@ export const applyConfidence = assign<DebateMachineContext, DebateMachineEvent>(
     },
 });
 
-export const playCard = assign<DebateMachineContext, DebateMachineEvent>({
+export const playCard = assignDebate({
     leftCards: ({ context }: { context: DebateMachineContext }) => {
         const arg = context.argumentsList[context.roundIndex];
-        if (!arg || arg.debaterId !== "left") return context.leftCards;
+        if (!arg?.debaterId || arg.debaterId !== "left") return context.leftCards;
 
-        const card = createPlayedCard(arg, context.debate!, context.roundIndex, context.confidence);
+        const card = createPlayedCard(
+            arg as typeof arg & { debaterId: "left" },
+            context.debate!,
+            context.roundIndex,
+            context.confidence
+        );
         return addCardIfMissing(context.leftCards, card);
     },
 
     rightCards: ({ context }: { context: DebateMachineContext }) => {
         const arg = context.argumentsList[context.roundIndex];
-        if (!arg || arg.debaterId !== "right") return context.rightCards;
+        if (!arg?.debaterId || arg.debaterId !== "right") return context.rightCards;
 
-        const card = createPlayedCard(arg, context.debate!, context.roundIndex, context.confidence);
+        const card = createPlayedCard(
+            arg as typeof arg & { debaterId: "right" },
+            context.debate!,
+            context.roundIndex,
+            context.confidence
+        );
         return addCardIfMissing(context.rightCards, card);
     },
 });
 
-export const syncArguments = assign<DebateMachineContext, DebateMachineEvent>({
+export const syncArguments = assignDebate({
     argumentsList: ({ event, context }: { event: DebateMachineEvent; context: DebateMachineContext }) => {
         if (event.type !== "SYNC_ARGUMENTS") return context.argumentsList;
         return event.argumentsList;
@@ -51,8 +63,10 @@ export const syncArguments = assign<DebateMachineContext, DebateMachineEvent>({
 
         for (let i = 0; i <= limit; i += 1) {
             const arg = event.argumentsList[i];
-            if (!arg || arg.debaterId !== "left") continue;
-            next.push(createPlayedCard(arg, context.debate, i, context.confidence));
+            if (!arg?.debaterId || arg.debaterId !== "left") continue;
+            next.push(
+                createPlayedCard(arg as typeof arg & { debaterId: "left" }, context.debate, i, context.confidence)
+            );
         }
 
         return next.length > 0 ? next : context.leftCards;
@@ -67,15 +81,17 @@ export const syncArguments = assign<DebateMachineContext, DebateMachineEvent>({
 
         for (let i = 0; i <= limit; i += 1) {
             const arg = event.argumentsList[i];
-            if (!arg || arg.debaterId !== "right") continue;
-            next.push(createPlayedCard(arg, context.debate, i, context.confidence));
+            if (!arg?.debaterId || arg.debaterId !== "right") continue;
+            next.push(
+                createPlayedCard(arg as typeof arg & { debaterId: "right" }, context.debate, i, context.confidence)
+            );
         }
 
         return next.length > 0 ? next : context.rightCards;
     },
 });
 
-export const syncFinished = assign<DebateMachineContext, DebateMachineEvent>({
+export const syncFinished = assignDebate({
     isDebateFinished: ({ event, context }) => {
         if (event.type !== "SYNC_FINISHED") return context.isDebateFinished;
         return event.isDebateFinished;

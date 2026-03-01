@@ -4,13 +4,14 @@ import CardDetailModal from "../card-detail-modal";
 import type { DebateData, Judge } from "@/types/debate";
 import type { PlayedCard } from "@/hooks/debateEngine/types";
 import type { Side } from "@/types/type_d";
+import type { StateValue } from "xstate";
 
 type DebateRuntimeEngine = {
     currentArgument: {
         text: string;
     } | null;
     activeSide: Side | null;
-    phase: string;
+    phase: StateValue;
     completeArgument: () => void;
     revealedJudges: number;
     selectedCard: PlayedCard | null;

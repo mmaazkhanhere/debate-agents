@@ -27,6 +27,8 @@ type JudgePayload = {
     rubric_score?: Record<string, number[]>;
 };
 
+type LoosePayloadKey = "judge" | "winner" | "reasoning" | "winner_weakness";
+
 const cleanText = (value?: string) =>
     value?.replace(/\s+/g, " ").trim() ?? "";
 
@@ -36,14 +38,14 @@ const extractLoosePayload = (rawText: string): JudgePayload | null => {
     const source = rawText.replace(/\r/g, "");
     const lower = source.toLowerCase();
 
-    const patterns = [
+    const patterns: Array<{ key: LoosePayloadKey; aliases: string[] }> = [
         { key: "judge", aliases: ["judge"] },
         { key: "winner", aliases: ["winner"] },
         { key: "reasoning", aliases: ["reasoning", "rationale"] },
         { key: "winner_weakness", aliases: ["winner_weakness", "winner weakness", "weakness"] },
-    ] as const;
+    ];
 
-    const hits: Array<{ key: keyof JudgePayload; start: number; end: number }> = [];
+    const hits: Array<{ key: LoosePayloadKey; start: number; end: number }> = [];
 
     for (const entry of patterns) {
         for (const alias of entry.aliases) {
@@ -62,7 +64,7 @@ const extractLoosePayload = (rawText: string): JudgePayload | null => {
     if (hits.length === 0) return null;
 
     hits.sort((a, b) => a.start - b.start);
-    const payload: JudgePayload = {};
+    const payload: Partial<JudgePayload> = {};
 
     for (let i = 0; i < hits.length; i += 1) {
         const current = hits[i];
@@ -77,7 +79,7 @@ const extractLoosePayload = (rawText: string): JudgePayload | null => {
         }
     }
 
-    return payload.winner ? payload : null;
+    return payload.winner ? (payload as JudgePayload) : null;
 };
 
 const normalizeRubricScore = (rubric?: Record<string, number[]> | null) => {

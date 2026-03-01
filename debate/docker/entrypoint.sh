@@ -14,12 +14,12 @@ timeout_seconds = float(os.getenv("WAIT_FOR_REDIS_TIMEOUT_SECONDS", "90"))
 endpoints = [
     (
         "cache",
-        os.getenv("REDIS_CACHE_HOSTNAME") or os.getenv("REDIS_HOSTNAME", "redis-cache"),
+        os.getenv("REDIS_CACHE_HOSTNAME") or os.getenv("REDIS_HOSTNAME", "redis"),
         int(os.getenv("REDIS_CACHE_PORT") or os.getenv("REDIS_PORT", "6379")),
     ),
     (
         "events",
-        os.getenv("REDIS_EVENTS_HOSTNAME") or os.getenv("REDIS_HOSTNAME", "redis-events"),
+        os.getenv("REDIS_EVENTS_HOSTNAME") or os.getenv("REDIS_HOSTNAME", "redis"),
         int(os.getenv("REDIS_EVENTS_PORT") or os.getenv("REDIS_PORT", "6379")),
     ),
 ]

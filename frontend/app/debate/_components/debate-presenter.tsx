@@ -8,7 +8,7 @@ import { useTypewriter } from "@/hooks/useTypewriter";
 type DebatePresenterProps = {
     debateTopic: string;
     currentRound: number;
-    totalRounds: number;
+    totalRounds?: number;
     announcementText?: string;
     onAnnouncementFinished?: () => void;
 }
